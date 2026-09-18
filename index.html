@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1a73e8">
+  <title>Registro de precios observados | Coyhaique</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header class="brand">
+      <img src="assets/logo-uaysen.png" alt="Departamento de Ciencias Sociales y Humanidades, Universidad de Aysén">
+      <div><h1>Registro de precios observados</h1><p>Coyhaique · Agregue los productos observados y guárdelos como un lote.</p></div>
+    </header>
+    <div id="connection" class="online">Con conexión. Los registros se guardarán en la base de datos.</div>
+    <form id="observation-form">
+      <section class="card">
+        <h2>Datos del levantamiento</h2>
+        <div class="grid">
+          <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
+          <label class="required">Persona recolectora<input id="collector" required></label>
+          <label class="required">Código interno del local<input id="internalCode" required></label>
+          <label class="required">Local o establecimiento<input id="establishment" required></label>
+          <label>Dirección o referencia<input id="address"></label>
+          <label class="required">Latitud<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
+          <label class="required">Longitud<input id="longitude" type="number" step="any" min="-180" max="180" placeholder="-72.067" required></label>
+          <div><label>Ubicación</label><button class="secondary" id="locationButton" type="button">Usar ubicación actual</button></div>
+        </div>
+      </section>
+      <section class="card">
+        <h2>Productos observados</h2>
+        <p>La primera unidad/presentación es la sugerida en la matriz.</p>
+        <div id="items"></div>
+        <button class="secondary" id="addItemButton" type="button">Agregar otro producto</button>
+      </section>
+      <div class="actions">
+        <button id="saveButton" type="submit">Analizar y guardar productos</button>
+        <button class="secondary" id="syncButton" type="button">Sincronizar pendientes (<span id="pendingCount">0</span>)</button>
+      </div>
+      <div id="message" role="alert"></div>
+    </form>
+    <footer>Créditos de la aplicación: Dr. Esteban Cofré-Morales · Universidad de Aysén<br>Investigación original: PhD. Ana Zazo Moratalla · Universidad Rey Juan Carlos</footer>
+  </main>
+  <template id="item-template">
+    <article class="card item">
+      <button class="remove" type="button">Eliminar</button><h2>Producto observado</h2>
+      <div class="grid">
+        <label class="required wide">Producto<select class="product" required></select></label>
+        <label>Categoría<input class="category" readonly></label>
+        <label class="required">Precio observado (CLP)<input class="price" type="number" min="0" step="1" required></label>
+        <label class="required">Tipo de conservación<select class="conservation" required></select></label>
+        <label class="required">Unidad sugerida / presentación observada<select class="unit" required></select></label>
+        <label class="required">Origen (Local/Externo)<select class="origin" required></select></label>
+        <label>Marca o proveedor<input class="brand"></label>
+        <label class="required">Precio en oferta o promoción<select class="promotion" required><option value="No">No</option><option value="Sí">Sí</option></select></label>
+        <label class="wide">Observaciones<textarea class="notes"></textarea></label>
+      </div>
+    </article>
+  </template>
+  <script src="app.js"></script>
+</body>
+</html>
