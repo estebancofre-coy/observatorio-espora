@@ -45,9 +45,12 @@
 - Se publicó la interfaz mediante GitHub Pages:
   `https://estebancofre-coy.github.io/observatorio-precios-coyhaique/`
 - Se añadió un endpoint `doPost` al backend de Apps Script para recibir operaciones `analyze` y `save` desde GitHub Pages.
+- Se actualizó la implementación de Google Apps Script con el backend versionado.
+- Se verificó la integración completa sin crear registros de prueba:
+  - GitHub Pages responde correctamente y carga la interfaz, JavaScript y logo.
+  - El endpoint `/exec` responde en formato JSON y aplica las validaciones del backend.
 
-### Pendiente de implementación
+### Tarea para 2026-09-18
 
-1. Copiar `apps-script/Code.gs` del repositorio al proyecto de Google Apps Script.
-2. Crear una nueva versión de la implementación web de Apps Script para publicar el endpoint `doPost`.
-3. Probar desde móvil el ciclo completo: registro, detección de duplicados, precio atípico, cola sin conexión y sincronización.
+1. Seleccionar la muestra de locales georreferenciados de acuerdo con las categorías que se trabajarán en el levantamiento de precios.
+2. Probar desde móvil el ciclo completo: registro, detección de duplicados, precio atípico, cola sin conexión y sincronización.
