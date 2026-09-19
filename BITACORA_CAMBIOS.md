@@ -59,8 +59,12 @@
 - Para Importadores de Frutas y Verduras, se solicita obligatoriamente indicar si tienen venta al detalle/menor.
 - La hoja `Observaciones` ampliará su esquema con ID de muestra, tipo, subtipo, recategorización y venta al detalle al publicar el backend actualizado.
 - Las coordenadas de la muestra no se precargan: latitud y longitud se capturarán en terreno mediante la aplicación para validar y corregir la georreferenciación existente.
+- La actualización fue publicada en GitHub Pages en el commit `c734454`.
+- Durante la actualización manual de Apps Script se detectó que se copió una versión anterior de `Code.gs`, que produce el error `ensureSchema_ is not a function`.
+- La versión corregida está disponible en `apps-script/Code.gs` del repositorio; `ensureSchema_` y `getObservationSheet_` están definidas como funciones globales.
 
 ### Tarea para 2026-09-18
 
-1. Actualizar Apps Script con `Code.gs` y `SampleLocals.gs` y crear una nueva versión de la implementación web.
-2. Probar desde móvil el ciclo completo: consulta de código de muestra, registro, recategorización, venta al detalle, detección de duplicados, precio atípico, cola sin conexión y sincronización.
+1. Reemplazar por completo `Code.gs` de Apps Script desde `apps-script/Code.gs` del repositorio y verificar `SampleLocals.gs`.
+2. Ejecutar `setupDatabase()` sin error y crear una nueva versión de la implementación web.
+3. Probar desde móvil el ciclo completo: consulta de código de muestra, registro, recategorización, venta al detalle, detección de duplicados, precio atípico, cola sin conexión y sincronización.
