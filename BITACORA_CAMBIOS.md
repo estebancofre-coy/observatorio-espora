@@ -50,7 +50,17 @@
   - GitHub Pages responde correctamente y carga la interfaz, JavaScript y logo.
   - El endpoint `/exec` responde en formato JSON y aplica las validaciones del backend.
 
+## 2026-09-18 — Integración de muestra sugerida
+
+- Se incorporó la muestra sugerida de 107 locales georreferenciados, con códigos únicos de registro.
+- Al ingresar un código válido, la aplicación completa nombre, dirección, tipo y subtipo del local.
+- Se incorporó validación de códigos tanto en el frontend como en Apps Script.
+- Para Almacenes o Minimarkets, se solicita obligatoriamente recategorización observada como Almacén o Minimarket.
+- Para Importadores de Frutas y Verduras, se solicita obligatoriamente indicar si tienen venta al detalle/menor.
+- La hoja `Observaciones` ampliará su esquema con ID de muestra, tipo, subtipo, recategorización y venta al detalle al publicar el backend actualizado.
+- Las coordenadas de la muestra no se precargan: latitud y longitud se capturarán en terreno mediante la aplicación para validar y corregir la georreferenciación existente.
+
 ### Tarea para 2026-09-18
 
-1. Seleccionar la muestra de locales georreferenciados de acuerdo con las categorías que se trabajarán en el levantamiento de precios.
-2. Probar desde móvil el ciclo completo: registro, detección de duplicados, precio atípico, cola sin conexión y sincronización.
+1. Actualizar Apps Script con `Code.gs` y `SampleLocals.gs` y crear una nueva versión de la implementación web.
+2. Probar desde móvil el ciclo completo: consulta de código de muestra, registro, recategorización, venta al detalle, detección de duplicados, precio atípico, cola sin conexión y sincronización.

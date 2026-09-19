@@ -33,6 +33,48 @@ const PRODUCTS = [
 
 const $ = (selector, root = document) => root.querySelector(selector);
 
+function getSelectedLocal() {
+  return SAMPLE_LOCALS.find(
+    (local) => local.code === $('#internalCode').value.trim().toUpperCase()
+  );
+}
+
+function updateLocalDetails() {
+  const codeInput = $('#internalCode');
+  const local = getSelectedLocal();
+  const recategorizationField = $('#recategorizationField');
+  const retailSaleField = $('#retailSaleField');
+  const recategorization = $('#recategorization');
+  const retailSale = $('#retailSale');
+
+  if (!local) {
+    codeInput.setCustomValidity('Ingrese un código válido de la muestra sugerida.');
+    ['establishment', 'address', 'localType', 'localSubtype'].forEach((id) => { $('#' + id).value = ''; });
+    recategorizationField.hidden = true;
+    retailSaleField.hidden = true;
+    recategorization.required = false;
+    retailSale.required = false;
+    return;
+  }
+
+  codeInput.value = local.code;
+  codeInput.setCustomValidity('');
+  $('#establishment').value = local.name;
+  $('#address').value = local.address;
+  $('#localType').value = local.criterion;
+  $('#localSubtype').value = local.criterion2 || 'Sin subtipo';
+
+  const needsRecategorization = ['Almacén', 'Minimarket'].includes(local.criterion);
+  recategorizationField.hidden = !needsRecategorization;
+  recategorization.required = needsRecategorization;
+  if (!needsRecategorization) recategorization.value = '';
+
+  const needsRetailSale = local.criterion === 'Importador Frutas y Verduras';
+  retailSaleField.hidden = !needsRetailSale;
+  retailSale.required = needsRetailSale;
+  if (!needsRetailSale) retailSale.value = '';
+}
+
 async function api(action, body) {
   const response = await fetch(API_URL, {
     method: 'POST',
@@ -99,6 +141,8 @@ function collectPayload() {
     observationDate: $('#observationDate').value, collector: $('#collector').value,
     internalCode: $('#internalCode').value, establishment: $('#establishment').value,
     address: $('#address').value, latitude: $('#latitude').value, longitude: $('#longitude').value,
+    recategorization: $('#recategorization').value,
+    retailSale: $('#retailSale').value,
     items: [...document.querySelectorAll('.item')].map((item) => ({
       product: $('.product', item).value, category: $('.category', item).value,
       price: $('.price', item).value, conservation: $('.conservation', item).value,
@@ -168,7 +212,10 @@ function useCurrentLocation() {
 
 function initialize() {
   $('#observationDate').value = new Date().toISOString().slice(0, 10);
+  setOptions($('#localCodes'), SAMPLE_LOCALS.map((local) => local.code));
   setQueue(getQueue()); updateConnection(); addItem();
+  $('#internalCode').addEventListener('input', updateLocalDetails);
+  $('#internalCode').addEventListener('change', updateLocalDetails);
   $('#addItemButton').addEventListener('click', addItem);
   $('#locationButton').addEventListener('click', useCurrentLocation);
   $('#syncButton').addEventListener('click', syncPending);

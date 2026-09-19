@@ -10,7 +10,7 @@ GitHub Pages publica la interfaz desde la rama `main`. La URL prevista es:
 
 ## Backend
 
-El código del backend está en `apps-script/Code.gs`. Pégalo en un proyecto de Google Apps Script, ejecuta `setupDatabase()` una vez y despliega una aplicación web con:
+El código del backend está en `apps-script/Code.gs` y `apps-script/SampleLocals.gs`. Pega ambos archivos en un proyecto de Google Apps Script, ejecuta `setupDatabase()` una vez y despliega una aplicación web con:
 
 - **Ejecutar como:** Yo.
 - **Quién tiene acceso:** Cualquiera.
@@ -20,6 +20,13 @@ Después de modificar Apps Script, crea una nueva versión de la implementación
 ## Datos
 
 La Google Sheet creada por `setupDatabase()` contiene las hojas `Observaciones` y `Panel de seguimiento`. No se publica ni se comparte mediante GitHub Pages.
+
+## Muestra de locales
+
+`sample-locals.js` contiene 107 locales de la muestra sugerida. Al ingresar su código, la aplicación completa nombre, dirección, tipo y subtipo; el backend vuelve a validar el código antes de guardar. La latitud y longitud se capturan en terreno mediante geolocalización o ingreso manual, y no se rellenan desde la muestra.
+
+- Para locales **Almacén** o **Minimarket**, se solicita la recategorización observada entre ambas opciones.
+- Para **Importador Frutas y Verduras**, se solicita confirmar si existe venta al detalle/menor.
 
 ## Créditos
 

@@ -56,6 +56,11 @@ const HEADERS = [
   'Marca o proveedor',
   'Precio en oferta o promoción',
   'Observaciones',
+  'ID de muestra',
+  'Tipo de local de muestra',
+  'Subtipo de local de muestra',
+  'Recategorización observada',
+  'Importador con venta al detalle/menor',
 ];
 
 function doGet() {
@@ -103,6 +108,7 @@ function analyzeObservations(payload) {
 
 function saveObservations(payload, confirmations) {
   validatePayload_(payload);
+  const local = getSampleLocal_(payload.internalCode);
   const database = getOrCreateDatabase_();
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
@@ -123,9 +129,9 @@ function saveObservations(payload, confirmations) {
       batchId,
       new Date(payload.observationDate + 'T12:00:00'),
       payload.collector.trim(),
-      payload.internalCode.trim(),
-      payload.establishment.trim(),
-      payload.address.trim(),
+      local.code,
+      local.name,
+      local.address,
       Number(payload.latitude),
       Number(payload.longitude),
       item.category,
@@ -137,6 +143,11 @@ function saveObservations(payload, confirmations) {
       item.brand.trim(),
       item.promotion,
       item.notes.trim(),
+      local.id,
+      local.criterion,
+      local.criterion2,
+      payload.recategorization || '',
+      payload.retailSale || '',
     ]);
     const sheet = getObservationSheet_(database);
     sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, HEADERS.length).setValues(rows);
@@ -176,37 +187,6 @@ function getOrCreateDatabase_() {
       return database;
     }
 
-    function ensureSchema_(database) {
-      const sheet = getObservationSheet_(database);
-      const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
-      if (headers.length === HEADERS.length + 1 && headers[3] === 'Persona recolectora' &&
-          headers[4] === 'Correo institucional' && headers[5] === 'Código interno del local') {
-        sheet.deleteColumn(5);
-        sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
-        sheet.autoResizeColumns(1, HEADERS.length);
-        return;
-      }
-      if (headers.length === HEADERS.length - 1 && headers[3] === 'Persona recolectora' &&
-          headers[4] === 'Código interno del local') {
-        sheet.insertColumnBefore(5);
-        sheet.getRange(1, 1, 1, HEADERS.length).setValues([HEADERS]);
-        sheet.autoResizeColumns(1, HEADERS.length);
-        return;
-      }
-      if (headers.length !== HEADERS.length ||
-          headers.some((header, index) => header !== HEADERS[index])) {
-        throw new Error('La estructura de la hoja Observaciones no coincide con la versión esperada. No se modificaron datos.');
-      }
-    }
-
-    function getObservationSheet_(database) {
-      const sheet = database.getSheetByName('Observaciones');
-      if (!sheet) {
-        throw new Error('No se encontró la hoja Observaciones en la base de datos.');
-      }
-      return sheet;
-    }
-
     const database = SpreadsheetApp.create('Base de datos - Precios observados Coyhaique');
     const sheet = database.getActiveSheet();
     sheet.setName('Observaciones');
@@ -223,6 +203,35 @@ function getOrCreateDatabase_() {
   } finally {
     lock.releaseLock();
   }
+}
+
+function ensureSchema_(database) {
+  const sheet = getObservationSheet_(database);
+  const headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+  if (headers[3] === 'Persona recolectora' && headers[4] === 'Correo institucional') {
+    sheet.deleteColumn(5);
+    ensureSchema_(database);
+    return;
+  }
+  const matchingPrefix = headers.every((header, index) => header === HEADERS[index]);
+  if (matchingPrefix && headers.length < HEADERS.length) {
+    sheet.getRange(1, headers.length + 1, 1, HEADERS.length - headers.length)
+      .setValues([HEADERS.slice(headers.length)]);
+    sheet.autoResizeColumns(1, HEADERS.length);
+    return;
+  }
+  if (headers.length !== HEADERS.length ||
+      headers.some((header, index) => header !== HEADERS[index])) {
+    throw new Error('La estructura de la hoja Observaciones no coincide con la versión esperada. No se modificaron datos.');
+  }
+}
+
+function getObservationSheet_(database) {
+  const sheet = database.getSheetByName('Observaciones');
+  if (!sheet) {
+    throw new Error('No se encontró la hoja Observaciones en la base de datos.');
+  }
+  return sheet;
 }
 
 function getDashboard_(database) {
@@ -343,7 +352,7 @@ function validatePayload_(payload) {
     throw new Error('No se recibió información de levantamiento.');
   }
 
-  ['observationDate', 'collector', 'internalCode', 'establishment'].forEach((key) => {
+  ['observationDate', 'collector', 'internalCode'].forEach((key) => {
     if (!String(payload[key] || '').trim()) {
       throw new Error('El campo "' + key + '" es obligatorio.');
     }
@@ -359,6 +368,16 @@ function validatePayload_(payload) {
   }
   if (!Array.isArray(payload.items) || payload.items.length === 0) {
     throw new Error('Agregue al menos un producto antes de guardar.');
+  }
+
+  const local = getSampleLocal_(payload.internalCode);
+  if (['Almacén', 'Minimarket'].includes(local.criterion) &&
+      !['Almacén', 'Minimarket'].includes(payload.recategorization)) {
+    throw new Error('Seleccione la recategorización observada como Almacén o Minimarket.');
+  }
+  if (local.criterion === 'Importador Frutas y Verduras' &&
+      !['Sí', 'No'].includes(payload.retailSale)) {
+    throw new Error('Indique si el importador tiene venta al detalle/menor.');
   }
 
   const productsByName = new Map(PRODUCTS.map((product) => [product.name, product]));
@@ -385,4 +404,13 @@ function validatePayload_(payload) {
       throw new Error(prefix + 'el precio debe ser un número igual o mayor que cero.');
     }
   });
+}
+
+function getSampleLocal_(code) {
+  const normalizedCode = String(code || '').trim().toUpperCase();
+  const local = SAMPLE_LOCALS.find((entry) => entry.code === normalizedCode);
+  if (!local) {
+    throw new Error('El código de local no pertenece a la muestra sugerida.');
+  }
+  return local;
 }

@@ -20,9 +20,18 @@
         <div class="grid">
           <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
           <label class="required">Persona recolectora<input id="collector" required></label>
-          <label class="required">Código interno del local<input id="internalCode" required></label>
-          <label class="required">Local o establecimiento<input id="establishment" required></label>
-          <label>Dirección o referencia<input id="address"></label>
+          <label class="required">Código de local de la muestra<input id="internalCode" list="localCodes" autocomplete="off" placeholder="Ejemplo: LM01A1" required></label>
+          <datalist id="localCodes"></datalist>
+          <label>Local o establecimiento<input id="establishment" readonly></label>
+          <label>Dirección o referencia<input id="address" readonly></label>
+          <label>Tipo de local<input id="localType" readonly></label>
+          <label>Subtipo de local<input id="localSubtype" readonly></label>
+          <label id="recategorizationField" class="required" hidden>Recategorización observada
+            <select id="recategorization"><option value="">Seleccione una opción</option><option value="Almacén">Almacén</option><option value="Minimarket">Minimarket</option></select>
+          </label>
+          <label id="retailSaleField" class="required" hidden>¿Tiene venta al detalle/menor?
+            <select id="retailSale"><option value="">Seleccione una opción</option><option value="Sí">Sí</option><option value="No">No</option></select>
+          </label>
           <label class="required">Latitud<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
           <label class="required">Longitud<input id="longitude" type="number" step="any" min="-180" max="180" placeholder="-72.067" required></label>
           <div><label>Ubicación</label><button class="secondary" id="locationButton" type="button">Usar ubicación actual</button></div>
@@ -58,6 +67,7 @@
       </div>
     </article>
   </template>
+  <script src="sample-locals.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
