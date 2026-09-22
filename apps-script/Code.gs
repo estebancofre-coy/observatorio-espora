@@ -51,9 +51,11 @@ const PRODUCTS = [
 ].map(([name, category, units]) => ({ name: name, category: category, units: units }));
 
 function doGet() {
-  return HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle('ESPORA Coyhaique')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  return jsonResponse_({
+    ok: true,
+    service: 'ESPORA Coyhaique',
+    message: 'API activa. Use POST /exec para guardar instrumentos.'
+  });
 }
 
 function doPost(event) {
