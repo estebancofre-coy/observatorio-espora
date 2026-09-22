@@ -63,8 +63,19 @@
 - Durante la actualización manual de Apps Script se detectó que se copió una versión anterior de `Code.gs`, que produce el error `ensureSchema_ is not a function`.
 - La versión corregida está disponible en `apps-script/Code.gs` del repositorio; `ensureSchema_` y `getObservationSheet_` están definidas como funciones globales.
 
-### Tarea para 2026-09-18
+## 2026-09-22 — Plataforma multinstrumento POAA
 
-1. Reemplazar por completo `Code.gs` de Apps Script desde `apps-script/Code.gs` del repositorio y verificar `SampleLocals.gs`.
-2. Ejecutar `setupDatabase()` sin error y crear una nueva versión de la implementación web.
-3. Probar desde móvil el ciclo completo: consulta de código de muestra, registro, recategorización, venta al detalle, detección de duplicados, precio atípico, cola sin conexión y sincronización.
+- Se adaptó la plataforma a una landing común de visita: recolector, fecha, código de local, caracterización y coordenadas levantadas en terreno.
+- Se incorpora un ID de visita persistente que vincula los tres instrumentos y conserva sus borradores locales al volver al menú.
+- Se creó el instrumento de disponibilidad y variedad a partir de la pauta POAA; se excluyó solamente la sección de publicidad.
+- Se rediseñó precios para exigir un mínimo de dos observaciones por producto, con marca, precio, unidad y origen por observación.
+- El tipo de conservación sólo se solicita para productos de la categoría Carnes.
+- Se añadió un borrador del instrumento de origen con carne vacuna, cordero, pollo/aves, pescado, lácteos, huevos y un campo abierto.
+- Se adaptó la BBDD para crear las hojas `Visitas`, `Disponibilidad`, `Precios`, `Origen` y `Panel POAA`, sin modificar la hoja histórica `Observaciones`.
+- Los instrumentos y la cola de envío se conservan localmente cuando no hay conexión.
+
+### Pendiente para ajustar
+
+1. Ajustar el instrumento de origen tras recibir la propuesta metodológica de Ana.
+2. Reemplazar `Code.gs` de Apps Script desde el repositorio, mantener `SampleLocals.gs`, ejecutar `setupDatabase()` y crear una nueva versión de la implementación.
+3. Probar desde móvil el flujo completo de los tres instrumentos, incluidos borradores locales y sincronización sin conexión.

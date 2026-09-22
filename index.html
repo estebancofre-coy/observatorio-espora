@@ -4,69 +4,94 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1a73e8">
-  <title>Registro de precios observados | Coyhaique</title>
+  <title>POAA Coyhaique | Levantamiento</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main>
     <header class="brand">
       <img src="assets/logo-uaysen.png" alt="Departamento de Ciencias Sociales y Humanidades, Universidad de Aysén">
-      <div><h1>Registro de precios observados</h1><p>Coyhaique · Agregue los productos observados y guárdelos como un lote.</p></div>
+      <div><h1>POAA Coyhaique</h1><p>Plataforma de levantamiento de ambientes alimentarios.</p></div>
     </header>
-    <div id="connection" class="online">Con conexión. Los registros se guardarán en la base de datos.</div>
-    <form id="observation-form">
-      <section class="card">
-        <h2>Datos del levantamiento</h2>
-        <div class="grid">
-          <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
-          <label class="required">Persona recolectora<input id="collector" required></label>
-          <label class="required">Código de local de la muestra<input id="internalCode" list="localCodes" autocomplete="off" placeholder="Ejemplo: LM01A1" required></label>
-          <datalist id="localCodes"></datalist>
-          <label>Local o establecimiento<input id="establishment" readonly></label>
-          <label>Dirección o referencia<input id="address" readonly></label>
-          <label>Tipo de local<input id="localType" readonly></label>
-          <label>Subtipo de local<input id="localSubtype" readonly></label>
-          <label id="recategorizationField" class="required" hidden>Recategorización observada
-            <select id="recategorization"><option value="">Seleccione una opción</option><option value="Almacén">Almacén</option><option value="Minimarket">Minimarket</option></select>
-          </label>
-          <label id="retailSaleField" class="required" hidden>¿Tiene venta al detalle/menor?
-            <select id="retailSale"><option value="">Seleccione una opción</option><option value="Sí">Sí</option><option value="No">No</option></select>
-          </label>
-          <label class="required">Latitud<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
-          <label class="required">Longitud<input id="longitude" type="number" step="any" min="-180" max="180" placeholder="-72.067" required></label>
-          <div><label>Ubicación</label><button class="secondary" id="locationButton" type="button">Usar ubicación actual</button></div>
-        </div>
-      </section>
-      <section class="card">
-        <h2>Productos observados</h2>
-        <p>La primera unidad/presentación es la sugerida en la matriz.</p>
-        <div id="items"></div>
-        <button class="secondary" id="addItemButton" type="button">Agregar otro producto</button>
-      </section>
-      <div class="actions">
-        <button id="saveButton" type="submit">Analizar y guardar productos</button>
-        <button class="secondary" id="syncButton" type="button">Sincronizar pendientes (<span id="pendingCount">0</span>)</button>
+    <div id="connection" class="online"></div>
+    <div id="message" role="alert"></div>
+
+    <section id="visitView" class="view">
+      <div class="card">
+        <h2>Datos generales de la visita</h2>
+        <p>Estos datos se comparten entre disponibilidad, precios y origen. Se guardan localmente para que pueda retomar los instrumentos.</p>
+        <form id="visitForm">
+          <div class="grid">
+            <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
+            <label class="required">Persona recolectora<input id="collector" required></label>
+            <label class="required">Código de local de la muestra<input id="localCode" list="localCodes" autocomplete="off" placeholder="Ejemplo: LM01A1" required></label>
+            <datalist id="localCodes"></datalist>
+            <label>Local o establecimiento<input id="establishment" readonly></label>
+            <label>Dirección o referencia<input id="address" readonly></label>
+            <label>Tipo de local<input id="localType" readonly></label>
+            <label>Subtipo de local<input id="localSubtype" readonly></label>
+            <label id="recategorizationField" class="required" hidden>Recategorización observada
+              <select id="recategorization"><option value="">Seleccione una opción</option><option value="Almacén">Almacén</option><option value="Minimarket">Minimarket</option></select>
+            </label>
+            <label id="retailSaleField" class="required" hidden>¿Tiene venta al detalle/menor?
+              <select id="retailSale"><option value="">Seleccione una opción</option><option value="Sí">Sí</option><option value="No">No</option></select>
+            </label>
+            <label class="required">Latitud levantada<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
+            <label class="required">Longitud levantada<input id="longitude" type="number" step="any" min="-180" max="180" placeholder="-72.067" required></label>
+            <div><label>Ubicación</label><button class="secondary" id="locationButton" type="button">Usar ubicación actual</button></div>
+          </div>
+          <div class="actions"><button type="submit">Continuar a instrumentos</button></div>
+        </form>
       </div>
-      <div id="message" role="alert"></div>
-    </form>
+    </section>
+
+    <section id="menuView" class="view" hidden>
+      <div class="card">
+        <h2>Visita activa</h2>
+        <p id="visitSummary"></p>
+        <div class="actions">
+          <button class="instrument" data-instrument="availability" type="button">1. Disponibilidad y variedad<span id="availabilityStatus"></span></button>
+          <button class="instrument" data-instrument="prices" type="button">2. Precios<span id="pricesStatus"></span></button>
+          <button class="instrument" data-instrument="origins" type="button">3. Origen (borrador)<span id="originsStatus"></span></button>
+        </div>
+        <div class="actions">
+          <button class="secondary" id="editVisitButton" type="button">Editar datos de visita</button>
+          <button class="secondary" id="closeVisitButton" type="button">Cerrar visita y borrar borrador local</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="availabilityView" class="view" hidden>
+      <div class="card">
+        <h2>Instrumento de disponibilidad y variedad</h2>
+        <p>Transcripción de la pauta POAA: se excluye únicamente la sección de publicidad.</p>
+        <form id="availabilityForm"><div id="availabilityItems"></div><div class="actions"><button type="submit">Guardar disponibilidad</button><button class="secondary return-menu" type="button">Volver al menú</button></div></form>
+      </div>
+    </section>
+
+    <section id="pricesView" class="view" hidden>
+      <div class="card">
+        <h2>Instrumento de precios</h2>
+        <p>Para cada producto agregado registre al menos dos observaciones de precio. La conservación aparece sólo para carnes.</p>
+        <form id="pricesForm"><div id="priceProducts"></div><div class="actions"><button class="secondary" id="addPriceProduct" type="button">Agregar producto</button><button type="submit">Guardar precios</button><button class="secondary return-menu" type="button">Volver al menú</button></div></form>
+      </div>
+    </section>
+
+    <section id="originsView" class="view" hidden>
+      <div class="card">
+        <h2>Instrumento de origen — borrador</h2>
+        <p>Registre productos potencialmente locales y cualquier otro producto relevante. Este instrumento se ajustará con la propuesta metodológica pendiente.</p>
+        <form id="originsForm"><div id="originItems"></div><div class="actions"><button class="secondary" id="addOriginItem" type="button">Agregar producto u otro</button><button type="submit">Guardar origen</button><button class="secondary return-menu" type="button">Volver al menú</button></div></form>
+      </div>
+    </section>
+
+    <template id="availabilityTemplate"><fieldset class="instrument-group"><legend></legend><div class="availability-rows"></div></fieldset></template>
+    <template id="priceProductTemplate"><article class="card product-card"><button class="remove-product" type="button">Eliminar producto</button><div class="grid"><label class="required wide">Producto<select class="price-product" required></select></label><label>Categoría<input class="price-category" readonly></label></div><div class="price-observations"></div><button class="secondary add-price" type="button">Agregar precio adicional</button></article></template>
+    <template id="priceObservationTemplate"><div class="price-observation"><div class="grid"><label class="required">Marca o proveedor<input class="brand" required></label><label class="required">Precio observado (CLP)<input class="price-value" type="number" min="0" step="1" required></label><label class="required">Unidad de medida<select class="unit" required></select></label><label class="conservation-field" hidden>Tipo de conservación<select class="conservation"><option value="">Seleccione</option><option>Fresco</option><option>Congelado</option><option>Al vacío</option></select></label><label class="required">Origen<select class="origin" required><option value="Local">Local</option><option value="Externo">Externo</option></select></label><label class="required">¿Está en oferta? <select class="promotion" required><option value="No">No</option><option value="Sí">Sí</option></select></label><label class="wide">Observaciones<textarea class="notes"></textarea></label></div></div></template>
+    <template id="originItemTemplate"><article class="card origin-item"><button class="remove-origin" type="button">Eliminar</button><div class="grid"><label class="required">Producto<select class="origin-product" required></select></label><label class="required">Origen declarado<select class="origin-value" required><option value="Local">Local</option><option value="Externo">Externo</option><option value="Mixto">Mixto</option><option value="No disponible">No disponible</option><option value="No sabe">No sabe</option></select></label><label class="wide">Proveedor, procedencia o detalle<input class="origin-detail"></label><label class="wide">Observaciones<textarea class="origin-notes"></textarea></label></div></article></template>
+
     <footer>Créditos de la aplicación: Dr. Esteban Cofré-Morales · Universidad de Aysén<br>Investigación original: PhD. Ana Zazo Moratalla · Universidad Rey Juan Carlos</footer>
   </main>
-  <template id="item-template">
-    <article class="card item">
-      <button class="remove" type="button">Eliminar</button><h2>Producto observado</h2>
-      <div class="grid">
-        <label class="required wide">Producto<select class="product" required></select></label>
-        <label>Categoría<input class="category" readonly></label>
-        <label class="required">Precio observado (CLP)<input class="price" type="number" min="0" step="1" required></label>
-        <label class="required">Tipo de conservación<select class="conservation" required></select></label>
-        <label class="required">Unidad sugerida / presentación observada<select class="unit" required></select></label>
-        <label class="required">Origen (Local/Externo)<select class="origin" required></select></label>
-        <label>Marca o proveedor<input class="brand"></label>
-        <label class="required">Precio en oferta o promoción<select class="promotion" required><option value="No">No</option><option value="Sí">Sí</option></select></label>
-        <label class="wide">Observaciones<textarea class="notes"></textarea></label>
-      </div>
-    </article>
-  </template>
   <script src="sample-locals.js"></script>
   <script src="app.js"></script>
 </body>

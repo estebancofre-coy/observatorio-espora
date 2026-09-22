@@ -1,236 +1,143 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbz7m86O41X093i9j9ysDrPb4Jng1Xwe6JrcJvz5ydO7F85O1QhqMR0q1YH6-UWK9FG7SA/exec';
-const QUEUE_KEY = 'preciosCoyhaiquePendingBatches';
+const DRAFT_KEY = 'poaaCoyhaiqueVisitDraftV2';
+const QUEUE_KEY = 'poaaCoyhaiquePendingV2';
+
 const PRODUCTS = [
-  ['Arroz (grado 2)', 'Cereales y derivados', ['N/A'], ['kg', '400 gr/500gr', 'Unidad']],
-  ['Pastas (Fideos, Tallarines 5/77)', 'Cereales y derivados', ['N/A'], ['400 gr/500gr', 'kg', 'Unidad']],
-  ['Carne molida (Vacuno)', 'Carnes', ['Fresco', 'Congelado', 'Vacío', 'Embutido'], ['kg']],
-  ['Pollo', 'Carnes', ['Fresco', 'Congelado', 'Vacío', 'Embutido'], ['kg']],
-  ['Salchicha', 'Carnes', ['Embutido', 'Fresco', 'Congelado', 'Vacío'], ['kg']],
-  ['Choritos', 'Pescados y mariscos', ['Congelado'], ['kg']],
-  ['Merluza Austral', 'Pescados y mariscos', ['Congelado'], ['kg']],
-  ['Limón', 'Frutas', ['N/A'], ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Manzana', 'Frutas', ['N/A'], ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Palta', 'Frutas', ['N/A'], ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Plátano', 'Frutas', ['N/A'], ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Cebolla', 'Verduras y Tubérculos', ['N/A'], ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Lechuga', 'Verduras y Tubérculos', ['N/A'], ['Unidad', 'kg', 'malla (10 kg)', 'atado']],
-  ['Papa', 'Verduras y Tubérculos', ['N/A'], ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Tomate', 'Verduras y Tubérculos', ['N/A'], ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Zanahoria', 'Verduras y Tubérculos', ['N/A'], ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Lenteja', 'Legumbres', ['N/A'], ['kg', '400 gr/500gr', 'Unidad']],
-  ['Poroto', 'Legumbres', ['N/A'], ['kg', '400 gr/500gr', 'Unidad']],
-  ['Maní Tostado sin Sal', 'Frutos secos', ['N/A'], ['250g', '500g', 'kg']],
-  ['Huevo', 'Lácteos y Huevos', ['N/A'], ['Bandeja (12)', 'Bandeja (20)', 'Bandeja (30)', 'Unidad']],
-  ['Leche', 'Lácteos y Huevos', ['N/A'], ['Litro', '500 ml']],
-  ['Queso Laminado (Gauda, Roda, Mantecoso)', 'Lácteos y Huevos', ['N/A'], ['kg']],
-  ['Yogur con sello', 'Lácteos y Huevos', ['N/A'], ['Unidad']],
-  ['Azúcar', 'Azúcares y dulces', ['N/A'], ['kg', '400 gr/500gr', 'Unidad']],
-  ['Aceite', 'Aceites y grasas', ['N/A'], ['900 ml', 'Litro', '500 ml']],
-  ['Mantequilla', 'Aceites y grasas', ['N/A'], ['250gr']],
-  ['Margarina', 'Aceites y grasas', ['N/A'], ['250gr']],
-  ['Salsa de tomate', 'Otros', ['N/A'], ['Doypack (200gr)']],
-].map(([name, category, conservation, units]) => ({ name, category, conservation, units, origins: ['Local', 'Externo'] }));
+  ['Arroz (grado 2)', 'Cereales y derivados', ['kg', '400 gr/500gr', 'Unidad']], ['Pastas (Fideos, Tallarines 5/77)', 'Cereales y derivados', ['400 gr/500gr', 'kg', 'Unidad']],
+  ['Carne molida (Vacuno)', 'Carnes', ['kg']], ['Pollo', 'Carnes', ['kg']], ['Salchicha', 'Carnes', ['kg']],
+  ['Choritos', 'Pescados y mariscos', ['kg']], ['Merluza Austral', 'Pescados y mariscos', ['kg']],
+  ['Limón', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Manzana', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Palta', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Plátano', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
+  ['Cebolla', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Lechuga', 'Verduras y Tubérculos', ['Unidad', 'kg', 'malla (10 kg)', 'atado']], ['Papa', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Tomate', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Zanahoria', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
+  ['Lenteja', 'Legumbres', ['kg', '400 gr/500gr', 'Unidad']], ['Poroto', 'Legumbres', ['kg', '400 gr/500gr', 'Unidad']],
+  ['Maní Tostado sin Sal', 'Frutos secos', ['250g', '500g', 'kg']], ['Huevo', 'Lácteos y Huevos', ['Bandeja (12)', 'Bandeja (20)', 'Bandeja (30)', 'Unidad']],
+  ['Leche', 'Lácteos y Huevos', ['Litro', '500 ml']], ['Queso Laminado (Gauda, Roda, Mantecoso)', 'Lácteos y Huevos', ['kg']], ['Yogur con sello', 'Lácteos y Huevos', ['Unidad']],
+  ['Azúcar', 'Azúcares y dulces', ['kg', '400 gr/500gr', 'Unidad']], ['Aceite', 'Aceites y grasas', ['900 ml', 'Litro', '500 ml']], ['Mantequilla', 'Aceites y grasas', ['250gr']], ['Margarina', 'Aceites y grasas', ['250gr']], ['Salsa de tomate', 'Otros', ['Doypack (200gr)']],
+].map(([name, category, units]) => ({ name, category, units }));
 
+const AVAILABILITY = [
+  ['Disponibilidad', 'Frutas', 'Fruta sin azúcar añadida o con edulcorante no calórico.'], ['Disponibilidad', 'Frutas', 'Jugos 100% de fruta sin azúcar añadida o con edulcorante no calórico.'], ['Disponibilidad', 'Frutas', 'Frutas secas sin azúcar ni sal agregada.'], ['Disponibilidad', 'Frutas', 'Frutos secos sin azúcar ni sal agregada.'],
+  ['Disponibilidad', 'Verduras', 'Verduras frescas, enlatadas, tetra pack o congeladas.'],
+  ['Disponibilidad', 'Lácteos', 'Leche baja en grasa.'], ['Disponibilidad', 'Lácteos', 'Leche saborizada sin azúcar añadida o sin sellos Alto En.'], ['Disponibilidad', 'Lácteos', 'Leche cultivada sin azúcar añadida o sin sellos Alto En.'], ['Disponibilidad', 'Lácteos', 'Yogurt sin azúcar añadida o sin sellos Alto En.'], ['Disponibilidad', 'Lácteos', 'Queso fresco, chacra o quesillo.'], ['Disponibilidad', 'Lácteos', 'Queso amarillo sin sellos Alto En.'],
+  ['Disponibilidad', 'Legumbres', 'Porotos, lentejas, garbanzos, arvejas u otras.'],
+  ['Disponibilidad', 'Carnes y huevo', 'Carnes bajas en grasa frescas o congeladas.'], ['Disponibilidad', 'Carnes y huevo', 'Pescados y/o mariscos frescos o congelados.'], ['Disponibilidad', 'Carnes y huevo', 'Pescados listos para consumo bajos en sodio y en agua.'], ['Disponibilidad', 'Carnes y huevo', 'Huevo fresco o cocido.'],
+  ['Disponibilidad', 'Granos', 'Cereales para desayuno sin azúcar agregada o sin sellos Alto En.'], ['Disponibilidad', 'Granos', 'Cereales: quínoa, amaranto, arroz integral, trigo mote, avena u otros.'], ['Disponibilidad', 'Granos', 'Pan integral.'],
+  ['Disponibilidad', 'Bebestibles', 'Agua envasada natural y/o con gas.'], ['Disponibilidad', 'Bebestibles', 'Agua saborizada sin azúcar añadida o sin sellos Alto En.'], ['Disponibilidad', 'Bebestibles', 'Jugos 100% de fruta sin azúcar añadida o sin sellos Alto En.'], ['Disponibilidad', 'Bebestibles', 'Néctar sin azúcar añadida o sin sellos Alto En.'], ['Disponibilidad', 'Bebestibles', 'Bebidas sin azúcar añadida o sin sellos Alto En.'],
+  ['Disponibilidad', 'Otros', 'Aceite vegetal.'], ['Disponibilidad', 'Otros', 'Helados sin azúcar agregada o sin sellos Alto En.'], ['Disponibilidad', 'Otros', 'Té, café e infusiones sin azúcar agregada o con edulcorante no calórico.'],
+  ['Disponibilidad', 'Preparaciones saludables', 'Sopas o ensaladas de verduras sin salsas ni frituras.'], ['Disponibilidad', 'Preparaciones saludables', 'Sándwich listo para consumo con pan integral y opciones saludables.'], ['Disponibilidad', 'Preparaciones saludables', 'Tortillas integrales listas para consumo con opciones saludables.'], ['Disponibilidad', 'Preparaciones saludables', 'Plato de fondo saludable.'], ['Disponibilidad', 'Preparaciones saludables', 'Postre saludable con frutas o lácteos.'], ['Disponibilidad', 'Preparaciones saludables', 'Té, café e infusiones sin azúcar agregada o con edulcorante no calórico.'],
+  ['Disponibilidad', 'No saludables', 'Snacks salados con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Snacks dulces con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Embutidos y cecinas envasados con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Salsas y aderezos con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Salsas dulces con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Helados con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Masas dulces horneadas o fritas con azúcares refinados.'], ['Disponibilidad', 'No saludables', 'Masas saladas fritas u horneadas.'], ['Disponibilidad', 'No saludables', 'Comida rápida.'], ['Disponibilidad', 'No saludables', 'Gaseosas, jugos y néctares procesados con azúcar añadida y sello Alto En.'], ['Disponibilidad', 'No saludables', 'Bebidas deportivas o energéticas.'], ['Disponibilidad', 'No saludables', 'Snacks dulces/salados no saludables vendidos a granel.'],
+  ['Variedad', 'Variedad', 'Frutas: 3 o más.'], ['Variedad', 'Variedad', 'Verduras: 3 o más.'], ['Variedad', 'Variedad', 'Leche o yogurt: 3 o más opciones bajas en grasa y sin azúcar o sin sellos Alto En.'], ['Variedad', 'Variedad', 'Quesos o quesillos: 2 o más bajos en grasa y sin sellos Alto En.'], ['Variedad', 'Variedad', 'Legumbres: 2 o más opciones.'], ['Variedad', 'Variedad', 'Carnes bajas en grasas: 2 o más tipos.'], ['Variedad', 'Variedad', 'Cereales para desayuno: 3 o más sin azúcar o sin sellos Alto En.'], ['Variedad', 'Variedad', 'Aguas: 3 o más opciones.'], ['Variedad', 'Variedad', 'Más de una preparación en porción pequeña para niños.'],
+].map(([section, category, label]) => ({ section, category, label }));
+const ORIGIN_PRODUCTS = ['Carne vacuna', 'Cordero', 'Pollo/aves', 'Pescado', 'Lácteos', 'Huevos', 'Otro (especificar)'];
 const $ = (selector, root = document) => root.querySelector(selector);
+let currentView = 'visitView';
 
-function getSelectedLocal() {
-  return SAMPLE_LOCALS.find(
-    (local) => local.code === $('#internalCode').value.trim().toUpperCase()
-  );
-}
+function getDraft() { try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (_) { return null; } }
+function setDraft(draft) { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); updateMenu(); }
+function getQueue() { try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (_) { return []; } }
+function setQueue(queue) { localStorage.setItem(QUEUE_KEY, JSON.stringify(queue)); }
+function newId() { return 'VIS-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase(); }
+function setOptions(select, values, blank) { select.replaceChildren(...(blank ? [new Option(blank, '')] : []), ...values.map((value) => new Option(value, value))); }
+function showMessage(text, type) { const el = $('#message'); el.textContent = text; el.className = type; }
+function showView(id) { document.querySelectorAll('.view').forEach((view) => { view.hidden = view.id !== id; }); currentView = id; window.scrollTo(0, 0); }
 
-function updateLocalDetails() {
-  const codeInput = $('#internalCode');
-  const local = getSelectedLocal();
-  const recategorizationField = $('#recategorizationField');
-  const retailSaleField = $('#retailSaleField');
-  const recategorization = $('#recategorization');
-  const retailSale = $('#retailSale');
-
-  if (!local) {
-    codeInput.setCustomValidity('Ingrese un código válido de la muestra sugerida.');
-    ['establishment', 'address', 'localType', 'localSubtype'].forEach((id) => { $('#' + id).value = ''; });
-    recategorizationField.hidden = true;
-    retailSaleField.hidden = true;
-    recategorization.required = false;
-    retailSale.required = false;
-    return;
-  }
-
-  codeInput.value = local.code;
-  codeInput.setCustomValidity('');
-  $('#establishment').value = local.name;
-  $('#address').value = local.address;
-  $('#localType').value = local.criterion;
-  $('#localSubtype').value = local.criterion2 || 'Sin subtipo';
-
-  const needsRecategorization = ['Almacén', 'Minimarket'].includes(local.criterion);
-  recategorizationField.hidden = !needsRecategorization;
-  recategorization.required = needsRecategorization;
-  if (!needsRecategorization) recategorization.value = '';
-
-  const needsRetailSale = local.criterion === 'Importador Frutas y Verduras';
-  retailSaleField.hidden = !needsRetailSale;
-  retailSale.required = needsRetailSale;
-  if (!needsRetailSale) retailSale.value = '';
-}
-
-async function api(action, body) {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ action, ...body }),
-    redirect: 'follow',
-  });
-  if (!response.ok) throw new Error('No fue posible conectar con el servicio de registro.');
+async function api(payload) {
+  const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'saveInstrument', payload }), redirect: 'follow' });
+  if (!response.ok) throw new Error('No fue posible conectar con el servicio.');
   const result = await response.json();
-  if (!result.ok) throw new Error(result.error || 'La operación fue rechazada.');
+  if (!result.ok) throw new Error(result.error || 'El servidor rechazó el registro.');
   return result.data;
 }
 
-function setOptions(select, values) {
-  select.replaceChildren(...values.map((value) => new Option(value, value)));
-}
-
-function updateItem(item) {
-  const product = PRODUCTS.find((entry) => entry.name === $('.product', item).value);
-  $('.category', item).value = product.category;
-  setOptions($('.conservation', item), product.conservation);
-  setOptions($('.unit', item), product.units);
-  setOptions($('.origin', item), product.origins);
-}
-
-function addItem() {
-  const item = $('#item-template').content.firstElementChild.cloneNode(true);
-  setOptions($('.product', item), PRODUCTS.map((product) => product.name));
-  updateItem(item);
-  $('.product', item).addEventListener('change', () => updateItem(item));
-  $('.remove', item).addEventListener('click', () => {
-    if (document.querySelectorAll('.item').length === 1) return showMessage('Debe registrar al menos un producto.', 'error');
-    item.remove();
-  });
-  $('#items').append(item);
-}
-
-function showMessage(text, type) {
-  const message = $('#message');
-  message.textContent = text;
-  message.className = type;
-}
-
-function getQueue() {
-  try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); }
-  catch (_) { return []; }
-}
-
-function setQueue(queue) {
-  localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
-  $('#pendingCount').textContent = queue.length;
-}
-
-function updateConnection() {
-  const online = navigator.onLine;
-  $('#connection').textContent = online
-    ? 'Con conexión. Los registros se guardarán en la base de datos.'
-    : 'Sin conexión. Los nuevos lotes se guardarán en este dispositivo hasta sincronizarlos.';
-  $('#connection').className = online ? 'online' : 'offline';
-}
-
-function collectPayload() {
-  return {
-    observationDate: $('#observationDate').value, collector: $('#collector').value,
-    internalCode: $('#internalCode').value, establishment: $('#establishment').value,
-    address: $('#address').value, latitude: $('#latitude').value, longitude: $('#longitude').value,
-    recategorization: $('#recategorization').value,
-    retailSale: $('#retailSale').value,
-    items: [...document.querySelectorAll('.item')].map((item) => ({
-      product: $('.product', item).value, category: $('.category', item).value,
-      price: $('.price', item).value, conservation: $('.conservation', item).value,
-      unit: $('.unit', item).value, origin: $('.origin', item).value,
-      brand: $('.brand', item).value, promotion: $('.promotion', item).value, notes: $('.notes', item).value,
-    })),
-  };
-}
-
-function clearItems() {
-  document.querySelectorAll('.item').forEach((item) => item.remove());
-  addItem();
-}
-
-function queuePayload(payload) {
-  const queue = getQueue();
-  queue.push({ payload, queuedAt: new Date().toISOString() });
-  setQueue(queue);
-  clearItems();
-  showMessage('Sin conexión: el lote se guardó en este dispositivo. Sincronícelo al recuperar internet.', 'success');
-}
-
-function warningText(analysis) {
-  const warnings = [];
-  if (analysis.duplicates.length) warnings.push('Posibles duplicados:\n' + analysis.duplicates.map((item) => '• ' + item.product + ' (registro ' + item.index + ')').join('\n'));
-  if (analysis.outliers.length) warnings.push('Precios atípicos (desviación ≥30%):\n' + analysis.outliers.map((item) => '• ' + item.product + ': $' + item.observedPrice + ' vs. referencia $' + item.referencePrice + ' (' + item.deviationPercent + '%, ' + item.referenceScope + ')').join('\n'));
-  return warnings.join('\n\n');
-}
-
-async function analyzeAndSave(payload) {
-  const analysis = await api('analyze', { payload });
-  const warnings = warningText(analysis);
-  if (warnings && !window.confirm(warnings + '\n\n¿Desea guardar de todas formas?')) return;
-  const result = await api('save', {
-    payload,
-    confirmations: { allowDuplicates: analysis.duplicates.length > 0, allowOutliers: analysis.outliers.length > 0 },
-  });
-  clearItems();
-  showMessage(result.savedRows + ' producto(s) guardado(s). Lote: ' + result.batchId, 'success');
-}
-
-async function syncPending() {
-  if (!navigator.onLine) return showMessage('No hay conexión para sincronizar los lotes pendientes.', 'error');
-  const queue = getQueue();
-  if (!queue.length) return showMessage('No hay lotes pendientes por sincronizar.', 'success');
-  try {
-    await analyzeAndSave(queue[0].payload);
-    setQueue(queue.slice(1));
-    if (getQueue().length) await syncPending();
-  } catch (error) {
-    showMessage(error.message || 'No fue posible sincronizar el lote pendiente.', 'error');
+function getLocal() { return SAMPLE_LOCALS.find((local) => local.code === $('#localCode').value.trim().toUpperCase()); }
+function updateLocal() {
+  const local = getLocal();
+  const code = $('#localCode');
+  const recat = $('#recategorizationField'); const retail = $('#retailSaleField');
+  if (!local) {
+    code.setCustomValidity('Ingrese un código válido de la muestra.'); ['establishment', 'address', 'localType', 'localSubtype'].forEach((id) => { $('#' + id).value = ''; }); recat.hidden = true; retail.hidden = true; return;
   }
+  code.value = local.code; code.setCustomValidity('');
+  $('#establishment').value = local.name; $('#address').value = local.address; $('#localType').value = local.criterion; $('#localSubtype').value = local.criterion2 || 'Sin subtipo';
+  recat.hidden = !['Almacén', 'Minimarket'].includes(local.criterion); $('#recategorization').required = !recat.hidden;
+  retail.hidden = local.criterion !== 'Importador Frutas y Verduras'; $('#retailSale').required = !retail.hidden;
 }
+function visitFromForm(existing) {
+  return { id: existing?.id || newId(), observationDate: $('#observationDate').value, collector: $('#collector').value, localCode: $('#localCode').value, latitude: $('#latitude').value, longitude: $('#longitude').value, recategorization: $('#recategorization').value, retailSale: $('#retailSale').value, instruments: existing?.instruments || {} };
+}
+function fillVisit(visit) { Object.entries({ observationDate: visit.observationDate, collector: visit.collector, localCode: visit.localCode, latitude: visit.latitude, longitude: visit.longitude, recategorization: visit.recategorization, retailSale: visit.retailSale }).forEach(([id, value]) => { $('#' + id).value = value || ''; }); updateLocal(); }
+function updateMenu() {
+  const draft = getDraft(); if (!draft) return;
+  const local = SAMPLE_LOCALS.find((item) => item.code === draft.localCode);
+  $('#visitSummary').textContent = `${draft.id} · ${local?.name || draft.localCode} · ${draft.observationDate} · ${draft.collector}`;
+  ['availability', 'prices', 'origins'].forEach((name) => { $('#' + name + 'Status').textContent = draft.instruments[name]?.saved ? ' ✓ guardado' : draft.instruments[name]?.data ? ' · borrador' : ' · pendiente'; });
+}
+function updateConnection() { const online = navigator.onLine; $('#connection').textContent = online ? 'Con conexión. Los instrumentos se guardan en la base de datos.' : 'Sin conexión. Los instrumentos se conservarán en este dispositivo hasta sincronizarlos.'; $('#connection').className = online ? 'online' : 'offline'; }
 
-function useCurrentLocation() {
-  if (!navigator.geolocation) return showMessage('Este navegador no admite geolocalización. Copie las coordenadas manualmente.', 'error');
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      $('#latitude').value = position.coords.latitude.toFixed(6);
-      $('#longitude').value = position.coords.longitude.toFixed(6);
-      showMessage('Ubicación actual cargada. Verifíquela antes de guardar.', 'success');
-    },
-    () => showMessage('No fue posible obtener la ubicación. Copie las coordenadas manualmente.', 'error'),
-    { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-  );
+function renderAvailability(data) {
+  const root = $('#availabilityItems'); root.replaceChildren();
+  const groups = new Map();
+  AVAILABILITY.forEach((item) => { const key = item.section + ' — ' + item.category; groups.set(key, [...(groups.get(key) || []), item]); });
+  groups.forEach((items, title) => {
+    const fieldset = $('#availabilityTemplate').content.firstElementChild.cloneNode(true); $('legend', fieldset).textContent = title;
+    items.forEach((item) => { const row = document.createElement('div'); row.className = 'choice-row'; const value = data?.find((entry) => entry.label === item.label)?.value || ''; row.innerHTML = `<span>${item.label}</span><label><input type="radio" name="${cssId(item.label)}" value="Sí" ${value === 'Sí' ? 'checked' : ''} required> Sí</label><label><input type="radio" name="${cssId(item.label)}" value="No" ${value === 'No' ? 'checked' : ''}> No</label>`; row.dataset.item = JSON.stringify(item); $('.availability-rows', fieldset).append(row); });
+    root.append(fieldset);
+  });
 }
+function cssId(text) { return 'item-' + text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\W/g, '-'); }
+function availabilityData() { return [...document.querySelectorAll('.choice-row')].map((row) => ({ ...JSON.parse(row.dataset.item), value: $('input:checked', row)?.value || '' })); }
+
+function addPriceProduct(entry) {
+  const card = $('#priceProductTemplate').content.firstElementChild.cloneNode(true); const productSelect = $('.price-product', card);
+  setOptions(productSelect, PRODUCTS.map((product) => product.name)); productSelect.value = entry?.product || PRODUCTS[0].name;
+  const update = () => { const product = PRODUCTS.find((value) => value.name === productSelect.value); $('.price-category', card).value = product.category; card.querySelectorAll('.price-observation').forEach((row) => updatePriceRow(row, product)); };
+  productSelect.addEventListener('change', update); $('.add-price', card).addEventListener('click', () => addPriceRow(card)); $('.remove-product', card).addEventListener('click', () => card.remove());
+  $('#priceProducts').append(card); (entry?.prices || [{}, {}]).forEach((price) => addPriceRow(card, price)); update();
+}
+function addPriceRow(card, data = {}) {
+  const row = $('#priceObservationTemplate').content.firstElementChild.cloneNode(true); const product = PRODUCTS.find((item) => item.name === $('.price-product', card).value);
+  $('.brand', row).value = data.brand || ''; $('.price-value', row).value = data.value || ''; $('.promotion', row).value = data.promotion || 'No'; $('.notes', row).value = data.notes || ''; $('.origin', row).value = data.origin || 'Externo'; updatePriceRow(row, product, data); $('.price-observations', card).append(row);
+}
+function updatePriceRow(row, product, data = {}) {
+  setOptions($('.unit', row), product.units); $('.unit', row).value = data.unit && product.units.includes(data.unit) ? data.unit : product.units[0];
+  const isMeat = product.category === 'Carnes'; $('.conservation-field', row).hidden = !isMeat; $('.conservation', row).required = isMeat; $('.conservation', row).value = data.conservation || '';
+}
+function priceData() { return [...document.querySelectorAll('.product-card')].map((card) => ({ product: $('.price-product', card).value, prices: [...card.querySelectorAll('.price-observation')].map((row) => ({ brand: $('.brand', row).value, value: $('.price-value', row).value, unit: $('.unit', row).value, conservation: $('.conservation', row).value, origin: $('.origin', row).value, promotion: $('.promotion', row).value, notes: $('.notes', row).value })) })); }
+function renderPrices(data) { $('#priceProducts').replaceChildren(); (data?.length ? data : [{}]).forEach(addPriceProduct); }
+
+function addOriginItem(data = {}) {
+  const row = $('#originItemTemplate').content.firstElementChild.cloneNode(true); setOptions($('.origin-product', row), ORIGIN_PRODUCTS, 'Seleccione'); $('.origin-product', row).value = data.product || ''; $('.origin-value', row).value = data.origin || 'Local'; $('.origin-detail', row).value = data.detail || ''; $('.origin-notes', row).value = data.notes || ''; $('.remove-origin', row).addEventListener('click', () => row.remove()); $('#originItems').append(row);
+}
+function originData() { return [...document.querySelectorAll('.origin-item')].map((row) => ({ product: $('.origin-product', row).value, origin: $('.origin-value', row).value, detail: $('.origin-detail', row).value, notes: $('.origin-notes', row).value })); }
+function renderOrigins(data) { $('#originItems').replaceChildren(); (data?.length ? data : [{}]).forEach(addOriginItem); }
+
+async function saveInstrument(instrument, data) {
+  const draft = getDraft(); const payload = { visit: draft, instrument, data };
+  if (!navigator.onLine) { const queue = getQueue(); queue.push(payload); setQueue(queue); draft.instruments[instrument] = { data, saved: false }; setDraft(draft); showMessage('Sin conexión: el instrumento quedó en borrador y pendiente de sincronización.', 'success'); showView('menuView'); return; }
+  const result = await api(payload); draft.instruments[instrument] = { data, saved: true, savedAt: new Date().toISOString() }; setDraft(draft); showMessage(`${result.savedRows} registro(s) guardado(s) para ${instrument}.`, 'success'); showView('menuView');
+}
+async function syncQueue() { if (!navigator.onLine) return; const queue = getQueue(); while (queue.length) { await api(queue[0]); queue.shift(); setQueue(queue); } }
+
+function openInstrument(instrument) {
+  const data = getDraft().instruments[instrument]?.data;
+  if (instrument === 'availability') { renderAvailability(data); showView('availabilityView'); }
+  if (instrument === 'prices') { renderPrices(data); showView('pricesView'); }
+  if (instrument === 'origins') { renderOrigins(data); showView('originsView'); }
+}
+function useCurrentLocation() { if (!navigator.geolocation) return showMessage('Este navegador no admite geolocalización.', 'error'); navigator.geolocation.getCurrentPosition((pos) => { $('#latitude').value = pos.coords.latitude.toFixed(6); $('#longitude').value = pos.coords.longitude.toFixed(6); showMessage('Ubicación actual cargada. Verifíquela antes de continuar.', 'success'); }, () => showMessage('No fue posible obtener la ubicación.', 'error'), { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }); }
 
 function initialize() {
-  $('#observationDate').value = new Date().toISOString().slice(0, 10);
-  setOptions($('#localCodes'), SAMPLE_LOCALS.map((local) => local.code));
-  setQueue(getQueue()); updateConnection(); addItem();
-  $('#internalCode').addEventListener('input', updateLocalDetails);
-  $('#internalCode').addEventListener('change', updateLocalDetails);
-  $('#addItemButton').addEventListener('click', addItem);
-  $('#locationButton').addEventListener('click', useCurrentLocation);
-  $('#syncButton').addEventListener('click', syncPending);
-  window.addEventListener('online', updateConnection);
-  window.addEventListener('offline', updateConnection);
-  $('#observation-form').addEventListener('submit', async (event) => {
-    event.preventDefault();
-    const payload = collectPayload();
-    if (!navigator.onLine) return queuePayload(payload);
-    const button = $('#saveButton');
-    button.disabled = true; button.textContent = 'Analizando…';
-    try { await analyzeAndSave(payload); }
-    catch (error) { showMessage(error.message || 'No fue posible guardar los registros.', 'error'); }
-    finally { button.disabled = false; button.textContent = 'Analizar y guardar productos'; }
-  });
+  setOptions($('#localCodes'), SAMPLE_LOCALS.map((local) => local.code)); updateConnection();
+  const draft = getDraft(); $('#observationDate').value = new Date().toISOString().slice(0, 10); if (draft) { fillVisit(draft); showView('menuView'); updateMenu(); }
+  $('#localCode').addEventListener('input', updateLocal); $('#localCode').addEventListener('change', updateLocal); $('#locationButton').addEventListener('click', useCurrentLocation);
+  $('#visitForm').addEventListener('submit', (event) => { event.preventDefault(); const current = getDraft(); const visit = visitFromForm(current); if (!getLocal()) return; setDraft(visit); showView('menuView'); });
+  document.querySelectorAll('.instrument').forEach((button) => button.addEventListener('click', () => openInstrument(button.dataset.instrument)));
+  document.querySelectorAll('.return-menu').forEach((button) => button.addEventListener('click', () => { showView('menuView'); updateMenu(); }));
+  $('#editVisitButton').addEventListener('click', () => showView('visitView')); $('#closeVisitButton').addEventListener('click', () => { if (confirm('¿Eliminar el borrador local de esta visita? Los instrumentos ya guardados permanecerán en la base de datos.')) { localStorage.removeItem(DRAFT_KEY); $('#visitForm').reset(); $('#observationDate').value = new Date().toISOString().slice(0, 10); showView('visitView'); } });
+  $('#availabilityForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('availability', availabilityData()).catch((error) => showMessage(error.message, 'error')); });
+  $('#pricesForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('prices', priceData()).catch((error) => showMessage(error.message, 'error')); });
+  $('#originsForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('origins', originData()).catch((error) => showMessage(error.message, 'error')); });
+  $('#addPriceProduct').addEventListener('click', () => addPriceProduct()); $('#addOriginItem').addEventListener('click', () => addOriginItem());
+  window.addEventListener('online', () => { updateConnection(); syncQueue().catch((error) => showMessage(error.message, 'error')); }); window.addEventListener('offline', updateConnection);
+  syncQueue().catch(() => {});
 }
-
 initialize();
