@@ -239,7 +239,7 @@ function priceRows_(visit, data) {
           !product.units.includes(price.unit)) {
         throw new Error('Hay una observación de precio inválida.');
       }
-      if (product.category === 'Carnes' && !['Fresco', 'Congelado', 'Al vacío'].includes(price.conservation)) {
+      if (product.category === 'Carnes' && !['Fresco', 'Congelado', 'Al vacío', 'Embutido', 'Pillow bag', 'Granel (papel)'].includes(price.conservation)) {
         throw new Error('Seleccione el tipo de conservación para carnes.');
       }
       rows.push([

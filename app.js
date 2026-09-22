@@ -1,6 +1,7 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbwNX-W0y8r4pl8Qa1eH4w0_Nl-TaQfbKtqGFnScMHgRWdAD4gqJDcpMg125_8QHFlrf/exec';
 const DRAFT_KEY = 'esporaCoyhaiqueVisitDraftV2';
 const QUEUE_KEY = 'esporaCoyhaiquePendingV2';
+const CONSERVATION_OPTIONS = ['Fresco', 'Congelado', 'Al vacío', 'Embutido', 'Pillow bag', 'Granel (papel)'];
 
 const PRODUCTS = [
   ['Arroz (grado 2)', 'Cereales y derivados', ['kg', '400 gr/500gr', 'Unidad']], ['Pastas (Fideos, Tallarines 5/77)', 'Cereales y derivados', ['400 gr/500gr', 'kg', 'Unidad']],
@@ -39,6 +40,19 @@ function newId() { return 'VIS-' + Date.now() + '-' + Math.random().toString(36)
 function setOptions(select, values, blank) { select.replaceChildren(...(blank ? [new Option(blank, '')] : []), ...values.map((value) => new Option(value, value))); }
 function showMessage(text, type) { const el = $('#message'); el.textContent = text; el.className = type; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 function showView(id) { document.querySelectorAll('.view').forEach((view) => { view.hidden = view.id !== id; }); currentView = id; window.scrollTo(0, 0); }
+function downloadBackup(format) {
+  const draft = getDraft();
+  if (!draft) return showMessage('No hay una visita activa para respaldar.', 'error');
+  const backup = { exportedAt: new Date().toISOString(), application: 'ESPORA Coyhaique', visit: draft, pending: getQueue().filter((item) => item.visit?.id === draft.id) };
+  const filename = 'espora-' + (draft.id || 'respaldo') + '-' + new Date().toISOString().slice(0, 10);
+  const content = format === 'html'
+    ? '<!doctype html><html lang="es"><meta charset="utf-8"><title>Respaldo ESPORA ' + escapeHtml_(draft.id) + '</title><body><h1>Respaldo ESPORA Coyhaique</h1><p>Exportado: ' + escapeHtml_(backup.exportedAt) + '</p><pre>' + escapeHtml_(JSON.stringify(backup, null, 2)) + '</pre></body></html>'
+    : JSON.stringify(backup, null, 2);
+  const blob = new Blob([content], { type: format === 'html' ? 'text/html;charset=utf-8' : 'application/json;charset=utf-8' });
+  const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = filename + '.' + format; link.click(); URL.revokeObjectURL(link.href);
+  showMessage('Respaldo descargado correctamente.', 'success');
+}
+function escapeHtml_(value) { return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character])); }
 
 async function api(payload) {
   let response;
@@ -147,7 +161,7 @@ function initialize() {
   $('#visitForm').addEventListener('submit', (event) => { event.preventDefault(); const current = getDraft(); const visit = visitFromForm(current); if (!getLocal()) return; setDraft(visit); showView('menuView'); });
   document.querySelectorAll('.instrument').forEach((button) => button.addEventListener('click', () => openInstrument(button.dataset.instrument)));
   document.querySelectorAll('.return-menu').forEach((button) => button.addEventListener('click', () => { showView('menuView'); updateMenu(); }));
-  $('#editVisitButton').addEventListener('click', () => showView('visitView')); $('#closeVisitButton').addEventListener('click', () => { if (confirm('¿Eliminar el borrador local de esta visita? Los instrumentos ya guardados permanecerán en la base de datos.')) { localStorage.removeItem(DRAFT_KEY); $('#visitForm').reset(); $('#observationDate').value = new Date().toISOString().slice(0, 10); showView('visitView'); } });
+  $('#editVisitButton').addEventListener('click', () => showView('visitView')); $('#backupJsonButton').addEventListener('click', () => downloadBackup('json')); $('#backupHtmlButton').addEventListener('click', () => downloadBackup('html')); $('#closeVisitButton').addEventListener('click', () => { if (confirm('¿Eliminar el borrador local de esta visita? Los instrumentos ya guardados permanecerán en la base de datos.')) { localStorage.removeItem(DRAFT_KEY); $('#visitForm').reset(); $('#observationDate').value = new Date().toISOString().slice(0, 10); showView('visitView'); } });
   $('#availabilityForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('availability', availabilityData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#pricesForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('prices', priceData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#originsForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('origins', originData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });

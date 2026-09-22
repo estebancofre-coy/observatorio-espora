@@ -114,3 +114,10 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 2. Ejecutar `setupDatabase()` una vez sobre la nueva planilla para crear las hojas `Visitas`, `Disponibilidad`, `Precios`, `Origen` y `Panel ESPORA`.
 3. Verificar que el proyecto de Apps Script tenga permisos de edición sobre la nueva planilla `1kgIi0Ls6zaSfFZI8ToXHS6Kil610z73m1jqoCZwZQ_Y`.
 4. Probar un guardado real desde la interfaz publicada y confirmar en Sheets que la fila aparece en la hoja correspondiente.
+
+## 2026-09-22 (3) — Conservación y respaldos locales
+
+- Se ampliaron las alternativas de conservación para productos de carnes en `index.html` y `apps-script/Code.gs`: `Fresco`, `Congelado`, `Al vacío`, `Embutido`, `Pillow bag` y `Granel (papel)`.
+- Se añadieron botones para descargar un respaldo de la visita activa en JSON y HTML. El JSON conserva la estructura completa de la visita, instrumentos y cola pendiente de sincronización; el HTML ofrece una copia legible.
+- El respaldo se genera localmente en el navegador y no modifica ni elimina datos de la visita o de Google Sheets.
+- Para que la validación ampliada de conservación opere en producción, se debe volver a publicar la versión actualizada de `Code.gs` en Apps Script.

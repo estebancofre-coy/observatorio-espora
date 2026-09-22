@@ -33,6 +33,8 @@ La Google Sheet creada por `setupDatabase()` contiene `Visitas`, `Disponibilidad
 
 La visita y los borradores de cada instrumento persisten localmente en el navegador para permitir volver al menú o recuperar el trabajo tras una interrupción.
 
+En el campo de conservación para carnes están disponibles: **Fresco, Congelado, Al vacío, Embutido, Pillow bag y Granel (papel)**. Desde el menú de la visita activa se pueden descargar respaldos locales en **JSON** (recomendado para recuperar datos) o **HTML** (copia legible). El respaldo incluye la visita, sus instrumentos y cualquier envío pendiente de sincronización; no reemplaza la copia final almacenada en Google Sheets.
+
 ## Muestra de locales
 
 `sample-locals.js` contiene 107 locales de la muestra sugerida. Al ingresar su código, la aplicación completa nombre, dirección, tipo y subtipo; el backend vuelve a validar el código antes de guardar. La latitud y longitud se capturan en terreno mediante geolocalización o ingreso manual, y no se rellenan desde la muestra.
