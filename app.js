@@ -89,7 +89,7 @@ function renderAvailability(data) {
   AVAILABILITY.forEach((item) => { const key = item.section + ' — ' + item.category; groups.set(key, [...(groups.get(key) || []), item]); });
   groups.forEach((items, title) => {
     const fieldset = $('#availabilityTemplate').content.firstElementChild.cloneNode(true); $('legend', fieldset).textContent = title;
-    items.forEach((item) => { const row = document.createElement('div'); row.className = 'choice-row'; const value = data?.find((entry) => entry.label === item.label)?.value || ''; row.innerHTML = `<span>${item.label}</span><label><input type="radio" name="${cssId(item.label)}" value="Sí" ${value === 'Sí' ? 'checked' : ''} required> Sí</label><label><input type="radio" name="${cssId(item.label)}" value="No" ${value === 'No' ? 'checked' : ''}> No</label>`; row.dataset.item = JSON.stringify(item); $('.availability-rows', fieldset).append(row); });
+    items.forEach((item) => { const row = document.createElement('div'); row.className = 'choice-row'; const value = data?.find((entry) => entry.section === item.section && entry.category === item.category && entry.label === item.label)?.value || ''; const radioName = cssId(item.section + '-' + item.category + '-' + item.label); row.innerHTML = `<span>${item.label}</span><label><input type="radio" name="${radioName}" value="Sí" ${value === 'Sí' ? 'checked' : ''} required> Sí</label><label><input type="radio" name="${radioName}" value="No" ${value === 'No' ? 'checked' : ''}> No</label>`; row.dataset.item = JSON.stringify(item); $('.availability-rows', fieldset).append(row); });
     root.append(fieldset);
   });
 }
