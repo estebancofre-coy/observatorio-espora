@@ -10,7 +10,7 @@ GitHub Pages publica la interfaz desde la rama `main`. La URL prevista es:
 
 ## Backend
 
-El código del backend está en `apps-script/Code.gs` y `apps-script/SampleLocals.gs`. Pega ambos archivos en un proyecto de Google Apps Script, ejecuta `setupDatabase()` una vez y despliega una aplicación web con:
+El código del backend está en `apps-script/Code.gs` y `apps-script/SampleLocals.gs`. `DATABASE_SPREADSHEET_ID` en `Code.gs` identifica explícitamente la planilla de producción; sólo debe modificarse al migrar a otra base. Pega ambos archivos en un proyecto de Google Apps Script, ejecuta `setupDatabase()` una vez y despliega una aplicación web con:
 
 - **Ejecutar como:** Yo.
 - **Quién tiene acceso:** Cualquiera.

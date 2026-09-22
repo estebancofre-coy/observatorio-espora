@@ -1,4 +1,4 @@
-const DATABASE_PROPERTY = 'PRECIOS_COYHAIQUE_SPREADSHEET_ID';
+const DATABASE_SPREADSHEET_ID = '1FTm0ja8_i3Gwmgg5TorcPe9TA9s_SggZCFriZDI3lRQ';
 
 const SHEETS = {
   visits: {
@@ -74,20 +74,13 @@ function jsonResponse_(payload) {
 }
 
 function setupDatabase() {
-  const database = getOrCreateDatabase_();
+  const database = getDatabase_();
   Logger.log('Base de datos: ' + database.getUrl());
   return database.getUrl();
 }
 
-function getOrCreateDatabase_() {
-  const properties = PropertiesService.getScriptProperties();
-  const id = properties.getProperty(DATABASE_PROPERTY);
-  const database = id
-    ? SpreadsheetApp.openById(id)
-    : SpreadsheetApp.create('Base de datos - POAA Coyhaique');
-  if (!id) {
-    properties.setProperty(DATABASE_PROPERTY, database.getId());
-  }
+function getDatabase_() {
+  const database = SpreadsheetApp.openById(DATABASE_SPREADSHEET_ID);
   Object.keys(SHEETS).forEach((key) => ensureSheet_(database, SHEETS[key]));
   ensureDashboard_(database);
   return database;
@@ -147,7 +140,7 @@ function saveInstrument_(payload) {
   if (!['availability', 'prices', 'origins'].includes(instrument)) {
     throw new Error('El instrumento no es válido.');
   }
-  const database = getOrCreateDatabase_();
+  const database = getDatabase_();
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {

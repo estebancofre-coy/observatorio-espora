@@ -17,9 +17,33 @@
     <div id="message" role="alert"></div>
 
     <section id="visitView" class="view">
-      <div class="card">
-        <h2>Datos generales de la visita</h2>
-        <p>Estos datos se comparten entre disponibilidad, precios y origen. Se guardan localmente para que pueda retomar los instrumentos.</p>
+      <section class="hero" aria-labelledby="heroTitle">
+        <div class="hero-content">
+          <p class="eyebrow">OBSERVATORIO TERRITORIAL DE ALIMENTACIÓN</p>
+          <h2 id="heroTitle">Ambientes alimentarios de Coyhaique</h2>
+          <p class="hero-summary">Registro en terreno para conocer la disponibilidad, los precios y el origen de los alimentos en nuestra ciudad.</p>
+          <div class="hero-tags" aria-label="Instituciones y marco de referencia">
+            <span>Universidad de Aysén</span>
+            <span>Marco de referencia: FAO</span>
+            <span>Coyhaique, Aysén</span>
+          </div>
+        </div>
+        <div class="hero-landscape" aria-hidden="true">
+          <div class="sun"></div>
+          <div class="mountain mountain-back"></div>
+          <div class="mountain mountain-front"></div>
+          <div class="forest"></div>
+        </div>
+      </section>
+      <div class="card visit-card">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">INICIO DEL LEVANTAMIENTO</p>
+            <h2>Datos generales de la visita</h2>
+          </div>
+          <span class="step">Paso 1 de 4</span>
+        </div>
+        <p>Estos datos se comparten entre disponibilidad, precios y origen. Se guardan en este dispositivo para que pueda retomar los instrumentos.</p>
         <form id="visitForm">
           <div class="grid">
             <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
@@ -90,7 +114,11 @@
     <template id="priceObservationTemplate"><div class="price-observation"><div class="grid"><label class="required">Marca o proveedor<input class="brand" required></label><label class="required">Precio observado (CLP)<input class="price-value" type="number" min="0" step="1" required></label><label class="required">Unidad de medida<select class="unit" required></select></label><label class="conservation-field" hidden>Tipo de conservación<select class="conservation"><option value="">Seleccione</option><option>Fresco</option><option>Congelado</option><option>Al vacío</option></select></label><label class="required">Origen<select class="origin" required><option value="Local">Local</option><option value="Externo">Externo</option></select></label><label class="required">¿Está en oferta? <select class="promotion" required><option value="No">No</option><option value="Sí">Sí</option></select></label><label class="wide">Observaciones<textarea class="notes"></textarea></label></div></div></template>
     <template id="originItemTemplate"><article class="card origin-item"><button class="remove-origin" type="button">Eliminar</button><div class="grid"><label class="required">Producto<select class="origin-product" required></select></label><label class="required">Origen declarado<select class="origin-value" required><option value="Local">Local</option><option value="Externo">Externo</option><option value="Mixto">Mixto</option><option value="No disponible">No disponible</option><option value="No sabe">No sabe</option></select></label><label class="wide">Proveedor, procedencia o detalle<input class="origin-detail"></label><label class="wide">Observaciones<textarea class="origin-notes"></textarea></label></div></article></template>
 
-    <footer>Créditos de la aplicación: Dr. Esteban Cofré-Morales · Universidad de Aysén<br>Investigación original: PhD. Ana Zazo Moratalla · Universidad Rey Juan Carlos</footer>
+    <footer>
+      <strong>POAA Coyhaique</strong> · Universidad de Aysén<br>
+      Marco de referencia alimentaria: FAO · Investigación original: PhD. Ana Zazo Moratalla, Universidad Rey Juan Carlos<br>
+      Aplicación: Dr. Esteban Cofré-Morales, Universidad de Aysén
+    </footer>
   </main>
   <script src="sample-locals.js"></script>
   <script src="app.js"></script>
