@@ -8,7 +8,7 @@
 
 GitHub Pages publica la interfaz desde la rama `main`. La URL prevista es:
 
-`https://estebancofre-coy.github.io/observatorio-precios-coyhaique/`
+`https://estebancofre-coy.github.io/observatorio-espora/`
 
 ## Backend
 

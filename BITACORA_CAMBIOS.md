@@ -41,9 +41,9 @@
 
 ### Publicación
 
-- Se creó el repositorio público `estebancofre-coy/observatorio-precios-coyhaique`.
+- Se creó el repositorio público `estebancofre-coy/observatorio-precios-coyhaique`, posteriormente renombrado a `estebancofre-coy/observatorio-espora`.
 - Se publicó la interfaz mediante GitHub Pages:
-  `https://estebancofre-coy.github.io/observatorio-precios-coyhaique/`
+  `https://estebancofre-coy.github.io/observatorio-espora/`
 - Se añadió un endpoint `doPost` al backend de Apps Script para recibir operaciones `analyze` y `save` desde GitHub Pages.
 - Se actualizó la implementación de Google Apps Script con el backend versionado.
 - Se verificó la integración completa sin crear registros de prueba:
