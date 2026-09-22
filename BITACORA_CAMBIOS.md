@@ -79,3 +79,38 @@
 1. Ajustar el instrumento de origen tras recibir la propuesta metodológica de Ana.
 2. Reemplazar `Code.gs` de Apps Script desde el repositorio, mantener `SampleLocals.gs`, ejecutar `setupDatabase()` y crear una nueva versión de la implementación.
 3. Probar desde móvil el flujo completo de los tres instrumentos, incluidos borradores locales y sincronización sin conexión.
+
+## 2026-09-22 (2) — Rebrand a ESPORA, nueva planilla y fix de guardado/notificación
+
+### Rebrand
+
+- Se renombró el proyecto de **POAA (Observatorio de Precios de Coyhaique)** a **ESPORA (Economía Social, Precios, Orgánicos, Residuos y Alimentación)**.
+- Se actualizaron título, meta tags (`description`, `og:title`, `og:description`), encabezado, landing/hero y footer en `index.html` para incorporar la identidad ESPORA y el concepto de la espora como dispersión, resistencia y regeneración territorial, ligado al compostaje y a la Economía Social y Solidaria (ESS).
+- Se renombró la hoja de panel de seguimiento de `Panel POAA` a `Panel ESPORA` y el título de `doGet()` en `Code.gs`.
+- Se renombraron las claves de `localStorage` (`DRAFT_KEY`/`QUEUE_KEY`) de `poaaCoyhaique...` a `esporaCoyhaique...`. Nota: esto invalida borradores/colas locales guardados en navegadores antes del rebrand; no afecta datos ya guardados en Sheets.
+
+### Nueva planilla de datos
+
+- Se actualizó `DATABASE_SPREADSHEET_ID` en `apps-script/Code.gs` de la planilla anterior a la nueva planilla `1kgIi0Ls6zaSfFZI8ToXHS6Kil610z73m1jqoCZwZQ_Y`. No se modificó ni se borró ningún dato en la planilla anterior ni en la nueva.
+
+### Diagnóstico del bug de guardado/notificación
+
+- Se probó en vivo el endpoint `/exec` configurado en `app.js` (`API_URL`) enviando `{"action":"saveInstrument", ...}`. El backend publicado respondió `{"ok":false,"error":"La acción solicitada no es válida."}`, es decir, **rechaza la acción `saveInstrument`** que sí es la que usa el `Code.gs` versionado en el repositorio.
+- Esto confirma que **la implementación (deployment) de Apps Script publicada en `/exec` está desactualizada** respecto al `Code.gs` del repositorio (el punto 2 de "Pendiente" de la bitácora anterior seguía sin aplicarse). Google Apps Script no republica automáticamente el Web App al guardar cambios en el editor: se requiere crear una **nueva versión de la implementación** manualmente.
+- Esta desactualización explica que los datos no llegaran a Sheets. El cliente sí recibía una respuesta JSON válida y la mostraba, pero el mensaje ("La acción solicitada no es válida.") no es autoexplicativo para el usuario de campo, y no había garantía de que **cualquier** fallo (red, JSON inválido, excepción no controlada) siempre se mostrara en pantalla.
+
+### Fix aplicado en el cliente (`app.js`)
+
+Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveInstrument', payload}` y respuesta `{ok, data|error}`), pero se endureció el manejo de errores para garantizar notificación visible en todos los casos:
+
+- `api()` ahora distingue y da mensajes específicos para: error de red (`fetch` falla), respuesta HTTP no exitosa, respuesta no parseable como JSON (indicio de una implementación de Apps Script desactualizada o con error no controlado) y rechazo lógico del servidor (`ok:false`).
+- Los botones de guardado se deshabilitan y muestran "Guardando…" mientras la petición está en curso, evitando envíos duplicados y dando retroalimentación inmediata.
+- `showMessage()` ahora hace scroll hacia el aviso para asegurar que sea visible tras cambiar de vista.
+- Se agregó un manejador global `window.addEventListener('unhandledrejection', ...)` como red de seguridad para mostrar cualquier error no capturado explícitamente.
+
+### Pasos manuales pendientes (fuera del alcance del código)
+
+1. **Crear una nueva versión de la implementación de Apps Script** con el `Code.gs` actualizado (incluye el nuevo `DATABASE_SPREADSHEET_ID` y el rebrand). Sin este paso, `/exec` seguirá sirviendo el código antiguo y los guardados seguirán fallando.
+2. Ejecutar `setupDatabase()` una vez sobre la nueva planilla para crear las hojas `Visitas`, `Disponibilidad`, `Precios`, `Origen` y `Panel ESPORA`.
+3. Verificar que el proyecto de Apps Script tenga permisos de edición sobre la nueva planilla `1kgIi0Ls6zaSfFZI8ToXHS6Kil610z73m1jqoCZwZQ_Y`.
+4. Probar un guardado real desde la interfaz publicada y confirmar en Sheets que la fila aparece en la hoja correspondiente.

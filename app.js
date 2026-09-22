@@ -1,6 +1,6 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbz7m86O41X093i9j9ysDrPb4Jng1Xwe6JrcJvz5ydO7F85O1QhqMR0q1YH6-UWK9FG7SA/exec';
-const DRAFT_KEY = 'poaaCoyhaiqueVisitDraftV2';
-const QUEUE_KEY = 'poaaCoyhaiquePendingV2';
+const DRAFT_KEY = 'esporaCoyhaiqueVisitDraftV2';
+const QUEUE_KEY = 'esporaCoyhaiquePendingV2';
 
 const PRODUCTS = [
   ['Arroz (grado 2)', 'Cereales y derivados', ['kg', '400 gr/500gr', 'Unidad']], ['Pastas (Fideos, Tallarines 5/77)', 'Cereales y derivados', ['400 gr/500gr', 'kg', 'Unidad']],
@@ -37,14 +37,24 @@ function getQueue() { try { return JSON.parse(localStorage.getItem(QUEUE_KEY) ||
 function setQueue(queue) { localStorage.setItem(QUEUE_KEY, JSON.stringify(queue)); }
 function newId() { return 'VIS-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase(); }
 function setOptions(select, values, blank) { select.replaceChildren(...(blank ? [new Option(blank, '')] : []), ...values.map((value) => new Option(value, value))); }
-function showMessage(text, type) { const el = $('#message'); el.textContent = text; el.className = type; }
+function showMessage(text, type) { const el = $('#message'); el.textContent = text; el.className = type; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 function showView(id) { document.querySelectorAll('.view').forEach((view) => { view.hidden = view.id !== id; }); currentView = id; window.scrollTo(0, 0); }
 
 async function api(payload) {
-  const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'saveInstrument', payload }), redirect: 'follow' });
-  if (!response.ok) throw new Error('No fue posible conectar con el servicio.');
-  const result = await response.json();
-  if (!result.ok) throw new Error(result.error || 'El servidor rechazó el registro.');
+  let response;
+  try {
+    response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'saveInstrument', payload }), redirect: 'follow' });
+  } catch (networkError) {
+    throw new Error('No fue posible conectar con el servicio. Verifique su conexión e intente nuevamente.');
+  }
+  if (!response.ok) throw new Error('El servicio respondió con un error (' + response.status + ').');
+  let result;
+  try {
+    result = await response.json();
+  } catch (parseError) {
+    throw new Error('El servicio respondió en un formato inesperado. Puede que la implementación de Apps Script deba actualizarse.');
+  }
+  if (!result || !result.ok) throw new Error((result && result.error) || 'El servidor rechazó el registro.');
   return result.data;
 }
 
@@ -110,10 +120,15 @@ function addOriginItem(data = {}) {
 function originData() { return [...document.querySelectorAll('.origin-item')].map((row) => ({ product: $('.origin-product', row).value, origin: $('.origin-value', row).value, detail: $('.origin-detail', row).value, notes: $('.origin-notes', row).value })); }
 function renderOrigins(data) { $('#originItems').replaceChildren(); (data?.length ? data : [{}]).forEach(addOriginItem); }
 
-async function saveInstrument(instrument, data) {
+async function saveInstrument(instrument, data, submitButton) {
   const draft = getDraft(); const payload = { visit: draft, instrument, data };
-  if (!navigator.onLine) { const queue = getQueue(); queue.push(payload); setQueue(queue); draft.instruments[instrument] = { data, saved: false }; setDraft(draft); showMessage('Sin conexión: el instrumento quedó en borrador y pendiente de sincronización.', 'success'); showView('menuView'); return; }
-  const result = await api(payload); draft.instruments[instrument] = { data, saved: true, savedAt: new Date().toISOString() }; setDraft(draft); showMessage(`${result.savedRows} registro(s) guardado(s) para ${instrument}.`, 'success'); showView('menuView');
+  if (submitButton) { submitButton.disabled = true; submitButton.dataset.originalText = submitButton.textContent; submitButton.textContent = 'Guardando…'; }
+  try {
+    if (!navigator.onLine) { const queue = getQueue(); queue.push(payload); setQueue(queue); draft.instruments[instrument] = { data, saved: false }; setDraft(draft); showMessage('Sin conexión: el instrumento quedó en borrador y pendiente de sincronización.', 'success'); showView('menuView'); return; }
+    const result = await api(payload); draft.instruments[instrument] = { data, saved: true, savedAt: new Date().toISOString() }; setDraft(draft); showMessage(`${result.savedRows} registro(s) guardado(s) para ${instrument}.`, 'success'); showView('menuView');
+  } finally {
+    if (submitButton) { submitButton.disabled = false; submitButton.textContent = submitButton.dataset.originalText; }
+  }
 }
 async function syncQueue() { if (!navigator.onLine) return; const queue = getQueue(); while (queue.length) { await api(queue[0]); queue.shift(); setQueue(queue); } }
 
@@ -133,11 +148,13 @@ function initialize() {
   document.querySelectorAll('.instrument').forEach((button) => button.addEventListener('click', () => openInstrument(button.dataset.instrument)));
   document.querySelectorAll('.return-menu').forEach((button) => button.addEventListener('click', () => { showView('menuView'); updateMenu(); }));
   $('#editVisitButton').addEventListener('click', () => showView('visitView')); $('#closeVisitButton').addEventListener('click', () => { if (confirm('¿Eliminar el borrador local de esta visita? Los instrumentos ya guardados permanecerán en la base de datos.')) { localStorage.removeItem(DRAFT_KEY); $('#visitForm').reset(); $('#observationDate').value = new Date().toISOString().slice(0, 10); showView('visitView'); } });
-  $('#availabilityForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('availability', availabilityData()).catch((error) => showMessage(error.message, 'error')); });
-  $('#pricesForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('prices', priceData()).catch((error) => showMessage(error.message, 'error')); });
-  $('#originsForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('origins', originData()).catch((error) => showMessage(error.message, 'error')); });
+  $('#availabilityForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('availability', availabilityData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
+  $('#pricesForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('prices', priceData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
+  $('#originsForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('origins', originData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#addPriceProduct').addEventListener('click', () => addPriceProduct()); $('#addOriginItem').addEventListener('click', () => addOriginItem());
-  window.addEventListener('online', () => { updateConnection(); syncQueue().catch((error) => showMessage(error.message, 'error')); }); window.addEventListener('offline', updateConnection);
+  window.addEventListener('online', () => { updateConnection(); syncQueue().catch((error) => showMessage(errorText_(error), 'error')); }); window.addEventListener('offline', updateConnection);
   syncQueue().catch(() => {});
 }
+function errorText_(error) { return (error && error.message) ? error.message : 'Ocurrió un error inesperado. Intente nuevamente.'; }
+window.addEventListener('unhandledrejection', (event) => { showMessage(errorText_(event.reason), 'error'); });
 initialize();

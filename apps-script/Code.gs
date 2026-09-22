@@ -1,4 +1,4 @@
-const DATABASE_SPREADSHEET_ID = '1FTm0ja8_i3Gwmgg5TorcPe9TA9s_SggZCFriZDI3lRQ';
+const DATABASE_SPREADSHEET_ID = '1kgIi0Ls6zaSfFZI8ToXHS6Kil610z73m1jqoCZwZQ_Y';
 
 const SHEETS = {
   visits: {
@@ -52,7 +52,7 @@ const PRODUCTS = [
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle('POAA Coyhaique')
+    .setTitle('ESPORA Coyhaique')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -111,12 +111,12 @@ function ensureSheet_(database, definition) {
 }
 
 function ensureDashboard_(database) {
-  let sheet = database.getSheetByName('Panel POAA');
+  let sheet = database.getSheetByName('Panel ESPORA');
   if (sheet) {
     return sheet;
   }
-  sheet = database.insertSheet('Panel POAA');
-  sheet.getRange('A1:F1').merge().setValue('Panel de seguimiento - POAA Coyhaique')
+  sheet = database.insertSheet('Panel ESPORA');
+  sheet.getRange('A1:F1').merge().setValue('Panel de seguimiento - ESPORA Coyhaique')
     .setBackground('#1a73e8').setFontColor('#ffffff').setFontWeight('bold')
     .setFontSize(14).setHorizontalAlignment('center');
   sheet.getRange('A3:B7').setValues([
