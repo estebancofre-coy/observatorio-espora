@@ -120,13 +120,15 @@ function addPriceProduct(entry) {
 function addPriceRow(card, data = {}) {
   const row = $('#priceObservationTemplate').content.firstElementChild.cloneNode(true); const product = PRODUCTS.find((item) => item.name === $('.price-product', card).value);
   $('.brand', row).value = data.brand || ''; $('.price-value', row).value = data.value || ''; $('.promotion', row).value = data.promotion || 'No'; $('.notes', row).value = data.notes || ''; $('.origin', row).value = data.origin || 'Externo'; updatePriceRow(row, product, data); $('.price-observations', card).append(row);
+  const rowNumber = card.querySelectorAll('.price-observation').length;
+  $('.price-range-label strong', row).textContent = rowNumber === 1 ? 'más bajo' : rowNumber === 2 ? 'más alto' : 'adicional';
 }
 function updatePriceRow(row, product, data = {}) {
   setOptions($('.unit', row), product.units); $('.unit', row).value = data.unit && product.units.includes(data.unit) ? data.unit : product.units[0];
   const isMeat = product.category === 'Carnes'; $('.conservation-field', row).hidden = !isMeat; $('.conservation', row).required = isMeat; $('.conservation', row).value = data.conservation || '';
 }
 function priceData() { return [...document.querySelectorAll('.product-card')].map((card) => ({ product: $('.price-product', card).value, prices: [...card.querySelectorAll('.price-observation')].map((row) => ({ brand: $('.brand', row).value, value: $('.price-value', row).value, unit: $('.unit', row).value, conservation: $('.conservation', row).value, origin: $('.origin', row).value, promotion: $('.promotion', row).value, notes: $('.notes', row).value })) })); }
-function renderPrices(data) { $('#priceProducts').replaceChildren(); (data?.length ? data : [{}]).forEach(addPriceProduct); }
+function renderPrices(data) { $('#priceProducts').replaceChildren(); (data || []).forEach(addPriceProduct); }
 
 function addOriginItem(data = {}) {
   const row = $('#originItemTemplate').content.firstElementChild.cloneNode(true); setOptions($('.origin-product', row), ORIGIN_PRODUCTS, 'Seleccione'); $('.origin-product', row).value = data.product || ''; $('.origin-value', row).value = data.origin || 'Local'; $('.origin-detail', row).value = data.detail || ''; $('.origin-notes', row).value = data.notes || ''; $('.remove-origin', row).addEventListener('click', () => row.remove()); $('#originItems').append(row);
@@ -138,8 +140,8 @@ async function saveInstrument(instrument, data, submitButton) {
   const draft = getDraft(); const payload = { visit: draft, instrument, data };
   if (submitButton) { submitButton.disabled = true; submitButton.dataset.originalText = submitButton.textContent; submitButton.textContent = 'Guardando…'; }
   try {
-    if (!navigator.onLine) { const queue = getQueue(); queue.push(payload); setQueue(queue); draft.instruments[instrument] = { data, saved: false }; setDraft(draft); showMessage('Sin conexión: el instrumento quedó en borrador y pendiente de sincronización.', 'success'); showView('menuView'); return; }
-    const result = await api(payload); draft.instruments[instrument] = { data, saved: true, savedAt: new Date().toISOString() }; setDraft(draft); showMessage(`${result.savedRows} registro(s) guardado(s) para ${instrument}.`, 'success'); showView('menuView');
+    if (!navigator.onLine) { const queue = getQueue(); queue.push(payload); setQueue(queue); draft.instruments[instrument] = { data, saved: false }; setDraft(draft); showMessage('Sin conexión: el instrumento quedó en borrador y pendiente de sincronización.', 'success'); if (instrument !== 'prices') showView('menuView'); return; }
+    const result = await api(payload); draft.instruments[instrument] = { data, saved: true, savedAt: new Date().toISOString() }; setDraft(draft); showMessage(`${result.savedRows} registro(s) guardado(s) para ${instrument}.`, 'success'); if (instrument !== 'prices') showView('menuView');
   } finally {
     if (submitButton) { submitButton.disabled = false; submitButton.textContent = submitButton.dataset.originalText; }
   }

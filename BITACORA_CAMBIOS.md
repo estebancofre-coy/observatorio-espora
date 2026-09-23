@@ -121,3 +121,10 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - Se añadieron botones para descargar un respaldo de la visita activa en JSON y HTML. El JSON conserva la estructura completa de la visita, instrumentos y cola pendiente de sincronización; el HTML ofrece una copia legible.
 - El respaldo se genera localmente en el navegador y no modifica ni elimina datos de la visita o de Google Sheets.
 - Para que la validación ampliada de conservación opere en producción, se debe volver a publicar la versión actualizada de `Code.gs` en Apps Script.
+
+## 2026-09-23 — Flujo acumulativo del instrumento de precios
+
+- La pantalla de precios ahora inicia vacía y muestra las acciones `Agregar producto`, `Guardar precios` y `Volver al menú`, sin crear automáticamente un producto.
+- Se mejoró la adaptación para celular y tablet mediante una grilla compacta y tarjetas de precio más densas.
+- La interfaz identifica explícitamente el primer precio como **más bajo** y el segundo como **más alto**; se mantienen observaciones adicionales disponibles.
+- Guardar precios conserva la pantalla abierta y los alimentos agregados, de modo que se pueden incorporar más productos antes de volver al menú de instrumentos.

@@ -49,7 +49,18 @@ button:disabled { cursor: wait; opacity: .65; }
 .choice-row { align-items: center; border-bottom: 1px solid #eee; display: grid; gap: 8px; grid-template-columns: 1fr auto auto; padding: 10px 0; }
 .choice-row label { font-weight: 400; white-space: nowrap; }
 .choice-row input { margin: 0 4px 0 0; width: auto; }
-.price-observation { border: 1px solid #d2e3fc; border-radius: 6px; margin: 12px 0; padding: 12px; }
+.price-observation { background: #f8fbff; border: 1px solid #d2e3fc; border-radius: 6px; margin: 12px 0; padding: 12px; }
+.price-range-label { color: #0f5d74; font-size: 13px; margin: 0 0 8px; }
+.product-card .remove-product { float: right; margin-left: 12px; }
+.product-card .price-product, .product-card .price-category { min-width: 0; }
+@media (max-width: 760px) {
+  .product-card { padding: 14px; }
+  .product-card .grid { gap: 9px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .product-card .wide { grid-column: 1 / -1; }
+  .price-observation { margin: 8px 0; padding: 9px; }
+  .price-observation .grid { gap: 9px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .price-observation .wide { grid-column: 1 / -1; }
+}
 .product-card { background: #fcfdff; }
 footer { line-height: 1.6; margin: 24px 0 8px; text-align: center; }
 footer strong { color: #0f5d74; }

@@ -35,6 +35,8 @@ La visita y los borradores de cada instrumento persisten localmente en el navega
 
 En el campo de conservación para carnes están disponibles: **Fresco, Congelado, Al vacío, Embutido, Pillow bag y Granel (papel)**. Desde el menú de la visita activa se pueden descargar respaldos locales en **JSON** (recomendado para recuperar datos) o **HTML** (copia legible). El respaldo incluye la visita, sus instrumentos y cualquier envío pendiente de sincronización; no reemplaza la copia final almacenada en Google Sheets.
 
+En el instrumento de precios, la pantalla inicia sin productos y permite agregar varios alimentos antes de guardar. Cada alimento exige al menos dos observaciones: una en el rango más bajo y otra en el rango más alto. Después de guardar, el instrumento permanece abierto para continuar agregando alimentos; `Volver al menú` permite cerrarlo explícitamente.
+
 ## Muestra de locales
 
 `sample-locals.js` contiene 107 locales de la muestra sugerida. Al ingresar su código, la aplicación completa nombre, dirección, tipo y subtipo; el backend vuelve a validar el código antes de guardar. La latitud y longitud se capturan en terreno mediante geolocalización o ingreso manual, y no se rellenan desde la muestra.
