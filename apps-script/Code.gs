@@ -17,6 +17,10 @@ const SHEETS = {
     name: 'Origen',
     headers: ['ID de visita', 'Fecha de registro', 'Producto', 'Origen declarado', 'Proveedor, procedencia o detalle', 'Observaciones'],
   },
+  classification: {
+    name: 'Clasificación',
+    headers: ['ID de visita', 'Fecha de registro', 'Unidad vecinal', 'Estado del local', 'Superficie estimada', 'Sistema de atención', 'Personas atendiendo', 'Abarrotes básicos', 'Fruta y verdura', 'Carnes', 'Otros rubros', 'Es mixto', 'Rubro principal', 'Detalle mixto', 'Clasificación automática', 'Clasificación final', 'Modo de clasificación', 'Justificación de corrección', 'Observaciones'],
+  },
 };
 
 const PRODUCTS = [
@@ -139,7 +143,7 @@ function ensureDashboard_(database) {
 function saveInstrument_(payload) {
   validateVisit_(payload.visit);
   const instrument = payload.instrument;
-  if (!['availability', 'prices', 'origins'].includes(instrument)) {
+  if (!['availability', 'prices', 'origins', 'classification'].includes(instrument)) {
     throw new Error('El instrumento no es válido.');
   }
   const database = getDatabase_();
@@ -151,7 +155,9 @@ function saveInstrument_(payload) {
       ? availabilityRows_(payload.visit, payload.data)
       : instrument === 'prices'
         ? priceRows_(payload.visit, payload.data)
-        : originRows_(payload.visit, payload.data);
+        : instrument === 'origins'
+          ? originRows_(payload.visit, payload.data)
+          : classificationRows_(payload.visit, payload.data);
     const sheet = database.getSheetByName(SHEETS[instrument].name);
     replaceRowsForVisit_(sheet, payload.visit.id, SHEETS[instrument].headers.length);
     sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, SHEETS[instrument].headers.length).setValues(rows);
@@ -224,12 +230,14 @@ function availabilityRows_(visit, data) {
 }
 
 function priceRows_(visit, data) {
-  if (!Array.isArray(data) || !data.length) {
+  const entries = Array.isArray(data) ? data : data && data.products;
+  const generalNotes = Array.isArray(data) ? '' : String(data && data.notes || '').trim();
+  if (!Array.isArray(entries) || !entries.length) {
     throw new Error('Agregue al menos un producto con dos precios.');
   }
   const productMap = new Map(PRODUCTS.map((product) => [product.name, product]));
   const rows = [];
-  data.forEach((entry) => {
+  entries.forEach((entry) => {
     const product = productMap.get(entry.product);
     if (!product || !Array.isArray(entry.prices) || entry.prices.length < 2) {
       throw new Error('Cada producto debe tener al menos dos observaciones de precio.');
@@ -246,7 +254,8 @@ function priceRows_(visit, data) {
         visit.id, new Date(), product.category, product.name, index + 1,
         String(price.brand || '').trim(), Number(price.value), price.unit,
         product.category === 'Carnes' ? price.conservation : '',
-        price.origin, price.promotion, String(price.notes || '').trim(),
+        price.origin, price.promotion,
+        [String(price.notes || '').trim(), generalNotes].filter(Boolean).join(' — '),
       ]);
     });
   });
@@ -256,6 +265,37 @@ function priceRows_(visit, data) {
 function originRows_(visit, data) {
   if (!Array.isArray(data) || !data.length) {
     throw new Error('Agregue al menos un registro de origen.');
+  }
+
+  function classificationRows_(visit, data) {
+    if (!data || !data.unitVecinal || !data.estadoLocal) {
+      throw new Error('Complete la unidad vecinal y el estado del local.');
+    }
+    const closed = data.estadoLocal !== 'abierto';
+    if (!closed && (!data.superficie || !data.sistemaAtencion || !data.abarrotes || !data.frutaVerdura || !data.carnes || !data.esMixto)) {
+      throw new Error('Complete la estructura, variedad y rubro mixto del local abierto.');
+    }
+    if (closed && !String(data.observaciones || '').trim()) {
+      throw new Error('Agregue observaciones para un local que no está abierto.');
+    }
+    const automatic = closed ? '' : (
+      data.sistemaAtencion === 'acceso_libre' &&
+      (data.frutaVerdura === 'zona_amplia' || data.carnes === 'mostrador_freezer')
+        ? 'minimarket'
+        : 'almacen_barrio'
+    );
+    if (!closed && data.clasificacionOverride && !String(data.justificacionOverride || '').trim()) {
+      throw new Error('Justifique la corrección manual de la clasificación.');
+    }
+    const finalClassification = closed ? '' : (data.clasificacionOverride || automatic);
+    return [[
+      visit.id, new Date(), data.unitVecinal, data.estadoLocal, data.superficie || '',
+      data.sistemaAtencion || '', data.personasAtendiendo || '', data.abarrotes || '',
+      data.frutaVerdura || '', data.carnes || '', Array.isArray(data.otrosRubros) ? data.otrosRubros.join(', ') : '',
+      data.esMixto || '', data.rubroPrincipal || '', data.detalleMixto || '',
+      automatic, finalClassification, data.clasificacionOverride ? 'manual' : 'automatica',
+      String(data.justificacionOverride || '').trim(), String(data.observaciones || '').trim(),
+    ]];
   }
   return data.map((item) => {
     if (!String(item.product || '').trim() || !['Local', 'Externo', 'Mixto', 'No disponible', 'No sabe'].includes(item.origin)) {

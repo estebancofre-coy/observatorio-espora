@@ -77,6 +77,11 @@
       <div class="card">
         <h2>Visita activa</h2>
         <p id="visitSummary"></p>
+        <h3 class="instrument-section-title">Inicio de la recogida</h3>
+        <div class="actions">
+          <button class="instrument special-instrument" data-instrument="classification" type="button">0. Clasificación del local<span id="classificationStatus"></span></button>
+        </div>
+        <h3 class="instrument-section-title">Instrumentos de observación</h3>
         <div class="actions">
           <button class="instrument" data-instrument="availability" type="button">1. Disponibilidad y variedad<span id="availabilityStatus"></span></button>
           <button class="instrument" data-instrument="prices" type="button">2. Precios<span id="pricesStatus"></span></button>
@@ -102,8 +107,57 @@
     <section id="pricesView" class="view" hidden>
       <div class="card">
         <h2>Instrumento de precios</h2>
-        <p>Agregue los alimentos disponibles que desea comparar. Para cada alimento registre al menos dos precios: <strong>uno en el rango más bajo</strong> y <strong>otro en el rango más alto</strong>. Puede agregar todos los alimentos antes de guardar; la conservación aparece sólo para carnes.</p>
-        <form id="pricesForm"><div id="priceProducts"></div><div class="actions"><button class="secondary" id="addPriceProduct" type="button">Agregar producto</button><button type="submit">Guardar precios</button><button class="secondary return-menu" type="button">Volver al menú</button></div></form>
+        <p>Revise y confirme los precios que ya incorporó. El botón de guardado abre la pantalla de revisión.</p>
+        <div class="actions"><button id="openPricesReviewButton" type="button">Guardar precios</button><button class="secondary return-menu" type="button">Volver al menú</button></div>
+      </div>
+    </section>
+
+    <section id="pricesReviewView" class="view" hidden>
+      <div class="card">
+        <h2>Revisión de alimentos y precios</h2>
+        <p>Revise los alimentos tomados. Cada uno debe tener al menos un precio más bajo y otro más alto antes de guardar en Sheets.</p>
+        <div id="priceReviewItems"></div>
+        <label class="wide">Observaciones generales<textarea id="pricesNotes" placeholder="Anote situaciones de terreno, falta de productos u otra información relevante."></textarea></label>
+        <div class="actions"><button id="addPriceProduct" type="button">Agregar producto</button><button id="saveReviewedPrices" type="button">Guardar precios</button><button class="secondary return-menu" type="button">Volver al menú</button></div>
+      </div>
+    </section>
+
+    <section id="priceEditorView" class="view" hidden>
+      <div class="card">
+        <h2>Agregar alimento y precios</h2>
+        <p>Registre dos precios del mismo alimento: primero el <strong>más bajo</strong> y luego el <strong>más alto</strong>. La conservación aparece sólo para carnes.</p>
+        <form id="priceEditorForm"><div id="priceProducts"></div><div class="actions"><button type="submit">Guardar alimento</button><button class="secondary" id="cancelPriceEditor" type="button">Volver a revisión</button></div></form>
+      </div>
+    </section>
+
+    <section id="classificationView" class="view" hidden>
+      <div class="card">
+        <h2>ESPORA · Clasificación del local</h2>
+        <p>Ficha inicial de catastro. La clasificación automática combina sistema de atención, fruta/verdura y carnes; cualquier corrección manual exige una justificación.</p>
+        <form id="classificationForm">
+          <div class="grid">
+            <label class="required">Unidad vecinal<select id="classificationUnit" required><option value="">Seleccione</option><option>UV1</option><option>UV2</option><option>UV3</option><option>UV4</option><option>UV5</option><option>UV6</option><option>UV7</option><option>UV8</option><option>UV9</option><option>UV10</option><option>UV11</option><option>UV12</option><option>Otra / borde</option></select></label>
+            <label class="required">Estado del local<select id="classificationState" required><option value="">Seleccione</option><option value="abierto">Abierto y operando</option><option value="cerrado_definitivo">Cerrado definitivamente</option><option value="cerrado_temporal">Cerrado temporalmente</option><option value="cambio_rubro">Cambió de rubro</option></select></label>
+          </div>
+          <div id="classificationOpenFields">
+            <fieldset><legend>Estructura y atención</legend><div class="grid">
+              <label class="required">Superficie<select id="classificationSurface"><option value="">Seleccione</option><option value="muy_pequena">Muy pequeña</option><option value="pequena">Pequeña</option><option value="mediana">Mediana</option><option value="grande">Grande</option></select></label>
+              <label class="required">Sistema de atención<select id="classificationService"><option value="">Seleccione</option><option value="transmeson">Transmesón</option><option value="acceso_libre">Acceso libre</option></select></label>
+              <label>Nº de personas atendiendo<input id="classificationPeople" type="number" min="0" max="15"></label>
+            </div></fieldset>
+            <fieldset><legend>Variedad y rubro mixto</legend>
+              <label class="required">Abarrotes básicos<select id="classificationStaples"><option value="">Seleccione</option><option value="si">Sí</option><option value="no">No</option></select></label>
+              <label class="required">Fruta y verdura<select id="classificationProduce"><option value="">Seleccione</option><option value="sin_zona">Sin zona</option><option value="pocos_cajones">1–2 cajones</option><option value="zona_amplia">Zona amplia dedicada</option></select></label>
+              <label class="required">Carnes<select id="classificationMeat"><option value="">Seleccione</option><option value="solo_envasado">Solo envasado</option><option value="congelados_bolsa">Congelados en bolsa</option><option value="mostrador_freezer">Mostrador o freezer dedicado</option></select></label>
+              <label>Otros rubros<select id="classificationOther" multiple><option value="panaderia">Panadería</option><option value="bebidas">Bebidas / licores</option><option value="limpieza">Limpieza</option><option value="congelados">Congelados</option><option value="preparacion">Comida preparada</option></select></label>
+              <label class="required">¿Es mixto?<select id="classificationMixed"><option value="">Seleccione</option><option value="no">No</option><option value="si">Sí</option></select></label>
+              <div id="classificationMixedFields" hidden><label>Rubro principal<select id="classificationMainBusiness"><option value="">Seleccione</option><option value="carniceria">Carnicería</option><option value="verduleria">Verdulería</option><option value="panaderia">Panadería</option><option value="pescaderia">Pescadería</option><option value="almacen">Almacén</option><option value="minimarket">Minimarket</option><option value="otro">Otro</option></select></label><label>Detalle mixto<textarea id="classificationMixedDetail"></textarea></label></div>
+            </fieldset>
+            <fieldset><legend>Resultado</legend><p id="classificationResult" class="classification-result">Complete los campos para calcular.</p><label>Corrección manual<select id="classificationOverride"><option value="">Mantener clasificación automática</option><option value="minimarket">Corregir a MINIMARKET</option><option value="almacen_barrio">Corregir a ALMACÉN DE BARRIO</option></select></label><label id="classificationJustificationField" hidden>Justificación<textarea id="classificationJustification"></textarea></label></fieldset>
+          </div>
+          <label class="required">Observaciones<textarea id="classificationNotes" required></textarea></label>
+          <div class="actions"><button type="submit">Guardar clasificación</button><button class="secondary return-menu" type="button">Volver al menú</button></div>
+        </form>
       </div>
     </section>
 

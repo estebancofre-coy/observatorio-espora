@@ -128,3 +128,11 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - Se mejoró la adaptación para celular y tablet mediante una grilla compacta y tarjetas de precio más densas.
 - La interfaz identifica explícitamente el primer precio como **más bajo** y el segundo como **más alto**; se mantienen observaciones adicionales disponibles.
 - Guardar precios conserva la pantalla abierta y los alimentos agregados, de modo que se pueden incorporar más productos antes de volver al menú de instrumentos.
+
+## 2026-09-23 (2) — Flujo de precios por revisión e instrumento especial
+
+- Se reorganizó precios en una entrada inicial, una subpantalla de revisión y una pantalla de captura por alimento.
+- La revisión muestra los alimentos ya agregados, permite agregar nuevos alimentos, registrar observaciones generales, guardar el conjunto y volver al menú general.
+- Se incorporó el instrumento especial `classification` a la interfaz, separado visualmente como primer paso de la recogida y con estética ESPORA.
+- El backend acepta `classification` y crea la hoja `Clasificación` con los campos del instrumento adjunto. La regla automática y la exigencia de justificación para correcciones manuales se validan también en Apps Script.
+- Pasos backend: copiar el `Code.gs` actualizado, conservar `SampleLocals.gs`, ejecutar `setupDatabase()` sobre la planilla destino y republicar la implementación Web App. La hoja nueva no se crea hasta ejecutar `setupDatabase()`.

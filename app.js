@@ -93,7 +93,7 @@ function updateMenu() {
   const draft = getDraft(); if (!draft) return;
   const local = SAMPLE_LOCALS.find((item) => item.code === draft.localCode);
   $('#visitSummary').textContent = `${draft.id} · ${local?.name || draft.localCode} · ${draft.observationDate} · ${draft.collector}`;
-  ['availability', 'prices', 'origins'].forEach((name) => { $('#' + name + 'Status').textContent = draft.instruments[name]?.saved ? ' ✓ guardado' : draft.instruments[name]?.data ? ' · borrador' : ' · pendiente'; });
+  ['classification', 'availability', 'prices', 'origins'].forEach((name) => { $('#' + name + 'Status').textContent = draft.instruments[name]?.saved ? ' ✓ guardado' : draft.instruments[name]?.data ? ' · borrador' : ' · pendiente'; });
 }
 function updateConnection() { const online = navigator.onLine; $('#connection').textContent = online ? 'Con conexión. Los instrumentos se guardan en la base de datos.' : 'Sin conexión. Los instrumentos se conservarán en este dispositivo hasta sincronizarlos.'; $('#connection').className = online ? 'online' : 'offline'; }
 
@@ -129,6 +129,64 @@ function updatePriceRow(row, product, data = {}) {
 }
 function priceData() { return [...document.querySelectorAll('.product-card')].map((card) => ({ product: $('.price-product', card).value, prices: [...card.querySelectorAll('.price-observation')].map((row) => ({ brand: $('.brand', row).value, value: $('.price-value', row).value, unit: $('.unit', row).value, conservation: $('.conservation', row).value, origin: $('.origin', row).value, promotion: $('.promotion', row).value, notes: $('.notes', row).value })) })); }
 function renderPrices(data) { $('#priceProducts').replaceChildren(); (data || []).forEach(addPriceProduct); }
+function priceEntries_(data) { return data && !Array.isArray(data) ? data.products || [] : data || []; }
+function renderPriceReview(data) {
+  const entries = priceEntries_(data);
+  $('#priceReviewItems').replaceChildren();
+  $('#pricesNotes').value = data && !Array.isArray(data) ? data.notes || '' : '';
+  if (!entries.length) {
+    $('#priceReviewItems').innerHTML = '<p class="empty-state">Aún no hay alimentos agregados. Pulse “Agregar producto” para comenzar.</p>';
+    return;
+  }
+  entries.forEach((entry) => {
+    const item = document.createElement('article');
+    item.className = 'price-review-item';
+    item.innerHTML = `<strong>${entry.product}</strong><span>${entry.prices.length} precio(s): ${entry.prices[0]?.value || 'sin valor'} bajo · ${entry.prices[1]?.value || 'sin valor'} alto</span>`;
+    $('#priceReviewItems').append(item);
+  });
+}
+function savePriceDraftFromEditor() {
+  const draft = getDraft();
+  const entries = priceData();
+  if (!entries.length) throw new Error('Agregue al menos un alimento.');
+  draft.instruments.prices = { data: entries, saved: false };
+  setDraft(draft);
+  renderPriceReview(draft.instruments.prices.data);
+  showView('pricesReviewView');
+}
+function classificationData() {
+  const state = $('#classificationState').value;
+  return {
+    unitVecinal: $('#classificationUnit').value, estadoLocal: state,
+    superficie: $('#classificationSurface').value, sistemaAtencion: $('#classificationService').value,
+    personasAtendiendo: $('#classificationPeople').value, abarrotes: $('#classificationStaples').value,
+    frutaVerdura: $('#classificationProduce').value, carnes: $('#classificationMeat').value,
+    otrosRubros: [...$('#classificationOther').selectedOptions].map((option) => option.value),
+    esMixto: $('#classificationMixed').value, rubroPrincipal: $('#classificationMainBusiness').value,
+    detalleMixto: $('#classificationMixedDetail').value, clasificacionOverride: $('#classificationOverride').value,
+    justificacionOverride: $('#classificationJustification').value, observaciones: $('#classificationNotes').value,
+  };
+}
+function renderClassification(data = {}) {
+  const fields = { classificationUnit: data.unitVecinal, classificationState: data.estadoLocal, classificationSurface: data.superficie, classificationService: data.sistemaAtencion, classificationPeople: data.personasAtendiendo, classificationStaples: data.abarrotes, classificationProduce: data.frutaVerdura, classificationMeat: data.carnes, classificationMixed: data.esMixto, classificationMainBusiness: data.rubroPrincipal, classificationMixedDetail: data.detalleMixto, classificationOverride: data.clasificacionOverride, classificationJustification: data.justificacionOverride, classificationNotes: data.observaciones };
+  Object.entries(fields).forEach(([id, value]) => { if ($('#' + id)) $('#' + id).value = value || ''; });
+  [...$('#classificationOther').options].forEach((option) => { option.selected = (data.otrosRubros || []).includes(option.value); });
+  updateClassificationVisibility();
+}
+function updateClassificationVisibility() {
+  const open = $('#classificationState').value === 'abierto';
+  $('#classificationOpenFields').hidden = !open;
+  ['classificationSurface', 'classificationService', 'classificationStaples', 'classificationProduce', 'classificationMeat', 'classificationMixed'].forEach((id) => { $('#' + id).required = open; });
+  const mixed = $('#classificationMixed').value === 'si';
+  $('#classificationMixedFields').hidden = !mixed;
+  $('#classificationMainBusiness').required = mixed; $('#classificationMixedDetail').required = mixed;
+  const manual = Boolean($('#classificationOverride').value);
+  $('#classificationJustificationField').hidden = !manual; $('#classificationJustification').required = manual;
+  const auto = open && $('#classificationService').value && $('#classificationProduce').value && $('#classificationMeat').value
+    ? ($('#classificationService').value === 'acceso_libre' && ($('#classificationProduce').value === 'zona_amplia' || $('#classificationMeat').value === 'mostrador_freezer') ? 'MINIMARKET' : 'ALMACÉN DE BARRIO')
+    : 'Complete estructura y variedad';
+  $('#classificationResult').textContent = 'Clasificación automática: ' + auto;
+}
 
 function addOriginItem(data = {}) {
   const row = $('#originItemTemplate').content.firstElementChild.cloneNode(true); setOptions($('.origin-product', row), ORIGIN_PRODUCTS, 'Seleccione'); $('.origin-product', row).value = data.product || ''; $('.origin-value', row).value = data.origin || 'Local'; $('.origin-detail', row).value = data.detail || ''; $('.origin-notes', row).value = data.notes || ''; $('.remove-origin', row).addEventListener('click', () => row.remove()); $('#originItems').append(row);
@@ -151,8 +209,9 @@ async function syncQueue() { if (!navigator.onLine) return; const queue = getQue
 function openInstrument(instrument) {
   const data = getDraft().instruments[instrument]?.data;
   if (instrument === 'availability') { renderAvailability(data); showView('availabilityView'); }
-  if (instrument === 'prices') { renderPrices(data); showView('pricesView'); }
+  if (instrument === 'prices') { showView('pricesView'); }
   if (instrument === 'origins') { renderOrigins(data); showView('originsView'); }
+  if (instrument === 'classification') { renderClassification(data); showView('classificationView'); }
 }
 function useCurrentLocation() { if (!navigator.geolocation) return showMessage('Este navegador no admite geolocalización.', 'error'); navigator.geolocation.getCurrentPosition((pos) => { $('#latitude').value = pos.coords.latitude.toFixed(6); $('#longitude').value = pos.coords.longitude.toFixed(6); showMessage('Ubicación actual cargada. Verifíquela antes de continuar.', 'success'); }, () => showMessage('No fue posible obtener la ubicación.', 'error'), { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }); }
 
@@ -165,9 +224,16 @@ function initialize() {
   document.querySelectorAll('.return-menu').forEach((button) => button.addEventListener('click', () => { showView('menuView'); updateMenu(); }));
   $('#editVisitButton').addEventListener('click', () => showView('visitView')); $('#backupJsonButton').addEventListener('click', () => downloadBackup('json')); $('#backupHtmlButton').addEventListener('click', () => downloadBackup('html')); $('#closeVisitButton').addEventListener('click', () => { if (confirm('¿Eliminar el borrador local de esta visita? Los instrumentos ya guardados permanecerán en la base de datos.')) { localStorage.removeItem(DRAFT_KEY); $('#visitForm').reset(); $('#observationDate').value = new Date().toISOString().slice(0, 10); showView('visitView'); } });
   $('#availabilityForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('availability', availabilityData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
-  $('#pricesForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('prices', priceData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#originsForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('origins', originData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
-  $('#addPriceProduct').addEventListener('click', () => addPriceProduct()); $('#addOriginItem').addEventListener('click', () => addOriginItem());
+  $('#openPricesReviewButton').addEventListener('click', () => { renderPriceReview(getDraft().instruments.prices?.data); showView('pricesReviewView'); });
+  $('#addPriceProduct').addEventListener('click', () => { $('#priceProducts').replaceChildren(); addPriceProduct(); showView('priceEditorView'); });
+  $('#priceEditorForm').addEventListener('submit', (event) => { event.preventDefault(); try { savePriceDraftFromEditor(); } catch (error) { showMessage(errorText_(error), 'error'); } });
+  $('#cancelPriceEditor').addEventListener('click', () => { renderPriceReview(getDraft().instruments.prices?.data); showView('pricesReviewView'); });
+  $('#saveReviewedPrices').addEventListener('click', () => { const draft = getDraft(); const data = draft.instruments.prices?.data; if (!priceEntries_(data).length) return showMessage('Agregue al menos un alimento antes de guardar.', 'error'); saveInstrument('prices', { products: priceEntries_(data), notes: $('#pricesNotes').value }, $('#saveReviewedPrices')).catch((error) => showMessage(errorText_(error), 'error')); });
+  $('#addOriginItem').addEventListener('click', () => addOriginItem());
+  $('#classificationState').addEventListener('change', updateClassificationVisibility); $('#classificationMixed').addEventListener('change', updateClassificationVisibility); $('#classificationOverride').addEventListener('change', updateClassificationVisibility);
+  ['classificationService', 'classificationProduce', 'classificationMeat'].forEach((id) => $('#' + id).addEventListener('change', updateClassificationVisibility));
+  $('#classificationForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('classification', classificationData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
   window.addEventListener('online', () => { updateConnection(); syncQueue().catch((error) => showMessage(errorText_(error), 'error')); }); window.addEventListener('offline', updateConnection);
   syncQueue().catch(() => {});
 }

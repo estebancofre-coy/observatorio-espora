@@ -38,6 +38,12 @@ button:disabled { cursor: wait; opacity: .65; }
 .actions button { flex: 1 1 210px; }
 .instrument { min-height: 84px; text-align: left; }
 .instrument span { display: block; font-size: 12px; margin-top: 6px; opacity: .85; }
+.instrument-section-title { color: #0f5d74; font-size: 14px; margin: 22px 0 8px; }
+.special-instrument { background: linear-gradient(135deg, #0f5d74, #2d948c); }
+.price-review-item { align-items: center; background: #f8fbff; border: 1px solid #d2e3fc; border-radius: 8px; display: flex; gap: 12px; justify-content: space-between; margin: 8px 0; padding: 12px; }
+.price-review-item span { color: #526a76; font-size: 13px; text-align: right; }
+.empty-state { background: #f3f7f4; border: 1px dashed #9aa0a6; border-radius: 8px; color: #526a76; padding: 18px; text-align: center; }
+.classification-result { background: #e5f2ee; border-radius: 8px; color: #14645f; font-weight: 700; margin: 10px 0; padding: 12px; }
 .required::after { color: #d93025; content: ' *'; }
 #connection, #message { border-radius: 4px; margin: 10px 0; padding: 10px; white-space: pre-line; }
 .online, #message.success { background: #e6f4ea; color: #137333; }
@@ -65,3 +71,4 @@ button:disabled { cursor: wait; opacity: .65; }
 footer { line-height: 1.6; margin: 24px 0 8px; text-align: center; }
 footer strong { color: #0f5d74; }
 @media (max-width: 600px) { .brand { align-items: flex-start; flex-direction: column; gap: 8px; } .brand img { width: 100%; } main { padding: 16px; } .hero { min-height: 370px; } .hero-content { max-width: none; padding: 26px 22px; } .hero-landscape { height: 42%; opacity: .9; width: 100%; } .section-heading { align-items: flex-start; flex-direction: column; gap: 6px; } .choice-row { grid-template-columns: 1fr 1fr; } .choice-row span { grid-column: 1 / -1; } }
+@media (max-width: 600px) { .price-review-item { align-items: flex-start; flex-direction: column; gap: 5px; } .price-review-item span { text-align: left; } }

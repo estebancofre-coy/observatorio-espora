@@ -37,6 +37,14 @@ En el campo de conservación para carnes están disponibles: **Fresco, Congelado
 
 En el instrumento de precios, la pantalla inicia sin productos y permite agregar varios alimentos antes de guardar. Cada alimento exige al menos dos observaciones: una en el rango más bajo y otra en el rango más alto. Después de guardar, el instrumento permanece abierto para continuar agregando alimentos; `Volver al menú` permite cerrarlo explícitamente.
 
+El flujo de precios se organiza en tres pantallas: entrada del instrumento, revisión de alimentos agregados y formulario de un alimento. La revisión permite agregar más alimentos, anotar observaciones generales, guardar el conjunto en Sheets o volver al menú.
+
+## Instrumento especial de clasificación
+
+`Clasificación` es el instrumento inicial de la recogida. Registra unidad vecinal, estado del local, estructura, sistema de atención, variedad, rubros mixtos y observaciones. Para locales abiertos calcula automáticamente `minimarket` cuando hay acceso libre y zona amplia de fruta/verdura o mostrador/freezer de carnes; si no, clasifica como `almacen_barrio`. Una corrección manual exige justificación. Para locales no abiertos se solicitan solo identificación, estado y observaciones.
+
+Al publicar la versión que incorpora este instrumento, ejecuta `setupDatabase()` para crear la hoja **Clasificación** con sus encabezados. Si la hoja ya existe, la función verifica que su estructura coincida y no borra datos. Después crea una nueva versión del Web App para que el endpoint acepte `instrument: "classification"`.
+
 ## Muestra de locales
 
 `sample-locals.js` contiene 107 locales de la muestra sugerida. Al ingresar su código, la aplicación completa nombre, dirección, tipo y subtipo; el backend vuelve a validar el código antes de guardar. La latitud y longitud se capturan en terreno mediante geolocalización o ingreso manual, y no se rellenan desde la muestra.
