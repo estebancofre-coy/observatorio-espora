@@ -76,19 +76,16 @@ function getLocal() { return SAMPLE_LOCALS.find((local) => local.code === $('#lo
 function updateLocal() {
   const local = getLocal();
   const code = $('#localCode');
-  const recat = $('#recategorizationField'); const retail = $('#retailSaleField');
   if (!local) {
-    code.setCustomValidity('Ingrese un código válido de la muestra.'); ['establishment', 'address', 'localType', 'localSubtype'].forEach((id) => { $('#' + id).value = ''; }); recat.hidden = true; retail.hidden = true; return;
+    code.setCustomValidity('Ingrese un código válido de la muestra.'); ['establishment', 'address', 'localType'].forEach((id) => { $('#' + id).value = ''; }); return;
   }
   code.value = local.code; code.setCustomValidity('');
-  $('#establishment').value = local.name; $('#address').value = local.address; $('#localType').value = local.criterion; $('#localSubtype').value = local.criterion2 || 'Sin subtipo';
-  recat.hidden = !['Almacén', 'Minimarket'].includes(local.criterion); $('#recategorization').required = !recat.hidden;
-  retail.hidden = local.criterion !== 'Importador Frutas y Verduras'; $('#retailSale').required = !retail.hidden;
+  $('#establishment').value = local.name; $('#address').value = local.address; $('#localType').value = local.criterion;
 }
 function visitFromForm(existing) {
-  return { id: existing?.id || newId(), observationDate: $('#observationDate').value, collector: $('#collector').value, localCode: $('#localCode').value, latitude: $('#latitude').value, longitude: $('#longitude').value, recategorization: $('#recategorization').value, retailSale: $('#retailSale').value, instruments: existing?.instruments || {} };
+  return { id: existing?.id || newId(), observationDate: $('#observationDate').value, collector: $('#collector').value, localCode: $('#localCode').value, latitude: $('#latitude').value, longitude: $('#longitude').value, instruments: existing?.instruments || {} };
 }
-function fillVisit(visit) { Object.entries({ observationDate: visit.observationDate, collector: visit.collector, localCode: visit.localCode, latitude: visit.latitude, longitude: visit.longitude, recategorization: visit.recategorization, retailSale: visit.retailSale }).forEach(([id, value]) => { $('#' + id).value = value || ''; }); updateLocal(); }
+function fillVisit(visit) { Object.entries({ observationDate: visit.observationDate, collector: visit.collector, localCode: visit.localCode, latitude: visit.latitude, longitude: visit.longitude }).forEach(([id, value]) => { $('#' + id).value = value || ''; }); updateLocal(); }
 function updateMenu() {
   const draft = getDraft(); if (!draft) return;
   const local = SAMPLE_LOCALS.find((item) => item.code === draft.localCode);
@@ -168,6 +165,8 @@ function classificationData() {
   };
 }
 function renderClassification(data = {}) {
+  const local = getLocal();
+  $('#classificationLinkedLocal').textContent = local ? `${local.code} · ${local.name} · ${local.address} · ${local.criterion}` : 'No hay un local de SampleLocals vinculado.';
   const fields = { classificationUnit: data.unitVecinal, classificationState: data.estadoLocal, classificationSurface: data.superficie, classificationService: data.sistemaAtencion, classificationPeople: data.personasAtendiendo, classificationStaples: data.abarrotes, classificationProduce: data.frutaVerdura, classificationMeat: data.carnes, classificationMixed: data.esMixto, classificationMainBusiness: data.rubroPrincipal, classificationMixedDetail: data.detalleMixto, classificationOverride: data.clasificacionOverride, classificationJustification: data.justificacionOverride, classificationNotes: data.observaciones };
   Object.entries(fields).forEach(([id, value]) => { if ($('#' + id)) $('#' + id).value = value || ''; });
   [...$('#classificationOther').options].forEach((option) => { option.selected = (data.otrosRubros || []).includes(option.value); });

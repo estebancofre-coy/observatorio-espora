@@ -136,3 +136,11 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - Se incorporó el instrumento especial `classification` a la interfaz, separado visualmente como primer paso de la recogida y con estética ESPORA.
 - El backend acepta `classification` y crea la hoja `Clasificación` con los campos del instrumento adjunto. La regla automática y la exigencia de justificación para correcciones manuales se validan también en Apps Script.
 - Pasos backend: copiar el `Code.gs` actualizado, conservar `SampleLocals.gs`, ejecutar `setupDatabase()` sobre la planilla destino y republicar la implementación Web App. La hoja nueva no se crea hasta ejecutar `setupDatabase()`.
+
+## 2026-09-23 (3) — Corrección de clasificación y vínculo con SampleLocals
+
+- Se corrigió `classificationRows_ is not defined`: la función estaba accidentalmente anidada dentro de `originRows_`, por lo que Apps Script no la exponía como función global.
+- `classificationRows_` ahora es global, valida el código de local contra `SampleLocals` y guarda los datos cruzados de código, ID de muestra, nombre, dirección, tipo y subtipo.
+- Se eliminaron del panel inicial `Subtipo de local`, `Recategorización observada` y `¿Tiene venta al detalle/menor?`. Sus columnas históricas en `Visitas` se conservan para compatibilidad, pero quedan vacías para nuevas visitas.
+- Se eliminó la exigencia backend de recategorización y venta al detalle, ya que la clasificación especial reemplaza ese flujo.
+- La hoja `Clasificación` mantiene sus 19 columnas originales y agrega las columnas de `SampleLocals` al final para evitar una migración destructiva.

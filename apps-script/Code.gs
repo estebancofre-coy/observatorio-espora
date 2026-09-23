@@ -19,7 +19,7 @@ const SHEETS = {
   },
   classification: {
     name: 'Clasificación',
-    headers: ['ID de visita', 'Fecha de registro', 'Unidad vecinal', 'Estado del local', 'Superficie estimada', 'Sistema de atención', 'Personas atendiendo', 'Abarrotes básicos', 'Fruta y verdura', 'Carnes', 'Otros rubros', 'Es mixto', 'Rubro principal', 'Detalle mixto', 'Clasificación automática', 'Clasificación final', 'Modo de clasificación', 'Justificación de corrección', 'Observaciones'],
+    headers: ['ID de visita', 'Fecha de registro', 'Unidad vecinal', 'Estado del local', 'Superficie estimada', 'Sistema de atención', 'Personas atendiendo', 'Abarrotes básicos', 'Fruta y verdura', 'Carnes', 'Otros rubros', 'Es mixto', 'Rubro principal', 'Detalle mixto', 'Clasificación automática', 'Clasificación final', 'Modo de clasificación', 'Justificación de corrección', 'Observaciones', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local'],
   },
 };
 
@@ -194,14 +194,6 @@ function validateVisit_(visit) {
       Number(visit.longitude) < -180 || Number(visit.longitude) > 180) {
     throw new Error('Las coordenadas levantadas no son válidas.');
   }
-  if (['Almacén', 'Minimarket'].includes(local.criterion) &&
-      !['Almacén', 'Minimarket'].includes(visit.recategorization)) {
-    throw new Error('Seleccione la recategorización observada.');
-  }
-  if (local.criterion === 'Importador Frutas y Verduras' &&
-      !['Sí', 'No'].includes(visit.retailSale)) {
-    throw new Error('Indique si el importador tiene venta al detalle/menor.');
-  }
 }
 
 function upsertVisit_(database, visit) {
@@ -267,42 +259,45 @@ function originRows_(visit, data) {
     throw new Error('Agregue al menos un registro de origen.');
   }
 
-  function classificationRows_(visit, data) {
-    if (!data || !data.unitVecinal || !data.estadoLocal) {
-      throw new Error('Complete la unidad vecinal y el estado del local.');
-    }
-    const closed = data.estadoLocal !== 'abierto';
-    if (!closed && (!data.superficie || !data.sistemaAtencion || !data.abarrotes || !data.frutaVerdura || !data.carnes || !data.esMixto)) {
-      throw new Error('Complete la estructura, variedad y rubro mixto del local abierto.');
-    }
-    if (closed && !String(data.observaciones || '').trim()) {
-      throw new Error('Agregue observaciones para un local que no está abierto.');
-    }
-    const automatic = closed ? '' : (
-      data.sistemaAtencion === 'acceso_libre' &&
-      (data.frutaVerdura === 'zona_amplia' || data.carnes === 'mostrador_freezer')
-        ? 'minimarket'
-        : 'almacen_barrio'
-    );
-    if (!closed && data.clasificacionOverride && !String(data.justificacionOverride || '').trim()) {
-      throw new Error('Justifique la corrección manual de la clasificación.');
-    }
-    const finalClassification = closed ? '' : (data.clasificacionOverride || automatic);
-    return [[
-      visit.id, new Date(), data.unitVecinal, data.estadoLocal, data.superficie || '',
-      data.sistemaAtencion || '', data.personasAtendiendo || '', data.abarrotes || '',
-      data.frutaVerdura || '', data.carnes || '', Array.isArray(data.otrosRubros) ? data.otrosRubros.join(', ') : '',
-      data.esMixto || '', data.rubroPrincipal || '', data.detalleMixto || '',
-      automatic, finalClassification, data.clasificacionOverride ? 'manual' : 'automatica',
-      String(data.justificacionOverride || '').trim(), String(data.observaciones || '').trim(),
-    ]];
-  }
   return data.map((item) => {
     if (!String(item.product || '').trim() || !['Local', 'Externo', 'Mixto', 'No disponible', 'No sabe'].includes(item.origin)) {
       throw new Error('Complete producto y origen en todos los registros.');
     }
     return [visit.id, new Date(), item.product.trim(), item.origin, String(item.detail || '').trim(), String(item.notes || '').trim()];
   });
+}
+
+function classificationRows_(visit, data) {
+  if (!data || !data.unitVecinal || !data.estadoLocal) {
+    throw new Error('Complete la unidad vecinal y el estado del local.');
+  }
+  const local = getSampleLocal_(visit.localCode);
+  const closed = data.estadoLocal !== 'abierto';
+  if (!closed && (!data.superficie || !data.sistemaAtencion || !data.abarrotes || !data.frutaVerdura || !data.carnes || !data.esMixto)) {
+    throw new Error('Complete la estructura, variedad y rubro mixto del local abierto.');
+  }
+  if (closed && !String(data.observaciones || '').trim()) {
+    throw new Error('Agregue observaciones para un local que no está abierto.');
+  }
+  const automatic = closed ? '' : (
+    data.sistemaAtencion === 'acceso_libre' &&
+    (data.frutaVerdura === 'zona_amplia' || data.carnes === 'mostrador_freezer')
+      ? 'minimarket'
+      : 'almacen_barrio'
+  );
+  if (!closed && data.clasificacionOverride && !String(data.justificacionOverride || '').trim()) {
+    throw new Error('Justifique la corrección manual de la clasificación.');
+  }
+  const finalClassification = closed ? '' : (data.clasificacionOverride || automatic);
+  return [[
+    visit.id, new Date(), data.unitVecinal, data.estadoLocal, data.superficie || '', data.sistemaAtencion || '',
+    data.personasAtendiendo || '', data.abarrotes || '', data.frutaVerdura || '', data.carnes || '',
+    Array.isArray(data.otrosRubros) ? data.otrosRubros.join(', ') : '', data.esMixto || '',
+    data.rubroPrincipal || '', data.detalleMixto || '', automatic, finalClassification,
+    data.clasificacionOverride ? 'manual' : 'automatica', String(data.justificacionOverride || '').trim(),
+    String(data.observaciones || '').trim(), local.code, local.id, local.name, local.address,
+    local.criterion, local.criterion2 || '',
+  ]];
 }
 
 function getSampleLocal_(code) {

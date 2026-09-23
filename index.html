@@ -57,13 +57,6 @@
             <label>Local o establecimiento<input id="establishment" readonly></label>
             <label>Dirección o referencia<input id="address" readonly></label>
             <label>Tipo de local<input id="localType" readonly></label>
-            <label>Subtipo de local<input id="localSubtype" readonly></label>
-            <label id="recategorizationField" class="required" hidden>Recategorización observada
-              <select id="recategorization"><option value="">Seleccione una opción</option><option value="Almacén">Almacén</option><option value="Minimarket">Minimarket</option></select>
-            </label>
-            <label id="retailSaleField" class="required" hidden>¿Tiene venta al detalle/menor?
-              <select id="retailSale"><option value="">Seleccione una opción</option><option value="Sí">Sí</option><option value="No">No</option></select>
-            </label>
             <label class="required">Latitud levantada<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
             <label class="required">Longitud levantada<input id="longitude" type="number" step="any" min="-180" max="180" placeholder="-72.067" required></label>
             <div><label>Ubicación</label><button class="secondary" id="locationButton" type="button">Usar ubicación actual</button></div>
@@ -134,6 +127,7 @@
       <div class="card">
         <h2>ESPORA · Clasificación del local</h2>
         <p>Ficha inicial de catastro. La clasificación automática combina sistema de atención, fruta/verdura y carnes; cualquier corrección manual exige una justificación.</p>
+        <div class="linked-local"><strong>Local vinculado a SampleLocals:</strong> <span id="classificationLinkedLocal"></span></div>
         <form id="classificationForm">
           <div class="grid">
             <label class="required">Unidad vecinal<select id="classificationUnit" required><option value="">Seleccione</option><option>UV1</option><option>UV2</option><option>UV3</option><option>UV4</option><option>UV5</option><option>UV6</option><option>UV7</option><option>UV8</option><option>UV9</option><option>UV10</option><option>UV11</option><option>UV12</option><option>Otra / borde</option></select></label>
@@ -155,7 +149,7 @@
             </fieldset>
             <fieldset><legend>Resultado</legend><p id="classificationResult" class="classification-result">Complete los campos para calcular.</p><label>Corrección manual<select id="classificationOverride"><option value="">Mantener clasificación automática</option><option value="minimarket">Corregir a MINIMARKET</option><option value="almacen_barrio">Corregir a ALMACÉN DE BARRIO</option></select></label><label id="classificationJustificationField" hidden>Justificación<textarea id="classificationJustification"></textarea></label></fieldset>
           </div>
-          <label class="required">Observaciones<textarea id="classificationNotes" required></textarea></label>
+          <label>Observaciones<textarea id="classificationNotes"></textarea></label>
           <div class="actions"><button type="submit">Guardar clasificación</button><button class="secondary return-menu" type="button">Volver al menú</button></div>
         </form>
       </div>

@@ -44,6 +44,7 @@ button:disabled { cursor: wait; opacity: .65; }
 .price-review-item span { color: #526a76; font-size: 13px; text-align: right; }
 .empty-state { background: #f3f7f4; border: 1px dashed #9aa0a6; border-radius: 8px; color: #526a76; padding: 18px; text-align: center; }
 .classification-result { background: #e5f2ee; border-radius: 8px; color: #14645f; font-weight: 700; margin: 10px 0; padding: 12px; }
+.linked-local { background: #eef7f5; border-left: 4px solid #2d948c; border-radius: 6px; color: #365866; font-size: 13px; margin: 12px 0; padding: 10px; }
 .required::after { color: #d93025; content: ' *'; }
 #connection, #message { border-radius: 4px; margin: 10px 0; padding: 10px; white-space: pre-line; }
 .online, #message.success { background: #e6f4ea; color: #137333; }

@@ -45,6 +45,15 @@ El flujo de precios se organiza en tres pantallas: entrada del instrumento, revi
 
 Al publicar la versión que incorpora este instrumento, ejecuta `setupDatabase()` para crear la hoja **Clasificación** con sus encabezados. Si la hoja ya existe, la función verifica que su estructura coincida y no borra datos. Después crea una nueva versión del Web App para que el endpoint acepte `instrument: "classification"`.
 
+La ficha de clasificación se vincula automáticamente con el código de local de la visita y vuelve a validar ese código contra `SampleLocals.gs`. La hoja `Clasificación` guarda también código, ID de muestra, nombre, dirección, tipo y subtipo provenientes de `SampleLocals`; por eso el panel inicial ya no solicita subtipo, recategorización ni venta al detalle.
+
+### Actualización del backend tras cambios
+
+1. Copia el `Code.gs` actualizado al proyecto ESPORA de Apps Script y conserva el archivo `SampleLocals`.
+2. Guarda y ejecuta `setupDatabase()` una vez. Si la hoja `Clasificación` ya tenía la estructura anterior, la nueva versión conserva las primeras 19 columnas y agrega las columnas de `SampleLocals` al final; no borra registros.
+3. En **Implementar → Administrar implementaciones**, edita la aplicación web y crea una **nueva versión**. No crees otra URL si quieres mantener el `API_URL` actual del frontend.
+4. Abre la URL `/exec` y verifica el mensaje `API activa`. Luego prueba guardar una clasificación: la respuesta ya no debe indicar `classificationRows_ is not defined`.
+
 ## Muestra de locales
 
 `sample-locals.js` contiene 107 locales de la muestra sugerida. Al ingresar su código, la aplicación completa nombre, dirección, tipo y subtipo; el backend vuelve a validar el código antes de guardar. La latitud y longitud se capturan en terreno mediante geolocalización o ingreso manual, y no se rellenan desde la muestra.
