@@ -142,10 +142,17 @@ function renderPriceReview(data) {
     $('#priceReviewItems').append(item);
   });
 }
+function openPriceEditor() {
+  $('#priceProducts').replaceChildren();
+  addPriceProduct();
+  showView('priceEditorView');
+}
 function savePriceDraftFromEditor() {
   const draft = getDraft();
-  const entries = priceData();
-  if (!entries.length) throw new Error('Agregue al menos un alimento.');
+  const newEntries = priceData();
+  if (!newEntries.length) throw new Error('Agregue al menos un alimento.');
+  const existingEntries = priceEntries_(draft.instruments.prices?.data);
+  const entries = existingEntries.concat(newEntries);
   draft.instruments.prices = { data: entries, saved: false };
   setDraft(draft);
   renderPriceReview(draft.instruments.prices.data);
@@ -225,7 +232,8 @@ function initialize() {
   $('#availabilityForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('availability', availabilityData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#originsForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('origins', originData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#openPricesReviewButton').addEventListener('click', () => { renderPriceReview(getDraft().instruments.prices?.data); showView('pricesReviewView'); });
-  $('#addPriceProduct').addEventListener('click', () => { $('#priceProducts').replaceChildren(); addPriceProduct(); showView('priceEditorView'); });
+  $('#startPriceProductButton').addEventListener('click', openPriceEditor);
+  $('#addPriceProduct').addEventListener('click', openPriceEditor);
   $('#priceEditorForm').addEventListener('submit', (event) => { event.preventDefault(); try { savePriceDraftFromEditor(); } catch (error) { showMessage(errorText_(error), 'error'); } });
   $('#cancelPriceEditor').addEventListener('click', () => { renderPriceReview(getDraft().instruments.prices?.data); showView('pricesReviewView'); });
   $('#saveReviewedPrices').addEventListener('click', () => { const draft = getDraft(); const data = draft.instruments.prices?.data; if (!priceEntries_(data).length) return showMessage('Agregue al menos un alimento antes de guardar.', 'error'); saveInstrument('prices', { products: priceEntries_(data), notes: $('#pricesNotes').value }, $('#saveReviewedPrices')).catch((error) => showMessage(errorText_(error), 'error')); });
