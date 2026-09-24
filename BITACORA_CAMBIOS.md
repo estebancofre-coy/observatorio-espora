@@ -152,3 +152,11 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - El frontend asigna un código local con patrón `LMNNN1`, tomando como base el mayor número de `SampleLocals` y manteniendo un contador local; no modifica `SampleLocals.gs`.
 - Apps Script valida y acepta esos locales nuevos usando los datos enviados en la visita, y los cruza con el instrumento `Clasificación`.
 - La incorporación definitiva del nuevo código a `SampleLocals.gs` queda pendiente de la sincronización posterior del catastro.
+
+## 2026-09-23 (5) — Imágenes y rubros combinables
+
+- El instrumento de clasificación ahora solo registra locales abiertos; se eliminó la pregunta de estado del local.
+- Se eliminó `¿Es mixto?` y el rubro se registra mediante un selector múltiple, permitiendo combinaciones sin duplicar el local en la base de datos.
+- Se añadieron cargas de imágenes para frontis, interior autorizado, frutas y verduras, carnes y congelados.
+- Las imágenes se comprimen en el navegador, se guardan en Drive en `ESPORA - Imágenes de levantamiento` y sus enlaces se agregan al final de `Clasificación`.
+- Se mantuvieron las columnas históricas de clasificación con valores vacíos donde dejaron de aplicar, evitando migraciones destructivas.

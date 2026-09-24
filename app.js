@@ -189,38 +189,74 @@ function savePriceDraftFromEditor() {
   showView('pricesReviewView');
 }
 function classificationData() {
-  const state = $('#classificationState').value;
+  const rubros = [...$('#classificationOther').selectedOptions].map((option) => option.value);
   return {
-    unitVecinal: $('#classificationUnit').value, estadoLocal: state,
+    unitVecinal: $('#classificationUnit').value, estadoLocal: 'abierto',
     superficie: $('#classificationSurface').value, sistemaAtencion: $('#classificationService').value,
-    personasAtendiendo: $('#classificationPeople').value, abarrotes: $('#classificationStaples').value,
-    frutaVerdura: $('#classificationProduce').value, carnes: $('#classificationMeat').value,
-    otrosRubros: [...$('#classificationOther').selectedOptions].map((option) => option.value),
-    esMixto: $('#classificationMixed').value, rubroPrincipal: $('#classificationMainBusiness').value,
-    detalleMixto: $('#classificationMixedDetail').value, clasificacionOverride: $('#classificationOverride').value,
+    personasAtendiendo: $('#classificationPeople').value, abarrotes: rubros.includes('abarrotes') ? 'si' : 'no',
+    frutaVerdura: rubros.some((item) => ['frutas', 'verduras'].includes(item)) ? 'presente' : 'ausente',
+    carnes: rubros.includes('carnes') ? 'presente' : 'ausente',
+    otrosRubros: rubros, rubros: rubros,
+    esMixto: '', rubroPrincipal: '', detalleMixto: '', clasificacionOverride: $('#classificationOverride').value,
     justificacionOverride: $('#classificationJustification').value, observaciones: $('#classificationNotes').value,
+    interiorAuthorized: $('#classificationInteriorPermission').checked,
+    images: collectClassificationImages_(),
   };
+}
+function collectClassificationImages_() {
+  const groups = { frontis: '#classificationFront', interior: '#classificationInterior', frutasVerduras: '#classificationProduceImages', carnes: '#classificationMeatImages', congelados: '#classificationFrozenImages' };
+  return Object.fromEntries(Object.entries(groups).map(([key, selector]) => [key, [...$(selector).files].map((file) => file)]));
+}
+async function prepareClassificationImages_(data) {
+  if (data.images.interior.length && !data.interiorAuthorized) {
+    throw new Error('Confirme la autorización para fotografiar el interior.');
+  }
+  const images = {};
+  for (const [group, files] of Object.entries(data.images || {})) {
+    images[group] = [];
+    for (const file of files) images[group].push(await compressImage_(file));
+  }
+  return { ...data, images };
+}
+function compressImage_(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('No fue posible leer una imagen.'));
+    reader.onload = () => {
+      const image = new Image();
+      image.onerror = () => reject(new Error('El archivo seleccionado no es una imagen válida.'));
+      image.onload = () => {
+        const scale = Math.min(1, 1600 / Math.max(image.naturalWidth, image.naturalHeight));
+        const canvas = document.createElement('canvas'); canvas.width = Math.round(image.naturalWidth * scale); canvas.height = Math.round(image.naturalHeight * scale);
+        canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+        resolve({ name: file.name, mimeType: 'image/jpeg', data: canvas.toDataURL('image/jpeg', 0.72).split(',')[1] });
+      };
+      image.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
 }
 function renderClassification(data = {}) {
   const local = getLocal();
   $('#classificationLinkedLocal').textContent = local ? `${local.code} · ${local.name} · ${local.address} · ${local.criterion}` : 'No hay un local de SampleLocals vinculado.';
-  const fields = { classificationUnit: data.unitVecinal, classificationState: data.estadoLocal, classificationSurface: data.superficie, classificationService: data.sistemaAtencion, classificationPeople: data.personasAtendiendo, classificationStaples: data.abarrotes, classificationProduce: data.frutaVerdura, classificationMeat: data.carnes, classificationMixed: data.esMixto, classificationMainBusiness: data.rubroPrincipal, classificationMixedDetail: data.detalleMixto, classificationOverride: data.clasificacionOverride, classificationJustification: data.justificacionOverride, classificationNotes: data.observaciones };
+  const fields = { classificationUnit: data.unitVecinal, classificationSurface: data.superficie, classificationService: data.sistemaAtencion, classificationPeople: data.personasAtendiendo, classificationOverride: data.clasificacionOverride, classificationJustification: data.justificacionOverride, classificationNotes: data.observaciones };
   Object.entries(fields).forEach(([id, value]) => { if ($('#' + id)) $('#' + id).value = value || ''; });
   [...$('#classificationOther').options].forEach((option) => { option.selected = (data.otrosRubros || []).includes(option.value); });
+  $('#classificationImageStatus').textContent = data.imageUrls ? 'Imágenes guardadas en Drive.' : '';
+  $('#classificationInteriorPermission').checked = Boolean(data.interiorAuthorized);
   updateClassificationVisibility();
 }
 function updateClassificationVisibility() {
-  const open = $('#classificationState').value === 'abierto';
-  $('#classificationOpenFields').hidden = !open;
-  ['classificationSurface', 'classificationService', 'classificationStaples', 'classificationProduce', 'classificationMeat', 'classificationMixed'].forEach((id) => { $('#' + id).required = open; });
-  const mixed = $('#classificationMixed').value === 'si';
-  $('#classificationMixedFields').hidden = !mixed;
-  $('#classificationMainBusiness').required = mixed; $('#classificationMixedDetail').required = mixed;
+  const open = true;
+  $('#classificationOpenFields').hidden = false;
+  ['classificationSurface', 'classificationService'].forEach((id) => { $('#' + id).required = open; });
+  $('#classificationOther').required = true;
   const manual = Boolean($('#classificationOverride').value);
   $('#classificationJustificationField').hidden = !manual; $('#classificationJustification').required = manual;
-  const auto = open && $('#classificationService').value && $('#classificationProduce').value && $('#classificationMeat').value
-    ? ($('#classificationService').value === 'acceso_libre' && ($('#classificationProduce').value === 'zona_amplia' || $('#classificationMeat').value === 'mostrador_freezer') ? 'MINIMARKET' : 'ALMACÉN DE BARRIO')
-    : 'Complete estructura y variedad';
+  const rubros = [...$('#classificationOther').selectedOptions].map((option) => option.value);
+  const auto = $('#classificationService').value && rubros.length
+    ? ($('#classificationService').value === 'acceso_libre' && rubros.some((item) => ['frutas', 'verduras', 'carnes', 'congelados'].includes(item)) ? 'MINIMARKET' : 'ALMACÉN DE BARRIO')
+    : 'Complete atención y rubros';
   $('#classificationResult').textContent = 'Clasificación automática: ' + auto;
 }
 
@@ -268,9 +304,9 @@ function initialize() {
   $('#cancelPriceEditor').addEventListener('click', () => { renderPriceReview(getDraft().instruments.prices?.data); showView('pricesReviewView'); });
   $('#saveReviewedPrices').addEventListener('click', () => { const draft = getDraft(); const data = draft.instruments.prices?.data; if (!priceEntries_(data).length) return showMessage('Agregue al menos un alimento antes de guardar.', 'error'); saveInstrument('prices', { products: priceEntries_(data), notes: $('#pricesNotes').value }, $('#saveReviewedPrices')).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#addOriginItem').addEventListener('click', () => addOriginItem());
-  $('#classificationState').addEventListener('change', updateClassificationVisibility); $('#classificationMixed').addEventListener('change', updateClassificationVisibility); $('#classificationOverride').addEventListener('change', updateClassificationVisibility);
-  ['classificationService', 'classificationProduce', 'classificationMeat'].forEach((id) => $('#' + id).addEventListener('change', updateClassificationVisibility));
-  $('#classificationForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('classification', classificationData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
+  $('#classificationOverride').addEventListener('change', updateClassificationVisibility);
+  ['classificationService', 'classificationOther'].forEach((id) => $('#' + id).addEventListener('change', updateClassificationVisibility));
+  $('#classificationForm').addEventListener('submit', async (event) => { event.preventDefault(); try { const data = await prepareClassificationImages_(classificationData()); await saveInstrument('classification', data, event.submitter); } catch (error) { showMessage(errorText_(error), 'error'); } });
   window.addEventListener('online', () => { updateConnection(); syncQueue().catch((error) => showMessage(errorText_(error), 'error')); }); window.addEventListener('offline', updateConnection);
   syncQueue().catch(() => {});
 }

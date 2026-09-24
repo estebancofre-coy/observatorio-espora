@@ -1,4 +1,5 @@
 const DATABASE_SPREADSHEET_ID = '1kgIi0Ls6zaSfFZI8ToXHS6Kil610z73m1jqoCZwZQ_Y';
+const IMAGE_FOLDER_NAME = 'ESPORA - Imágenes de levantamiento';
 
 const SHEETS = {
   visits: {
@@ -19,7 +20,7 @@ const SHEETS = {
   },
   classification: {
     name: 'Clasificación',
-    headers: ['ID de visita', 'Fecha de registro', 'Unidad vecinal', 'Estado del local', 'Superficie estimada', 'Sistema de atención', 'Personas atendiendo', 'Abarrotes básicos', 'Fruta y verdura', 'Carnes', 'Otros rubros', 'Es mixto', 'Rubro principal', 'Detalle mixto', 'Clasificación automática', 'Clasificación final', 'Modo de clasificación', 'Justificación de corrección', 'Observaciones', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local'],
+    headers: ['ID de visita', 'Fecha de registro', 'Unidad vecinal', 'Estado del local', 'Superficie estimada', 'Sistema de atención', 'Personas atendiendo', 'Abarrotes básicos', 'Fruta y verdura', 'Carnes', 'Otros rubros', 'Es mixto', 'Rubro principal', 'Detalle mixto', 'Clasificación automática', 'Clasificación final', 'Modo de clasificación', 'Justificación de corrección', 'Observaciones', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local', 'Fotos frontis', 'Fotos interior autorizado', 'Fotos frutas y verduras', 'Fotos carnes', 'Fotos congelados'],
   },
 };
 
@@ -151,6 +152,10 @@ function saveInstrument_(payload) {
   lock.waitLock(30000);
   try {
     upsertVisit_(database, payload.visit);
+    const imageUrls = instrument === 'classification'
+      ? saveClassificationImages_(payload.visit, payload.data)
+      : {};
+    if (instrument === 'classification') payload.data.imageUrls = imageUrls;
     const rows = instrument === 'availability'
       ? availabilityRows_(payload.visit, payload.data)
       : instrument === 'prices'
@@ -268,36 +273,61 @@ function originRows_(visit, data) {
 }
 
 function classificationRows_(visit, data) {
-  if (!data || !data.unitVecinal || !data.estadoLocal) {
-    throw new Error('Complete la unidad vecinal y el estado del local.');
+  if (!data || !data.unitVecinal) {
+    throw new Error('Complete la unidad vecinal.');
+  }
+  if (data.estadoLocal !== 'abierto') {
+    throw new Error('Solo se registran locales abiertos.');
   }
   const local = getVisitLocal_(visit);
-  const closed = data.estadoLocal !== 'abierto';
-  if (!closed && (!data.superficie || !data.sistemaAtencion || !data.abarrotes || !data.frutaVerdura || !data.carnes || !data.esMixto)) {
-    throw new Error('Complete la estructura, variedad y rubro mixto del local abierto.');
+  const rubros = Array.isArray(data.rubros) ? data.rubros : data.otrosRubros;
+  if (!data.superficie || !data.sistemaAtencion || !Array.isArray(rubros) || !rubros.length) {
+    throw new Error('Complete la estructura, atención y al menos un rubro.');
   }
-  if (closed && !String(data.observaciones || '').trim()) {
-    throw new Error('Agregue observaciones para un local que no está abierto.');
+  if (Array.isArray(data.images && data.images.interior) && data.images.interior.length && !data.interiorAuthorized) {
+    throw new Error('El interior solo puede registrarse con autorización.');
   }
-  const automatic = closed ? '' : (
+  const automatic = (
     data.sistemaAtencion === 'acceso_libre' &&
-    (data.frutaVerdura === 'zona_amplia' || data.carnes === 'mostrador_freezer')
+    rubros.some((item) => ['frutas', 'verduras', 'carnes', 'congelados'].includes(item))
       ? 'minimarket'
       : 'almacen_barrio'
   );
-  if (!closed && data.clasificacionOverride && !String(data.justificacionOverride || '').trim()) {
+  if (data.clasificacionOverride && !String(data.justificacionOverride || '').trim()) {
     throw new Error('Justifique la corrección manual de la clasificación.');
   }
-  const finalClassification = closed ? '' : (data.clasificacionOverride || automatic);
+  const finalClassification = data.clasificacionOverride || automatic;
   return [[
-    visit.id, new Date(), data.unitVecinal, data.estadoLocal, data.superficie || '', data.sistemaAtencion || '',
+    visit.id, new Date(), data.unitVecinal, 'abierto', data.superficie || '', data.sistemaAtencion || '',
     data.personasAtendiendo || '', data.abarrotes || '', data.frutaVerdura || '', data.carnes || '',
-    Array.isArray(data.otrosRubros) ? data.otrosRubros.join(', ') : '', data.esMixto || '',
-    data.rubroPrincipal || '', data.detalleMixto || '', automatic, finalClassification,
+    rubros.join(', '), '', '', '', automatic, finalClassification,
     data.clasificacionOverride ? 'manual' : 'automatica', String(data.justificacionOverride || '').trim(),
     String(data.observaciones || '').trim(), local.code, local.id, local.name, local.address,
-    local.criterion, local.criterion2 || '',
+    local.criterion, local.criterion2 || '', data.imageUrls.frontis || '', data.imageUrls.interior || '',
+    data.imageUrls.frutasVerduras || '', data.imageUrls.carnes || '', data.imageUrls.congelados || '',
   ]];
+}
+
+function saveClassificationImages_(visit, data) {
+  const folder = getImageFolder_();
+  const urls = {};
+  Object.keys(data.images || {}).forEach((group) => {
+    const files = Array.isArray(data.images[group]) ? data.images[group] : [];
+    urls[group] = files.map((image, index) => {
+      if (!image || !image.data || image.mimeType !== 'image/jpeg') {
+        throw new Error('Una imagen del grupo ' + group + ' no tiene un formato válido.');
+      }
+      const bytes = Utilities.base64Decode(image.data);
+      const blob = Utilities.newBlob(bytes, image.mimeType, visit.id + '-' + group + '-' + (index + 1) + '.jpg');
+      return folder.createFile(blob).getUrl();
+    }).join('\n');
+  });
+  return urls;
+}
+
+function getImageFolder_() {
+  const folders = DriveApp.getFoldersByName(IMAGE_FOLDER_NAME);
+  return folders.hasNext() ? folders.next() : DriveApp.createFolder(IMAGE_FOLDER_NAME);
 }
 
 function getSampleLocal_(code) {

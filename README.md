@@ -41,7 +41,9 @@ El flujo de precios se organiza en tres pantallas: entrada del instrumento, revi
 
 ## Instrumento especial de clasificación
 
-`Clasificación` es el instrumento inicial de la recogida. Registra unidad vecinal, estado del local, estructura, sistema de atención, variedad, rubros mixtos y observaciones. Para locales abiertos calcula automáticamente `minimarket` cuando hay acceso libre y zona amplia de fruta/verdura o mostrador/freezer de carnes; si no, clasifica como `almacen_barrio`. Una corrección manual exige justificación. Para locales no abiertos se solicitan solo identificación, estado y observaciones.
+`Clasificación` es el instrumento inicial de la recogida. Registra unidad vecinal, estructura, sistema de atención, rubros combinables y observaciones. El instrumento solo permite registrar locales abiertos y calcula automáticamente `minimarket` cuando hay acceso libre y rubros frescos/congelados relevantes; si no, clasifica como `almacen_barrio`. Una corrección manual exige justificación.
+
+También permite cargar fotografías del frontis y, cuando existe autorización, del interior, módulo de frutas y verduras, carnes y congelados. Las imágenes se comprimen en el navegador y Apps Script las almacena en la carpeta de Drive `ESPORA - Imágenes de levantamiento`; la hoja `Clasificación` conserva sus enlaces.
 
 Al publicar la versión que incorpora este instrumento, ejecuta `setupDatabase()` para crear la hoja **Clasificación** con sus encabezados. Si la hoja ya existe, la función verifica que su estructura coincida y no borra datos. Después crea una nueva versión del Web App para que el endpoint acepte `instrument: "classification"`.
 
@@ -49,10 +51,12 @@ La ficha de clasificación se vincula automáticamente con el código de local d
 
 La pantalla inicial también permite elegir **Local nuevo**. En ese modo genera un código local con el patrón `LMNNN1` (por ejemplo, `LM108N1`) usando una secuencia local del navegador, sin editar `SampleLocals.gs`. El nombre, dirección y tipo ingresados viajan con la visita; Apps Script acepta ese local y lo registra en `Visitas` y `Clasificación`. La incorporación posterior a `SampleLocals.gs` queda como tarea de sincronización metodológica.
 
+Para gestión geoespacial conviene capturar además precisión horizontal del GPS, fecha/hora de captura, fuente de coordenadas (GPS del dispositivo o digitación), permiso para fotografiar, accesibilidad del local, relación con ferias o equipamientos cercanos, y un identificador territorial estable como zona censal o unidad vecinal. Estos campos permiten evaluar calidad posicional, proteger datos sensibles y hacer análisis de cobertura sin depender solo de la dirección.
+
 ### Actualización del backend tras cambios
 
 1. Copia el `Code.gs` actualizado al proyecto ESPORA de Apps Script y conserva el archivo `SampleLocals`.
-2. Guarda y ejecuta `setupDatabase()` una vez. Si la hoja `Clasificación` ya tenía la estructura anterior, la nueva versión conserva las primeras 19 columnas y agrega las columnas de `SampleLocals` al final; no borra registros.
+2. Guarda y ejecuta `setupDatabase()` una vez. Si la hoja `Clasificación` ya tenía la estructura anterior, la nueva versión conserva sus columnas existentes y agrega al final las columnas de imágenes; no borra registros. La primera ejecución puede solicitar permisos adicionales para crear la carpeta de imágenes en Drive.
 3. En **Implementar → Administrar implementaciones**, edita la aplicación web y crea una **nueva versión**. No crees otra URL si quieres mantener el `API_URL` actual del frontend.
 4. Abre la URL `/exec` y verifica el mensaje `API activa`. Luego prueba guardar una clasificación: la respuesta ya no debe indicar `classificationRows_ is not defined`.
 
