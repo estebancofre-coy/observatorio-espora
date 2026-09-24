@@ -144,3 +144,11 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - Se eliminaron del panel inicial `Subtipo de local`, `Recategorización observada` y `¿Tiene venta al detalle/menor?`. Sus columnas históricas en `Visitas` se conservan para compatibilidad, pero quedan vacías para nuevas visitas.
 - Se eliminó la exigencia backend de recategorización y venta al detalle, ya que la clasificación especial reemplaza ese flujo.
 - La hoja `Clasificación` mantiene sus 19 columnas originales y agrega las columnas de `SampleLocals` al final para evitar una migración destructiva.
+
+## 2026-09-23 (4) — Registro de locales nuevos
+
+- La pantalla inicial permite alternar entre `Local de la muestra` y `Local nuevo`.
+- Para un local nuevo se solicitan nombre, dirección y tipo; la geolocalización sigue siendo obligatoria para la visita.
+- El frontend asigna un código local con patrón `LMNNN1`, tomando como base el mayor número de `SampleLocals` y manteniendo un contador local; no modifica `SampleLocals.gs`.
+- Apps Script valida y acepta esos locales nuevos usando los datos enviados en la visita, y los cruza con el instrumento `Clasificación`.
+- La incorporación definitiva del nuevo código a `SampleLocals.gs` queda pendiente de la sincronización posterior del catastro.

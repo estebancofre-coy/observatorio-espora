@@ -52,11 +52,23 @@
           <div class="grid">
             <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
             <label class="required">Persona recolectora<input id="collector" required></label>
+            <label class="required">Tipo de local
+              <select id="localMode"><option value="sample">Local de la muestra</option><option value="new">Local nuevo</option></select>
+            </label>
             <label class="required">Código de local de la muestra<input id="localCode" list="localCodes" autocomplete="off" placeholder="Ejemplo: LM01A1" required></label>
             <datalist id="localCodes"></datalist>
+            <div id="sampleLocalFields" class="wide"><p class="field-help">Seleccione un código existente de SampleLocals.</p></div>
+            <div id="newLocalFields" class="wide" hidden>
+              <div class="grid">
+                <label class="required">Nombre del nuevo local<input id="newLocalName" placeholder="Ejemplo: Almacén del barrio"></label>
+                <label class="required">Dirección o referencia<input id="newLocalAddress" placeholder="Calle, número o referencia"></label>
+                <label class="required">Tipo de local<select id="newLocalType"><option value="">Seleccione</option><option>Almacén</option><option>Minimarket</option><option>Supermercado</option><option>Venta de Frutas y Verduras</option><option>Mercado Campesino</option><option>Productor Hortícola</option><option>Otro</option></select></label>
+              </div>
+              <p class="field-help">Se asignará un código nuevo siguiendo el patrón de SampleLocals, sin modificar ese archivo.</p>
+            </div>
             <label>Local o establecimiento<input id="establishment" readonly></label>
             <label>Dirección o referencia<input id="address" readonly></label>
-            <label>Tipo de local<input id="localType" readonly></label>
+            <label>Tipo de local registrado<input id="localType" readonly></label>
             <label class="required">Latitud levantada<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
             <label class="required">Longitud levantada<input id="longitude" type="number" step="any" min="-180" max="180" placeholder="-72.067" required></label>
             <div><label>Ubicación</label><button class="secondary" id="locationButton" type="button">Usar ubicación actual</button></div>

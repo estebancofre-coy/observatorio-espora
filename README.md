@@ -47,6 +47,8 @@ Al publicar la versión que incorpora este instrumento, ejecuta `setupDatabase()
 
 La ficha de clasificación se vincula automáticamente con el código de local de la visita y vuelve a validar ese código contra `SampleLocals.gs`. La hoja `Clasificación` guarda también código, ID de muestra, nombre, dirección, tipo y subtipo provenientes de `SampleLocals`; por eso el panel inicial ya no solicita subtipo, recategorización ni venta al detalle.
 
+La pantalla inicial también permite elegir **Local nuevo**. En ese modo genera un código local con el patrón `LMNNN1` (por ejemplo, `LM108N1`) usando una secuencia local del navegador, sin editar `SampleLocals.gs`. El nombre, dirección y tipo ingresados viajan con la visita; Apps Script acepta ese local y lo registra en `Visitas` y `Clasificación`. La incorporación posterior a `SampleLocals.gs` queda como tarea de sincronización metodológica.
+
 ### Actualización del backend tras cambios
 
 1. Copia el `Code.gs` actualizado al proyecto ESPORA de Apps Script y conserva el archivo `SampleLocals`.

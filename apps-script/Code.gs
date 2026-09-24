@@ -184,7 +184,7 @@ function validateVisit_(visit) {
   if (!visit || !visit.id || !visit.observationDate || !String(visit.collector || '').trim()) {
     throw new Error('Los datos generales de la visita están incompletos.');
   }
-  const local = getSampleLocal_(visit.localCode);
+  getVisitLocal_(visit);
   ['latitude', 'longitude'].forEach((key) => {
     if (!Number.isFinite(Number(visit[key]))) {
       throw new Error('La ' + (key === 'latitude' ? 'latitud' : 'longitud') + ' levantada es obligatoria.');
@@ -197,7 +197,7 @@ function validateVisit_(visit) {
 }
 
 function upsertVisit_(database, visit) {
-  const local = getSampleLocal_(visit.localCode);
+  const local = getVisitLocal_(visit);
   const sheet = database.getSheetByName(SHEETS.visits.name);
   const values = sheet.getDataRange().getValues();
   const rowIndex = values.findIndex((row, index) => index && row[0] === visit.id);
@@ -271,7 +271,7 @@ function classificationRows_(visit, data) {
   if (!data || !data.unitVecinal || !data.estadoLocal) {
     throw new Error('Complete la unidad vecinal y el estado del local.');
   }
-  const local = getSampleLocal_(visit.localCode);
+  const local = getVisitLocal_(visit);
   const closed = data.estadoLocal !== 'abierto';
   if (!closed && (!data.superficie || !data.sistemaAtencion || !data.abarrotes || !data.frutaVerdura || !data.carnes || !data.esMixto)) {
     throw new Error('Complete la estructura, variedad y rubro mixto del local abierto.');
@@ -306,4 +306,23 @@ function getSampleLocal_(code) {
     throw new Error('El código de local no pertenece a la muestra sugerida.');
   }
   return local;
+}
+
+function getVisitLocal_(visit) {
+  const sample = SAMPLE_LOCALS.find((entry) => entry.code === String(visit.localCode || '').trim().toUpperCase());
+  if (sample) {
+    return sample;
+  }
+  if (visit.isNewLocal && String(visit.localName || '').trim() &&
+      String(visit.localAddress || '').trim() && String(visit.localType || '').trim()) {
+    return {
+      code: String(visit.localCode).trim().toUpperCase(),
+      id: '',
+      name: String(visit.localName).trim(),
+      address: String(visit.localAddress).trim(),
+      criterion: String(visit.localType).trim(),
+      criterion2: '',
+    };
+  }
+  throw new Error('El código de local no pertenece a la muestra y faltan datos del local nuevo.');
 }

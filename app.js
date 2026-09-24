@@ -1,6 +1,7 @@
 const API_URL = 'https://script.google.com/macros/s/AKfycbwNX-W0y8r4pl8Qa1eH4w0_Nl-TaQfbKtqGFnScMHgRWdAD4gqJDcpMg125_8QHFlrf/exec';
 const DRAFT_KEY = 'esporaCoyhaiqueVisitDraftV2';
 const QUEUE_KEY = 'esporaCoyhaiquePendingV2';
+const NEW_LOCAL_COUNTER_KEY = 'esporaCoyhaiqueNewLocalCounterV1';
 const CONSERVATION_OPTIONS = ['Fresco', 'Congelado', 'Al vacío', 'Embutido', 'Pillow bag', 'Granel (papel)'];
 
 const PRODUCTS = [
@@ -37,6 +38,16 @@ function setDraft(draft) { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)
 function getQueue() { try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (_) { return []; } }
 function setQueue(queue) { localStorage.setItem(QUEUE_KEY, JSON.stringify(queue)); }
 function newId() { return 'VIS-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase(); }
+function newLocalCode() {
+  const stored = Number(localStorage.getItem(NEW_LOCAL_COUNTER_KEY) || '0');
+  const highest = SAMPLE_LOCALS.reduce((max, local) => {
+    const match = String(local.code).match(/^LM(\d+)/i);
+    return Math.max(max, match ? Number(match[1]) : 0);
+  }, 0);
+  const next = Math.max(highest + 1, stored + 1);
+  localStorage.setItem(NEW_LOCAL_COUNTER_KEY, String(next));
+  return 'LM' + String(next).padStart(2, '0') + 'N1';
+}
 function setOptions(select, values, blank) { select.replaceChildren(...(blank ? [new Option(blank, '')] : []), ...values.map((value) => new Option(value, value))); }
 function showMessage(text, type) { const el = $('#message'); el.textContent = text; el.className = type; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
 function showView(id) { document.querySelectorAll('.view').forEach((view) => { view.hidden = view.id !== id; }); currentView = id; window.scrollTo(0, 0); }
@@ -74,18 +85,37 @@ async function api(payload) {
 
 function getLocal() { return SAMPLE_LOCALS.find((local) => local.code === $('#localCode').value.trim().toUpperCase()); }
 function updateLocal() {
+  const isNew = $('#localMode').value === 'new';
   const local = getLocal();
   const code = $('#localCode');
+  $('#sampleLocalFields').hidden = isNew;
+  $('#newLocalFields').hidden = !isNew;
+  $('#localCode').required = !isNew;
+  ['newLocalName', 'newLocalAddress', 'newLocalType'].forEach((id) => { $('#' + id).required = isNew; });
+  if (isNew) {
+    if (!/^LM\d+N1$/i.test(code.value)) code.value = newLocalCode();
+    code.setCustomValidity('');
+    $('#establishment').value = $('#newLocalName').value;
+    $('#address').value = $('#newLocalAddress').value;
+    $('#localType').value = $('#newLocalType').value;
+    return;
+  }
   if (!local) {
     code.setCustomValidity('Ingrese un código válido de la muestra.'); ['establishment', 'address', 'localType'].forEach((id) => { $('#' + id).value = ''; }); return;
   }
   code.value = local.code; code.setCustomValidity('');
   $('#establishment').value = local.name; $('#address').value = local.address; $('#localType').value = local.criterion;
 }
-function visitFromForm(existing) {
-  return { id: existing?.id || newId(), observationDate: $('#observationDate').value, collector: $('#collector').value, localCode: $('#localCode').value, latitude: $('#latitude').value, longitude: $('#longitude').value, instruments: existing?.instruments || {} };
+function localFormIsValid() {
+  return $('#localMode').value === 'new'
+    ? Boolean($('#newLocalName').value.trim() && $('#newLocalAddress').value.trim() && $('#newLocalType').value)
+    : Boolean(getLocal());
 }
-function fillVisit(visit) { Object.entries({ observationDate: visit.observationDate, collector: visit.collector, localCode: visit.localCode, latitude: visit.latitude, longitude: visit.longitude }).forEach(([id, value]) => { $('#' + id).value = value || ''; }); updateLocal(); }
+function visitFromForm(existing) {
+  const isNew = $('#localMode').value === 'new';
+  return { id: existing?.id || newId(), observationDate: $('#observationDate').value, collector: $('#collector').value, localCode: $('#localCode').value, latitude: $('#latitude').value, longitude: $('#longitude').value, isNewLocal: isNew, localName: isNew ? $('#newLocalName').value.trim() : '', localAddress: isNew ? $('#newLocalAddress').value.trim() : '', localType: isNew ? $('#newLocalType').value : '', instruments: existing?.instruments || {} };
+}
+function fillVisit(visit) { Object.entries({ observationDate: visit.observationDate, collector: visit.collector, localCode: visit.localCode, latitude: visit.latitude, longitude: visit.longitude }).forEach(([id, value]) => { $('#' + id).value = value || ''; }); $('#localMode').value = visit.isNewLocal ? 'new' : 'sample'; if (visit.isNewLocal) { $('#newLocalName').value = visit.localName || ''; $('#newLocalAddress').value = visit.localAddress || ''; $('#newLocalType').value = visit.localType || ''; } updateLocal(); }
 function updateMenu() {
   const draft = getDraft(); if (!draft) return;
   const local = SAMPLE_LOCALS.find((item) => item.code === draft.localCode);
@@ -224,8 +254,8 @@ function useCurrentLocation() { if (!navigator.geolocation) return showMessage('
 function initialize() {
   setOptions($('#localCodes'), SAMPLE_LOCALS.map((local) => local.code)); updateConnection();
   const draft = getDraft(); $('#observationDate').value = new Date().toISOString().slice(0, 10); if (draft) { fillVisit(draft); showView('menuView'); updateMenu(); }
-  $('#localCode').addEventListener('input', updateLocal); $('#localCode').addEventListener('change', updateLocal); $('#locationButton').addEventListener('click', useCurrentLocation);
-  $('#visitForm').addEventListener('submit', (event) => { event.preventDefault(); const current = getDraft(); const visit = visitFromForm(current); if (!getLocal()) return; setDraft(visit); showView('menuView'); });
+  $('#localCode').addEventListener('input', updateLocal); $('#localCode').addEventListener('change', updateLocal); $('#localMode').addEventListener('change', updateLocal); ['newLocalName', 'newLocalAddress', 'newLocalType'].forEach((id) => $('#' + id).addEventListener('input', updateLocal)); $('#locationButton').addEventListener('click', useCurrentLocation);
+  $('#visitForm').addEventListener('submit', (event) => { event.preventDefault(); const current = getDraft(); const visit = visitFromForm(current); if (!localFormIsValid()) { showMessage('Complete los datos del local seleccionado o del local nuevo.', 'error'); return; } setDraft(visit); showView('menuView'); });
   document.querySelectorAll('.instrument').forEach((button) => button.addEventListener('click', () => openInstrument(button.dataset.instrument)));
   document.querySelectorAll('.return-menu').forEach((button) => button.addEventListener('click', () => { showView('menuView'); updateMenu(); }));
   $('#editVisitButton').addEventListener('click', () => showView('visitView')); $('#backupJsonButton').addEventListener('click', () => downloadBackup('json')); $('#backupHtmlButton').addEventListener('click', () => downloadBackup('html')); $('#closeVisitButton').addEventListener('click', () => { if (confirm('¿Eliminar el borrador local de esta visita? Los instrumentos ya guardados permanecerán en la base de datos.')) { localStorage.removeItem(DRAFT_KEY); $('#visitForm').reset(); $('#observationDate').value = new Date().toISOString().slice(0, 10); showView('visitView'); } });
