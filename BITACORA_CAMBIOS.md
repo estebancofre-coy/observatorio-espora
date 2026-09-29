@@ -169,3 +169,10 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - Se agregó el botón `Ver mapa de unidades vecinales (Google Earth)` que abre en pestaña nueva `https://earth.google.com/earth/d/1ELFkikpamAG-HdZ0Kcy3PBn-gsOhvNup`.
 - Se creó `uv-boundaries.js` con la lógica de *point-in-polygon* para sugerir la UV automáticamente a partir de latitud/longitud y para filtrar la lista de locales de la muestra por UV asignada. El objeto `UV_POLYGONS` queda vacío hasta recibir el KML exportado de ese proyecto de Google Earth (ver README, sección "Unidad vecinal (UV) del local").
 - Backend: `Code.gs` valida que la visita incluya `unitVecinal`, agrega la columna `Unidad vecinal` a `Visitas` y usa ese valor (en vez de repetirlo en el instrumento) para `Clasificación`.
+
+## 2026-09-29 — Revisión del KML de Google Earth
+
+- Se revisó `Locales Manuales - Por Subcategoría - Final (1).kml`: contiene 216 puntos de locales agrupados por rubro económico y ningún polígono ni nombre de unidad vecinal.
+- No se usó para `UV_POLYGONS`; la sugerencia automática de UV sigue inactiva y la UV se selecciona manualmente.
+- README documenta fuentes oficiales para obtener los límites de UV (Dato Vecino INE/MDSF, Geoportal IDE Chile, Municipalidad).
+

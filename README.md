@@ -1,4 +1,4 @@
-# ESPORA Coyhaique
+﻿# ESPORA Coyhaique
 
 **ESPORA** — Economía Social, Precios, Orgánicos, Residuos y Alimentación — es una interfaz web estática para levantar disponibilidad, precios y origen de productos en Coyhaique. El nombre evoca la espora: dispersión, resistencia y regeneración territorial, ligada al compostaje y a la Economía Social y Solidaria (ESS). Guarda cada instrumento en Google Sheets mediante una aplicación web de Google Apps Script.
 
@@ -69,6 +69,15 @@ Ahí se ven los colores por UV para identificar visualmente en qué unidad está
 2. Menú (⋮) del proyecto → **Exportar como KML** (o KMZ; si es KMZ, descomprímalo, es un `.kml` dentro de un zip).
 3. Comparta ese archivo `.kml` con el equipo de desarrollo (o súbalo al repositorio como `apps-script/uv.kml`).
 4. Con las coordenadas de cada polígono se completará `UV_POLYGONS` en `uv-boundaries.js`.
+
+> **Nota (revisión 2026-09-29):** se recibió el archivo `Locales Manuales - Por Subcategoría - Final (1).kml` para completar `UV_POLYGONS`, pero al inspeccionarlo se comprobó que **no contiene polígonos**: son 216 `Placemark` de tipo punto, agrupados en carpetas por **rubro/subcategoría económica** (ferias, cervecerías, panaderías, procesamiento de alimentos, etc.), sin ningún nombre de Unidad Vecinal. Es decir, corresponde a otra capa del mismo proyecto de Google Earth (catastro de locales), no a la capa de límites de UV con colores. Ese archivo no se usó para `UV_POLYGONS`; puede servir en el futuro como catastro complementario si se solicita explícitamente.
+>
+> Para obtener la capa de límites de UV se recomienda una fuente oficial en vez del proyecto de Earth (que no expone un KML público descargable):
+> - **Dato Vecino (INE / MDSF)**: https://datovecino.ine.cl — visor con las Unidades Vecinales oficiales por comuna, ajustadas al estándar del Ministerio de Desarrollo Social y Familia. Permite ubicar Coyhaique y descargar la capa (SHP; conviene convertir a GeoJSON/KML con QGIS si no ofrece ese formato directo).
+> - **Geoportal.cl (IDE Chile)**: https://geoportal.cl/geoportal/catalog/36395/Unidades%20vecinales — catálogo con la capa nacional de unidades vecinales; requiere iniciar sesión para descargar.
+> - Alternativamente, solicitar la capa directamente a la Municipalidad de Coyhaique (SECPLA) o al MDSF vía solicitud de datos abiertos.
+>
+> Una vez se obtenga el `.shp`/`.kml`/`.geojson` oficial con los polígonos y el nombre de cada UV de Coyhaique, se puede completar `UV_POLYGONS` siguiendo el mismo formato documentado arriba.
 
 Una vez cargado, la aplicación:
 - Sugiere automáticamente la UV al capturar o ingresar latitud/longitud (`getUvForCoordinates`), dejando siempre la posibilidad de corregirla manualmente.
