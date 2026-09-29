@@ -176,3 +176,8 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - No se usó para `UV_POLYGONS`; la sugerencia automática de UV sigue inactiva y la UV se selecciona manualmente.
 - README documenta fuentes oficiales para obtener los límites de UV (Dato Vecino INE/MDSF, Geoportal IDE Chile, Municipalidad).
 
+## 2026-09-29 — Fix estructura de hoja Visitas
+
+- `setupDatabase()` fallaba con "La estructura de la hoja Visitas no coincide con la versión esperada" porque la columna `Unidad vecinal` se había insertado en medio de los encabezados. `ensureSheet_` solo admite agregar columnas al final para no desplazar datos.
+- Se movió `Unidad vecinal` al final de `Visitas` (y en `upsertVisit_`); ahora `setupDatabase()` la agrega sin tocar registros existentes.
+

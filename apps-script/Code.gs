@@ -4,7 +4,7 @@ const IMAGE_FOLDER_NAME = 'ESPORA - Imágenes de levantamiento';
 const SHEETS = {
   visits: {
     name: 'Visitas',
-    headers: ['ID de visita', 'Fecha de registro', 'Fecha de observación', 'Persona recolectora', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local', 'Unidad vecinal', 'Latitud levantada', 'Longitud levantada', 'Recategorización observada', 'Importador con venta al detalle/menor'],
+    headers: ['ID de visita', 'Fecha de registro', 'Fecha de observación', 'Persona recolectora', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local', 'Latitud levantada', 'Longitud levantada', 'Recategorización observada', 'Importador con venta al detalle/menor', 'Unidad vecinal'],
   },
   availability: {
     name: 'Disponibilidad',
@@ -212,9 +212,10 @@ function upsertVisit_(database, visit) {
   const row = [
     visit.id, new Date(), new Date(visit.observationDate + 'T12:00:00'),
     visit.collector.trim(), local.code, local.id, local.name, local.address,
-    local.criterion, local.criterion2 || '', String(visit.unitVecinal || '').trim(),
+    local.criterion, local.criterion2 || '',
     Number(visit.latitude), Number(visit.longitude),
     visit.recategorization || '', visit.retailSale || '',
+    String(visit.unitVecinal || '').trim(),
   ];
   if (rowIndex > 0) {
     sheet.getRange(rowIndex + 1, 1, 1, row.length).setValues([row]);
