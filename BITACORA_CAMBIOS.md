@@ -187,3 +187,20 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - Al seleccionar un local de la muestra se precargan latitud, longitud y UV calculada. Las coordenadas ingresadas o capturadas por GPS también sugieren la UV; la persona puede corregirla manualmente.
 - El filtro de la lista de muestra quedó dentro de un panel opcional plegado para distinguirlo del único campo de UV que se guarda en la ficha.
 - La comprobación espacial ubicó 107 de 107 puntos de muestra dentro de los polígonos; 19 están a menos de 20 m de un límite. Se documentó una posible coordenada errónea en `LM04A1` para revisión.
+
+## 2026-09-29 — Ajustes al flujo de identificación y clasificación
+
+- En la ficha inicial, la opción de crear un local nuevo ahora aparece después del filtro y la lista de muestra, para que primero se revise si el local ya está registrado.
+- La superficie de exposición ahora se define por cantidad de góndolas, naves y congeladoras, excluyendo el mobiliario detrás del mesón. Rangos sin solapamiento: muy pequeño 1–2, pequeño 3–4, mediano 5–8, grande más de 8.
+- La foto del frontis es obligatoria; las fotografías interiores y de módulos son opcionales y aparecen agrupadas en un panel plegable. El interior sigue condicionado a autorización.
+- No se modificó la regla automática de almacén/minimarket en esa tanda. README explica la condición que aplica actualmente.
+
+## 2026-09-29 (2) — Nueva regla de clasificación almacén/minimarket
+
+- La regla anterior asignaba `minimarket` con acceso libre y **un solo** rubro fresco, de modo que un almacén con una caja de frutas quedaba clasificado como minimarket.
+- La nueva regla exige cuatro condiciones simultáneas: acceso libre, abarrotes básicos, al menos dos grupos perecibles distintos y superficie mediana o grande.
+- Los grupos perecibles son frutas y verduras (juntas cuentan como uno), carnes frescas, congelados, lácteos y huevos, y pescados y mariscos.
+- La superficie pasa a ser criterio de clasificación; antes se registraba sin usarse en el cálculo.
+- El resultado en pantalla ahora indica qué condición falta cuando el resultado es almacén de barrio.
+- `app.js` y `apps-script/Code.gs` comparten la función `classifyLocal_` con la misma lógica. Se validó con once casos, incluidos rubros vacíos y valores ausentes.
+- Requiere copiar `Code.gs` al proyecto de Apps Script y publicar una nueva versión del Web App. No cambian encabezados, por lo que no hace falta ejecutar `setupDatabase()`.

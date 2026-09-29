@@ -41,15 +41,26 @@ El flujo de precios se organiza en tres pantallas: entrada del instrumento, revi
 
 ## Instrumento especial de clasificación
 
-`Clasificación` es el instrumento inicial de la recogida. Registra estructura, sistema de atención, rubros combinables y observaciones; la unidad vecinal se hereda de la ficha de identificación de la visita. El instrumento solo permite registrar locales abiertos y calcula automáticamente `minimarket` cuando hay acceso libre y rubros frescos/congelados relevantes; si no, clasifica como `almacen_barrio`. Una corrección manual exige justificación.
+`Clasificación` es el instrumento inicial de la recogida. Registra estructura, sistema de atención, rubros combinables y observaciones; la unidad vecinal se hereda de la ficha de identificación de la visita. La superficie se estima contando góndolas, naves y congeladoras de exposición, sin contar lo que está detrás del mesón: muy pequeño (1–2), pequeño (3–4), mediano (5–8) y grande (más de 8). El punto 4 se asigna a pequeño para que los rangos no se superpongan.
 
-También permite cargar fotografías del frontis y, cuando existe autorización, del interior, módulo de frutas y verduras, carnes y congelados. Las imágenes se comprimen en el navegador y Apps Script las almacena en la carpeta de Drive `ESPORA - Imágenes de levantamiento`; la hoja `Clasificación` conserva sus enlaces.
+La regla automática vigente para el tipo de local combina **amplitud del surtido y escala**. Asigna `minimarket` solo cuando se cumplen las cuatro condiciones:
+
+1. Sistema de atención de **acceso libre** (autoservicio).
+2. Presencia de **abarrotes básicos**.
+3. Al menos **dos grupos perecibles distintos**. Los grupos son: frutas y verduras (cuentan como uno solo), carnes frescas, congelados, lácteos y huevos, pescados y mariscos.
+4. Superficie **mediana o grande** (5 o más góndolas, naves o congeladoras de exposición).
+
+Si falla cualquiera de las cuatro, asigna `almacen_barrio`. El resultado en pantalla indica qué condición falta, para que la persona encuestadora pueda verificarla en terreno. La selección manual puede cambiar el resultado, pero requiere justificación escrita.
+
+Esta regla reemplaza a la anterior, que asignaba `minimarket` con acceso libre y un solo rubro fresco: un almacén con acceso libre y una sola caja de frutas quedaba clasificado como minimarket. La condición de dos grupos perecibles y superficie mediana evita ese falso positivo. `app.js` y `apps-script/Code.gs` implementan la misma función `classifyLocal_`; si se modifica una, debe modificarse la otra y republicarse el Web App.
+
+La foto del frontis es obligatoria. Las fotos del interior (solo con autorización), frutas y verduras, carnes y congelados son opcionales y están agrupadas en una sección plegable. Las imágenes se comprimen en el navegador y Apps Script las almacena en la carpeta de Drive `ESPORA - Imágenes de levantamiento`; la hoja `Clasificación` conserva sus enlaces.
 
 Al publicar la versión que incorpora este instrumento, ejecuta `setupDatabase()` para crear la hoja **Clasificación** con sus encabezados. Si la hoja ya existe, la función verifica que su estructura coincida y no borra datos. Después crea una nueva versión del Web App para que el endpoint acepte `instrument: "classification"`.
 
 La ficha de clasificación se vincula automáticamente con el código de local de la visita y vuelve a validar ese código contra `SampleLocals.gs`. La hoja `Clasificación` guarda también código, ID de muestra, nombre, dirección, tipo y subtipo provenientes de `SampleLocals`; por eso el panel inicial ya no solicita subtipo, recategorización ni venta al detalle.
 
-La pantalla inicial también permite elegir **Local nuevo** mediante una casilla de verificación. En ese modo genera un código local con el patrón `LMNNN1` (por ejemplo, `LM108N1`) usando una secuencia local del navegador, sin editar `SampleLocals.gs`. El nombre, dirección y tipo ingresados viajan con la visita; Apps Script acepta ese local y lo registra en `Visitas` y `Clasificación`. La incorporación posterior a `SampleLocals.gs` queda como tarea de sincronización metodológica.
+La pantalla inicial primero permite filtrar y revisar la lista de muestra por UV; después de esa lista aparece la casilla **No aparece en la lista: registrar un local nuevo**. Al activarla genera un código local con el patrón `LMNNN1` (por ejemplo, `LM108N1`) usando una secuencia local del navegador, sin editar `SampleLocals.gs`. El nombre, dirección y tipo ingresados viajan con la visita; Apps Script acepta ese local y lo registra en `Visitas` y `Clasificación`. La incorporación posterior a `SampleLocals.gs` queda como tarea de sincronización metodológica.
 
 Para gestión geoespacial conviene capturar además precisión horizontal del GPS, fecha/hora de captura, fuente de coordenadas (GPS del dispositivo o digitación), permiso para fotografiar, accesibilidad del local, relación con ferias o equipamientos cercanos, y un identificador territorial estable como zona censal o unidad vecinal. Estos campos permiten evaluar calidad posicional, proteger datos sensibles y hacer análisis de cobertura sin depender solo de la dirección.
 

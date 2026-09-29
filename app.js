@@ -324,6 +324,20 @@ function renderClassification(data = {}) {
   $('#classificationInteriorPermission').checked = Boolean(data.interiorAuthorized);
   updateClassificationVisibility();
 }
+const PERISHABLE_GROUPS = [['frutas', 'verduras'], ['carnes'], ['congelados'], ['lacteos'], ['pescados']];
+const MINIMARKET_SURFACES = ['mediana', 'grande'];
+function countPerishableGroups_(rubros) {
+  const list = Array.isArray(rubros) ? rubros : [];
+  return PERISHABLE_GROUPS.filter((group) => group.some((item) => list.includes(item))).length;
+}
+function classifyLocal_(superficie, sistemaAtencion, rubros) {
+  const list = Array.isArray(rubros) ? rubros : [];
+  return sistemaAtencion === 'acceso_libre'
+    && list.includes('abarrotes')
+    && countPerishableGroups_(list) >= 2
+    && MINIMARKET_SURFACES.indexOf(superficie) !== -1
+    ? 'minimarket' : 'almacen_barrio';
+}
 function updateClassificationVisibility() {
   const open = true;
   $('#classificationOpenFields').hidden = false;
@@ -332,10 +346,21 @@ function updateClassificationVisibility() {
   const manual = Boolean($('#classificationOverride').value);
   $('#classificationJustificationField').hidden = !manual; $('#classificationJustification').required = manual;
   const rubros = [...$('#classificationOther').selectedOptions].map((option) => option.value);
-  const auto = $('#classificationService').value && rubros.length
-    ? ($('#classificationService').value === 'acceso_libre' && rubros.some((item) => ['frutas', 'verduras', 'carnes', 'congelados'].includes(item)) ? 'MINIMARKET' : 'ALMACÉN DE BARRIO')
-    : 'Complete atención y rubros';
-  $('#classificationResult').textContent = 'Clasificación automática: ' + auto;
+  const superficie = $('#classificationSurface').value;
+  const servicio = $('#classificationService').value;
+  if (!superficie || !servicio || !rubros.length) {
+    $('#classificationResult').textContent = 'Complete superficie, atención y rubros para calcular.';
+    return;
+  }
+  const auto = classifyLocal_(superficie, servicio, rubros);
+  const faltantes = [];
+  if (servicio !== 'acceso_libre') faltantes.push('atención de acceso libre');
+  if (!rubros.includes('abarrotes')) faltantes.push('abarrotes básicos');
+  if (countPerishableGroups_(rubros) < 2) faltantes.push('al menos dos grupos perecibles distintos');
+  if (MINIMARKET_SURFACES.indexOf(superficie) === -1) faltantes.push('superficie mediana o grande');
+  $('#classificationResult').textContent = auto === 'minimarket'
+    ? 'Clasificación automática: MINIMARKET'
+    : 'Clasificación automática: ALMACÉN DE BARRIO — falta ' + faltantes.join(', ') + '.';
 }
 
 function addOriginItem(data = {}) {

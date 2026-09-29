@@ -277,6 +277,21 @@ function originRows_(visit, data) {
   });
 }
 
+const PERISHABLE_GROUPS = [['frutas', 'verduras'], ['carnes'], ['congelados'], ['lacteos'], ['pescados']];
+const MINIMARKET_SURFACES = ['mediana', 'grande'];
+function countPerishableGroups_(rubros) {
+  const list = Array.isArray(rubros) ? rubros : [];
+  return PERISHABLE_GROUPS.filter((group) => group.some((item) => list.indexOf(item) !== -1)).length;
+}
+function classifyLocal_(superficie, sistemaAtencion, rubros) {
+  const list = Array.isArray(rubros) ? rubros : [];
+  return sistemaAtencion === 'acceso_libre'
+    && list.indexOf('abarrotes') !== -1
+    && countPerishableGroups_(list) >= 2
+    && MINIMARKET_SURFACES.indexOf(superficie) !== -1
+    ? 'minimarket' : 'almacen_barrio';
+}
+
 function classificationRows_(visit, data) {
   if (!String(visit.unitVecinal || '').trim()) {
     throw new Error('Falta la unidad vecinal registrada en la visita.');
@@ -292,12 +307,7 @@ function classificationRows_(visit, data) {
   if (Array.isArray(data.images && data.images.interior) && data.images.interior.length && !data.interiorAuthorized) {
     throw new Error('El interior solo puede registrarse con autorización.');
   }
-  const automatic = (
-    data.sistemaAtencion === 'acceso_libre' &&
-    rubros.some((item) => ['frutas', 'verduras', 'carnes', 'congelados'].includes(item))
-      ? 'minimarket'
-      : 'almacen_barrio'
-  );
+  const automatic = classifyLocal_(data.superficie, data.sistemaAtencion, rubros);
   if (data.clasificacionOverride && !String(data.justificacionOverride || '').trim()) {
     throw new Error('Justifique la corrección manual de la clasificación.');
   }
