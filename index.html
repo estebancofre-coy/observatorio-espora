@@ -162,17 +162,7 @@
         <div class="linked-local"><strong>Unidad vecinal registrada en la visita:</strong> <span id="classificationLinkedUnit"></span></div>
         <form id="classificationForm">
           <div id="classificationOpenFields">
-            <fieldset><legend>Estructura y atención</legend><div class="grid">
-              <label class="required wide">Superficie dedicada a la exposición
-                <select id="classificationSurface">
-                  <option value="">Seleccione</option>
-                  <option value="muy_pequena">Muy pequeña · 1–2 góndolas, naves o congeladoras</option>
-                  <option value="pequena">Pequeña · 3–4 góndolas, naves o congeladoras</option>
-                  <option value="mediana">Mediana · 5–8 góndolas, naves o congeladoras</option>
-                  <option value="grande">Grande · más de 8 góndolas, naves o congeladoras</option>
-                </select>
-                <span class="field-help">Cuente solo el mobiliario que exhibe productos; no incluya lo que está detrás del mesón. Para evitar que se solapen los rangos, exactamente 4 corresponde a pequeño.</span>
-              </label>
+            <fieldset><legend>Atención</legend><div class="grid">
               <label class="required">Sistema de atención
                 <select id="classificationService" required><option value="">Seleccione</option><option value="transmeson">Atención por mesón</option><option value="autoservicio">Autoservicio</option></select>
                 <span class="field-help">Marque autoservicio si la clientela selecciona por sí misma la mayor parte de los productos y paga en caja.</span>
@@ -203,9 +193,6 @@
                 </label>
                 <p class="field-help wide">El criterio de lácteos y huevos se cumple solo si ambos se ofrecen habitualmente.</p>
               </div>
-            </fieldset>
-            <fieldset><legend>Rubros observados</legend>
-              <label class="required wide">Seleccione uno o varios rubros (puede combinar opciones)<select id="classificationOther" multiple required><option value="abarrotes">Abarrotes básicos</option><option value="frutas">Frutas</option><option value="verduras">Verduras</option><option value="carnes">Carnes frescas</option><option value="congelados">Congelados</option><option value="panaderia">Panadería</option><option value="bebidas">Bebidas / licores</option><option value="limpieza">Limpieza</option><option value="preparacion">Comida preparada</option><option value="lacteos">Lácteos y huevos</option><option value="legumbres">Legumbres y granos</option><option value="pescados">Pescados y mariscos</option><option value="otro">Otro</option></select></label>
             </fieldset>
             <fieldset><legend>Fotografías</legend>
               <label class="required">Foto del frontis<input id="classificationFront" type="file" accept="image/*" multiple required></label>

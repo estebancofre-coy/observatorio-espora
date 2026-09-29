@@ -367,10 +367,8 @@ function classificationRows_(visit, data) {
     throw new Error('Solo se registran locales abiertos.');
   }
   const local = getVisitLocal_(visit);
-  const rubros = Array.isArray(data.rubros) ? data.rubros : data.otrosRubros;
-  if (!data.superficie || !['autoservicio', 'transmeson', 'acceso_libre'].includes(data.sistemaAtencion) ||
-      !Array.isArray(rubros) || !rubros.length) {
-    throw new Error('Complete la estructura, atención y al menos un rubro.');
+  if (!['autoservicio', 'transmeson', 'acceso_libre'].includes(data.sistemaAtencion)) {
+    throw new Error('Indique el sistema de atención del local.');
   }
   if (Array.isArray(data.images && data.images.interior) && data.images.interior.length && !data.interiorAuthorized) {
     throw new Error('El interior solo puede registrarse con autorización.');
@@ -384,7 +382,7 @@ function classificationRows_(visit, data) {
   return [[
     visit.id, new Date(), String(visit.unitVecinal).trim(), 'abierto', data.superficie || '', data.sistemaAtencion || '',
     data.personasAtendiendo || '', data.abarrotes || '', data.frutaVerdura || '', data.carnes || '',
-    rubros.join(', '), '', '', '', automatic, finalClassification,
+    (Array.isArray(data.rubros) ? data.rubros : data.otrosRubros || []).join(', '), '', '', '', automatic, finalClassification,
     data.clasificacionOverride ? 'manual' : 'automatica', String(data.justificacionOverride || '').trim(),
     String(data.observaciones || '').trim(), local.code, local.id, local.name, local.address,
     local.criterion, local.criterion2 || '', data.imageUrls.frontis || '', data.imageUrls.interior || '',

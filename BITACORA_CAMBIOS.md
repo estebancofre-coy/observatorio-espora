@@ -226,3 +226,14 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - Se agregaron cuatro columnas al final de `Clasificación` para conservar el conteo, las categorías proteicas y las respuestas de lácteos/huevos. `setupDatabase()` agrega estas columnas si los encabezados existentes coinciden como prefijo; no elimina ni reordena datos.
 - Actualizados README y diagrama `FLUJO_DATOS_Y_MAPEO.md`.
 - Para activar: actualizar `Code.gs`, ejecutar `setupDatabase()` una vez para anexar las columnas y republicar una nueva versión del Web App; publicar también el frontend actualizado.
+
+## 2026-09-29 (5) - Retiro de superficie y rubros observados
+
+- Se eliminaron de la ficha de Clasificacion los campos **Superficie dedicada a la exposicion** y **Rubros observados**.
+- Motivo: ninguno participa en la regla automatica desde el cambio (4), y ambos se solapaban con los tres criterios de surtido (variedades de frutas y verduras, categorias proteicas, lacteos y huevos).
+- Perdida asumida: los rubros registraban tambien panaderia, bebidas, limpieza, comida preparada, pescados y legumbres. Esas categorias dejan de levantarse; si se necesitan, conviene reponerlas como un instrumento propio y no dentro de la clasificacion.
+- **Las columnas se conservan en la hoja** (Superficie estimada, Abarrotes basicos, Fruta y verdura, Carnes, Otros rubros). ensureSheet_ solo admite anexar columnas al final: borrarlas rompe la verificacion de estructura y detiene todos los guardados. Los registros nuevos las dejan vacias y el historial se mantiene legible.
+- Un borrador antiguo en la cola sin conexion que todavia traiga superficie o rubros sigue guardandose con esos valores.
+- La validacion del backend ya no exige superficie ni rubros; sigue exigiendo el sistema de atencion.
+- Se verifico que la fila conserva 34 valores alineados con los 34 encabezados.
+- Para activar: actualizar Code.gs y republicar una nueva version del Web App. No hace falta setupDatabase().

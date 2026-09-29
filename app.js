@@ -286,19 +286,15 @@ function savePriceDraftFromEditor() {
   showView('pricesReviewView');
 }
 function classificationData() {
-  const rubros = [...$('#classificationOther').selectedOptions].map((option) => option.value);
   return {
     unitVecinal: getDraft()?.unitVecinal || '', estadoLocal: 'abierto',
-    superficie: $('#classificationSurface').value, sistemaAtencion: $('#classificationService').value,
+    sistemaAtencion: $('#classificationService').value,
     variedadesFrutasVerduras: $('#classificationProduceVarieties').value,
     categoriasProteicas: [...document.querySelectorAll('input[name="proteinCategory"]:checked')].map((input) => input.value),
     lacteosHabituales: $('#classificationDairyRegular').value,
     huevosHabituales: $('#classificationEggsRegular').value,
-    personasAtendiendo: $('#classificationPeople').value, abarrotes: rubros.includes('abarrotes') ? 'si' : 'no',
-    frutaVerdura: rubros.some((item) => ['frutas', 'verduras'].includes(item)) ? 'presente' : 'ausente',
-    carnes: rubros.includes('carnes') ? 'presente' : 'ausente',
-    otrosRubros: rubros, rubros: rubros,
-    esMixto: '', rubroPrincipal: '', detalleMixto: '', clasificacionOverride: $('#classificationOverride').value,
+    personasAtendiendo: $('#classificationPeople').value,
+    clasificacionOverride: $('#classificationOverride').value,
     justificacionOverride: $('#classificationJustification').value, observaciones: $('#classificationNotes').value,
     interiorAuthorized: $('#classificationInteriorPermission').checked,
     images: collectClassificationImages_(),
@@ -343,7 +339,6 @@ function renderClassification(data = {}) {
   $('#classificationLinkedLocal').textContent = local ? `${local.code} · ${local.name} · ${local.address} · ${local.criterion}` : 'No hay un local de SampleLocals vinculado.';
   $('#classificationLinkedUnit').textContent = draft?.unitVecinal || 'Sin unidad vecinal registrada en la visita.';
   const fields = {
-    classificationSurface: data.superficie,
     classificationService: data.sistemaAtencion === 'acceso_libre' ? 'autoservicio' : data.sistemaAtencion,
     classificationPeople: data.personasAtendiendo,
     classificationProduceVarieties: data.variedadesFrutasVerduras,
@@ -357,7 +352,6 @@ function renderClassification(data = {}) {
   document.querySelectorAll('input[name="proteinCategory"]').forEach((input) => {
     input.checked = (data.categoriasProteicas || []).includes(input.value);
   });
-  [...$('#classificationOther').options].forEach((option) => { option.selected = (data.otrosRubros || []).includes(option.value); });
   $('#classificationImageStatus').textContent = data.imageUrls ? 'Imágenes guardadas en Drive.' : '';
   $('#classificationInteriorPermission').checked = Boolean(data.interiorAuthorized);
   updateClassificationVisibility();
@@ -378,10 +372,8 @@ function classifyLocal_(sistemaAtencion, produceVarieties, proteinCategories, da
   };
 }
 function updateClassificationVisibility() {
-  const open = true;
   $('#classificationOpenFields').hidden = false;
-  ['classificationSurface', 'classificationService'].forEach((id) => { $('#' + id).required = open; });
-  $('#classificationOther').required = true;
+  $('#classificationService').required = true;
   const manual = Boolean($('#classificationOverride').value);
   $('#classificationJustificationField').hidden = !manual; $('#classificationJustification').required = manual;
   const servicio = $('#classificationService').value;
@@ -475,7 +467,7 @@ function initialize() {
   $('#saveReviewedPrices').addEventListener('click', () => { const draft = getDraft(); const data = draft.instruments.prices?.data; if (!priceEntries_(data).length) return showMessage('Agregue al menos un alimento antes de guardar.', 'error'); saveInstrument('prices', { products: priceEntries_(data), notes: $('#pricesNotes').value }, $('#saveReviewedPrices')).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#addOriginItem').addEventListener('click', () => addOriginItem());
   $('#classificationOverride').addEventListener('change', updateClassificationVisibility);
-  ['classificationService', 'classificationOther', 'classificationDairyRegular', 'classificationEggsRegular']
+  ['classificationService', 'classificationDairyRegular', 'classificationEggsRegular']
     .forEach((id) => $('#' + id).addEventListener('change', updateClassificationVisibility));
   $('#classificationProduceVarieties').addEventListener('input', updateClassificationVisibility);
   document.querySelectorAll('input[name="proteinCategory"]').forEach((input) => {

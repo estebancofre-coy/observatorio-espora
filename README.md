@@ -43,7 +43,7 @@ El flujo de precios se organiza en tres pantallas: entrada del instrumento, revi
 
 ## Instrumento especial de clasificación
 
-`Clasificación` es el instrumento inicial de la recogida. Registra estructura, sistema de atención, rubros combinables y observaciones; la unidad vecinal se hereda de la ficha de identificación de la visita. La superficie se estima contando góndolas, naves y congeladoras de exposición, sin contar lo que está detrás del mesón: muy pequeño (1–2), pequeño (3–4), mediano (5–8) y grande (más de 8). El punto 4 se asigna a pequeño para que los rangos no se superpongan.
+`Clasificación` es el instrumento inicial de la recogida. Registra el sistema de atención, los tres criterios de surtido y las observaciones; la unidad vecinal se hereda de la ficha de identificación de la visita.
 
 La regla automática usa **autoservicio como condición obligatoria** y, además, exige cumplir al menos **dos de estos tres criterios**:
 
@@ -51,7 +51,9 @@ La regla automática usa **autoservicio como condición obligatoria** y, además
 2. Al menos dos categorías proteicas entre vacuno, cerdo, pollo y cordero.
 3. Oferta habitual tanto de lácteos como de huevos.
 
-Si no hay autoservicio, o se cumplen menos de dos criterios, asigna `almacen_barrio`. La superficie de exposición sigue registrándose para describir el local, pero ya no determina la clasificación. El resultado en pantalla indica cuántos criterios se cumplen. La selección manual puede cambiar el resultado, pero requiere justificación escrita.
+Si no hay autoservicio, o se cumplen menos de dos criterios, asigna `almacen_barrio`. El resultado en pantalla indica cuántos criterios se cumplen. La selección manual puede cambiar el resultado, pero requiere justificación escrita.
+
+Los campos **Superficie dedicada a la exposición** y **Rubros observados** se retiraron de la ficha: no participaban en la regla y se solapaban con los tres criterios de surtido. Sus columnas se conservan en la hoja `Clasificación` para no alterar la estructura ni el historial; los registros nuevos las dejan vacías.
 
 `app.js` y `apps-script/Code.gs` implementan la misma regla. Si se modifica una, debe modificarse la otra. El backend conserva el conteo, las categorías seleccionadas y las dos respuestas de oferta habitual en columnas nuevas al final de `Clasificación`.
 
