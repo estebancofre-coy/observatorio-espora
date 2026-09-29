@@ -141,6 +141,33 @@ function ensureDashboard_(database) {
   return sheet;
 }
 
+function normalizeLocalName_(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/\s+/g, ' ').trim().toUpperCase();
+}
+
+function assertNewLocalCodeIsFree_(database, visit) {
+  if (!visit.isNewLocal) {
+    return;
+  }
+  const code = String(visit.localCode || '').trim().toUpperCase();
+  const sheet = database.getSheetByName(SHEETS.visits.name);
+  const lastRow = sheet.getLastRow();
+  if (lastRow <= 1) {
+    return;
+  }
+  const values = sheet.getRange(2, 1, lastRow - 1, 7).getValues();
+  const conflict = values.filter(function (row) {
+    return String(row[4] || '').trim().toUpperCase() === code &&
+      String(row[0]) !== String(visit.id) &&
+      normalizeLocalName_(row[6]) !== normalizeLocalName_(visit.localName);
+  })[0];
+  if (conflict) {
+    throw new Error('El código ' + code + ' ya está asignado al local "' + conflict[6] +
+      '". Use «Generar otro código» en la ficha del local nuevo y vuelva a enviar.');
+  }
+}
+
 function saveInstrument_(payload) {
   validateVisit_(payload.visit);
   const instrument = payload.instrument;
@@ -151,6 +178,7 @@ function saveInstrument_(payload) {
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
+    assertNewLocalCodeIsFree_(database, payload.visit);
     upsertVisit_(database, payload.visit);
     const imageUrls = instrument === 'classification'
       ? saveClassificationImages_(payload.visit, payload.data)
@@ -191,6 +219,9 @@ function validateVisit_(visit) {
   }
   if (!String(visit.unitVecinal || '').trim()) {
     throw new Error('Seleccione la unidad vecinal del local.');
+  }
+  if (visit.isNewLocal && !/^LM\d+N([A-Z]{2,3}|\d+)$/i.test(String(visit.localCode || '').trim())) {
+    throw new Error('El código del local nuevo no tiene un formato válido. Genere el código desde la ficha de identificación.');
   }
   getVisitLocal_(visit);
   ['latitude', 'longitude'].forEach((key) => {

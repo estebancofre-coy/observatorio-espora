@@ -102,6 +102,16 @@ Antes, el código de local (por ejemplo `LM01A1`) no bastaba para reconocer de q
 - Para locales **Almacén** o **Minimarket**, se solicita la recategorización observada entre ambas opciones.
 - Para **Importador Frutas y Verduras**, se solicita confirmar si existe venta al detalle/menor.
 
+### Códigos de locales nuevos
+
+Cuando un local no está en la muestra, la aplicación genera un código con el patrón `LM<número>N<iniciales>`, por ejemplo `LM108NMB`. El número continúa la numeración más alta de `sample-locals.js` y las iniciales identifican a quien registra.
+
+Las iniciales se piden una vez en la ficha de identificación y quedan guardadas en el dispositivo. Existen porque el contador del número vive en el navegador de cada equipo: sin las iniciales, dos personas trabajando en terreno el mismo día generarían ambas `LM108`, y la colisión recién aparecería al sincronizar. Con las iniciales, cada dispositivo produce códigos de un espacio distinto y el conflicto no llega a ocurrir, incluso sin conexión.
+
+Como red de seguridad —por ejemplo si dos personas comparten iniciales, o si alguien usa dos dispositivos—, el backend verifica dentro de su bloqueo de escritura que el código no esté ya asignado a un local con **otro nombre**. Si lo está, rechaza el envío indicando qué local lo ocupa, y el botón **Generar otro código** permite reintentar con un número nuevo. Registrar otra visita al **mismo** local con el mismo código sí está permitido: es una revisita, no un conflicto.
+
+Los códigos antiguos con el formato `LM108N1` siguen siendo válidos para lectura; solo la generación usa el formato nuevo. Las iniciales no se guardan como columna aparte: van dentro del código, de modo que este cambio no altera los encabezados de las hojas y no requiere ejecutar `setupDatabase()`.
+
 ## Diagnóstico: guardado y notificaciones
 
 Si al enviar un instrumento no se ve la notificación de éxito/error, o los datos no llegan a Sheets, revisa en este orden:

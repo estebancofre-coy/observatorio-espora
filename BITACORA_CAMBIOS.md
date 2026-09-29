@@ -204,3 +204,14 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - El resultado en pantalla ahora indica qué condición falta cuando el resultado es almacén de barrio.
 - `app.js` y `apps-script/Code.gs` comparten la función `classifyLocal_` con la misma lógica. Se validó con once casos, incluidos rubros vacíos y valores ausentes.
 - Requiere copiar `Code.gs` al proyecto de Apps Script y publicar una nueva versión del Web App. No cambian encabezados, por lo que no hace falta ejecutar `setupDatabase()`.
+
+## 2026-09-29 (3) — Códigos únicos de locales nuevos entre encuestadoras
+
+- Problema detectado: `newLocalCode()` calculaba el correlativo con un contador en `localStorage`, es decir por dispositivo. Dos personas en terreno generaban ambas `LM108N1` y la colisión solo aparecía al sincronizar.
+- La ficha de identificación pide ahora las iniciales de la recolectora, se guardan en el dispositivo y pasan a formar parte del código: `LM108NMB`. Cada equipo genera códigos de un espacio distinto, también sin conexión.
+- El nombre de la recolectora también queda guardado y se precarga, para evitar variantes como `María` y `maria` en visitas sucesivas.
+- Se agregó el botón **Generar otro código** para reasignar el correlativo cuando el backend avisa de un conflicto.
+- `Code.gs` valida el formato del código y, dentro del bloqueo de escritura, rechaza un código ya asignado a un local con otro nombre. Una revisita al mismo local conserva su código.
+- Las iniciales viajan dentro del código y no como columna nueva, así que no cambian los encabezados ni hace falta ejecutar `setupDatabase()`.
+- Se validó con pruebas sobre normalización de iniciales y nombres, formato de códigos (incluido el formato antiguo `LM108N1`), colisión, revisita, misma visita y hoja vacía.
+- Requiere copiar `Code.gs` al proyecto de Apps Script y publicar una nueva versión del Web App.

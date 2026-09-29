@@ -52,6 +52,9 @@
           <div class="grid">
             <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
             <label class="required">Persona recolectora<input id="collector" required></label>
+            <label class="required">Iniciales de la recolectora<input id="collectorInitials" maxlength="3" placeholder="MB" required>
+              <span class="field-help">Dos o tres letras. Quedan guardadas en este dispositivo y forman parte del código de los locales nuevos, para que dos personas en terreno no generen el mismo código.</span>
+            </label>
             <div class="wide uv-map-help">
               <a id="uvMapButton" class="button-like" href="https://earth.google.com/earth/d/1ELFkikpamAG-HdZ0Kcy3PBn-gsOhvNup?usp=sharing" target="_blank" rel="noopener">Ver mapa de unidades vecinales (Google Earth)</a>
               <p class="field-help">La UV se sugiere según las coordenadas del local. Revísela y corríjala si el punto está cerca de un límite.</p>
@@ -70,12 +73,15 @@
             </div>
             <div id="newLocalFields" class="wide" hidden>
               <div class="grid">
-                <label>Código asignado<input id="newLocalCode" readonly></label>
+                <div class="code-field">
+                  <label>Código asignado<input id="newLocalCode" readonly></label>
+                  <button class="secondary" id="regenerateCodeButton" type="button">Generar otro código</button>
+                </div>
                 <label class="required">Nombre del nuevo local<input id="newLocalName" placeholder="Ejemplo: Almacén del barrio"></label>
                 <label class="required">Dirección o referencia<input id="newLocalAddress" placeholder="Calle, número o referencia"></label>
                 <label class="required">Tipo de local<select id="newLocalType"><option value="">Seleccione</option><option>Almacén</option><option>Minimarket</option><option>Supermercado</option><option>Venta de Frutas y Verduras</option><option>Mercado Campesino</option><option>Productor Hortícola</option><option>Otro</option></select></label>
               </div>
-              <p class="field-help">Se asignará un código nuevo siguiendo el patrón de SampleLocals, sin modificar ese archivo.</p>
+              <p class="field-help">El código sigue el patrón de SampleLocals y termina con las iniciales de quien registra, sin modificar ese archivo. Use «Generar otro código» solo si el sistema avisa que el código ya está ocupado.</p>
             </div>
             <label>Local o establecimiento<input id="establishment" readonly></label>
             <label>Dirección o referencia<input id="address" readonly></label>
