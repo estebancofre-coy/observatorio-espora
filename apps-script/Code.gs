@@ -313,7 +313,7 @@ function originRows_(visit, data) {
   });
 }
 
-const PROTEIN_CATEGORIES = ['vacuno', 'cerdo', 'pollo', 'cordero'];
+const PROTEIN_CATEGORIES = ['vacuno', 'cerdo', 'pollo', 'cordero', 'pescados_mariscos'];
 function classificationCriteria_(data) {
   const source = data || {};
   const keys = ['variedadesFrutasVerduras', 'categoriasProteicas', 'lacteosHabituales', 'huevosHabituales'];
@@ -333,7 +333,7 @@ function classificationCriteria_(data) {
   }
   if (!Array.isArray(source.categoriasProteicas) ||
       source.categoriasProteicas.some((category) => !PROTEIN_CATEGORIES.includes(category))) {
-    throw new Error('Seleccione solo categorías proteicas válidas: vacuno, cerdo, pollo o cordero.');
+    throw new Error('Seleccione solo categorías proteicas válidas: vacuno, cerdo, pollo, cordero o pescados y mariscos.');
   }
   if (!['si', 'no'].includes(source.lacteosHabituales) ||
       !['si', 'no'].includes(source.huevosHabituales)) {

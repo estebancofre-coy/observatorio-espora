@@ -166,7 +166,7 @@
     <nav class="toc" aria-label="Contenido de la guía">
       <p>Contenido</p>
       <ol>
-        <li><a href="#regla">La regla</a></li>
+        <li><a href="#regla">En una mirada</a></li>
         <li><a href="#antes">Antes de entrar</a></li>
         <li><a href="#recorrido">Recorrido en el local</a></li>
         <li><a href="#definiciones">Cómo contar</a></li>
@@ -183,7 +183,7 @@
       <p>Clasificar no es opinar sobre el local. Es registrar cuatro observaciones verificables y dejar que la regla decida. Si dos personas visitan el mismo local el mismo día, deberían obtener el mismo resultado. Ese es el estándar de calidad.</p>
       <p class="scope"><strong>Alcance:</strong> esta guía cubre solo la ficha de Clasificación. Los instrumentos de disponibilidad, precios y origen tienen su propia capacitación.</p>
 
-      <h2 id="regla">La regla, en una mirada</h2>
+      <h2 id="regla">En una mirada</h2>
       <p>Hay una condición obligatoria y tres criterios de surtido. El local es minimarket solo si cumple la condición <strong>y</strong> al menos dos de los tres criterios.</p>
       <div class="rule" role="group" aria-label="Regla de clasificación">
         <div class="rule-gate"><b>¿Es autoservicio?</b><span>Condición obligatoria. Si no lo es, el resultado es almacén de barrio sin importar el surtido.</span></div>
@@ -191,7 +191,7 @@
           <p>Si es autoservicio, revise estos tres criterios. Se necesitan <strong>dos o más</strong>:</p>
           <ul class="criteria">
             <li><b>Frutas y verduras</b>Más de 10 variedades distintas. Con 10 no se cumple; hacen falta 11.</li>
-            <li><b>Proteínas</b>Al menos 2 categorías entre vacuno, cerdo, pollo y cordero.</li>
+            <li><b>Proteínas</b>Al menos 2 categorías entre vacuno, cerdo, pollo, cordero y pescados o mariscos.</li>
             <li><b>Lácteos y huevos</b>Oferta habitual de ambos. Uno solo no cumple.</li>
           </ul>
         </div>
@@ -206,7 +206,7 @@
       <p>La ficha de Clasificación se abre desde el menú de la visita. Para llegar ahí ya debe haber completado la identificación: su nombre e iniciales, el local de la muestra (o el registro de uno nuevo), la unidad vecinal y las coordenadas.</p>
       <ul>
         <li><strong>Solo se clasifican locales abiertos.</strong> Si el local está cerrado, no abra la ficha: la aplicación no permite guardar un local cerrado.</li>
-        <li><strong>No mire el tipo registrado como respuesta.</strong> La ficha de identificación muestra el tipo que tenía el local en la muestra (por ejemplo, «Almacén»). Es un dato antiguo. Si lo usa como punto de partida, tenderá a confirmarlo. Observe como si no lo supiera.</li>
+        <li><strong>Observe sin suponer.</strong> La ficha no muestra si el local fue catalogado antes como almacén o minimarket, y el nombre del local tampoco es evidencia: hay «minimarkets» que funcionan como almacén y al revés. El resultado sale solo de lo que usted observa hoy.</li>
         <li><strong>Preséntese antes de fotografiar el interior.</strong> Las fotos interiores requieren autorización de la persona responsable.</li>
       </ul>
 
@@ -233,7 +233,7 @@
         <li>
           <span class="where">Carnicería, vitrina o congeladoras</span>
           <h3>Categorías de proteínas</h3>
-          <p>Marque cada categoría que esté a la venta: vacuno, cerdo, pollo, cordero. Fresca o congelada, ambas cuentan.</p>
+          <p>Marque cada categoría que esté a la venta: vacuno, cerdo, pollo, cordero, pescados o mariscos. Fresca o congelada, ambas cuentan. Pescados y mariscos forman una sola categoría: merluza y choritos marcan una sola casilla.</p>
         </li>
         <li>
           <span class="where">Refrigeradores</span>
@@ -254,7 +254,7 @@
         <thead><tr><th>Dato</th><th>Cuenta</th><th>No cuenta</th></tr></thead>
         <tbody>
           <tr><td>Variedad de fruta o verdura</td><td data-label="Cuenta">Cada producto distinto a la venta: manzana, plátano, papa, lechuga, cebolla. Fresco y a granel o envasado.</td><td data-label="No cuenta">Colores o calibres del mismo producto (manzana roja y verde son 1). Conservas, jugos, frutos secos, congelados procesados.</td></tr>
-          <tr><td>Categoría proteica</td><td data-label="Cuenta">Carne cruda de vacuno, cerdo, pollo o cordero, fresca o congelada.</td><td data-label="No cuenta">Embutidos, cecinas, hamburguesas industriales, pescados y mariscos (no forman parte del criterio).</td></tr>
+          <tr><td>Categoría proteica</td><td data-label="Cuenta">Carne cruda de vacuno, cerdo, pollo o cordero; pescados o mariscos frescos o congelados (una sola categoría).</td><td data-label="No cuenta">Embutidos, cecinas, hamburguesas industriales y conservas (atún o jurel en lata, por ejemplo).</td></tr>
           <tr><td>Lácteos habituales</td><td data-label="Cuenta">Leche, yogur o quesos en refrigerador como parte del surtido regular.</td><td data-label="No cuenta">Solo leche en polvo o crema para café.</td></tr>
           <tr><td>Huevos habituales</td><td data-label="Cuenta">Huevos por bandeja o por unidad, a la venta de forma regular.</td><td data-label="No cuenta">Huevos que se venden solo en temporadas o por encargo.</td></tr>
         </tbody>
@@ -282,6 +282,7 @@
               <label><input type="checkbox" name="simProtein" value="cerdo"> Cerdo</label>
               <label><input type="checkbox" name="simProtein" value="pollo"> Pollo</label>
               <label><input type="checkbox" name="simProtein" value="cordero"> Cordero</label>
+              <label><input type="checkbox" name="simProtein" value="pescados_mariscos"> Pescados o mariscos</label>
             </div>
           </fieldset>
           <fieldset class="field">
@@ -298,7 +299,7 @@
       <h2 id="practica">Casos de práctica</h2>
       <p>Lea cada descripción y elija la clasificación. Son situaciones reales de terreno, incluidos los bordes donde más se equivoca la gente.</p>
       <div class="panel" id="cases">
-        <p class="score" id="score" aria-live="polite">Aciertos: 0 de 6</p>
+        <p class="score" id="score" aria-live="polite">Aciertos: 0 de 7</p>
       </div>
 
       <h2 id="correccion">Corrección manual</h2>
@@ -321,13 +322,14 @@
 
       <footer>
         ESPORA Coyhaique · Economía Social, Precios, Orgánicos, Residuos y Alimentación · Universidad de Aysén.<br>
-        Las definiciones de conteo de esta guía son criterios operativos del equipo para asegurar consistencia entre personas encuestadoras.
+        Las definiciones de conteo de esta guía son criterios operativos del equipo para asegurar consistencia entre personas encuestadoras.<br>
+        Presentación de la investigación: <a href="presentacion/Entornos_Alimentarios_Coyhaique_ESPORA.pdf" download>Entornos Alimentarios en Coyhaique (PDF)</a>
       </footer>
     </article>
   </div>
 
   <script>
-    const PROTEINS = ['vacuno', 'cerdo', 'pollo', 'cordero'];
+    const PROTEINS = ['vacuno', 'cerdo', 'pollo', 'cordero', 'pescados_mariscos'];
 
     function classify(service, varieties, proteins, dairy, eggs) {
       const count = Number(varieties);
@@ -411,6 +413,12 @@
         text: 'Autoservicio. El módulo tiene manzana roja, verde y amarilla, plátano, naranja, limón, papa, cebolla, zanahoria, tomate, lechuga y zapallo. Vacuno y cerdo. Sin huevos.',
         data: ['autoservicio', 10, ['vacuno', 'cerdo'], true, false],
         why: 'Las tres manzanas son 1 variedad: el total es 10, no 12. Variedades no cumple. Proteínas sí. Sin huevos no cumple. 1 de 3: almacén de barrio.',
+      },
+      {
+        title: 'Pollo y merluza',
+        text: 'Autoservicio. 13 variedades de frutas y verduras. Congeladora con pollo, merluza y choritos. Hay leche, pero no huevos.',
+        data: ['autoservicio', 13, ['pollo', 'pescados_mariscos'], true, false],
+        why: 'Merluza y choritos son una sola categoría (pescados o mariscos); junto al pollo suman 2: proteínas cumple. Variedades también. 2 de 3: minimarket.',
       },
       {
         title: 'Local mixto',

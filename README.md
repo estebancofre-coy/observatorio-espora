@@ -48,16 +48,18 @@ El flujo de precios se organiza en tres pantallas: entrada del instrumento, revi
 La regla automática usa **autoservicio como condición obligatoria** y, además, exige cumplir al menos **dos de estos tres criterios**:
 
 1. Más de 10 variedades distintas de frutas y verduras (11 o más).
-2. Al menos dos categorías proteicas entre vacuno, cerdo, pollo y cordero.
+2. Al menos dos categorías proteicas entre vacuno, cerdo, pollo, cordero y pescados o mariscos (esta última agrupa pescados y mariscos frescos o congelados en una sola categoría).
 3. Oferta habitual tanto de lácteos como de huevos.
 
 Si no hay autoservicio, o se cumplen menos de dos criterios, asigna `almacen_barrio`. El resultado en pantalla indica cuántos criterios se cumplen. La selección manual puede cambiar el resultado, pero requiere justificación escrita.
 
 Los campos **Superficie dedicada a la exposición** y **Rubros observados** se retiraron de la ficha: no participaban en la regla y se solapaban con los tres criterios de surtido. Sus columnas se conservan en la hoja `Clasificación` para no alterar la estructura ni el historial; los registros nuevos las dejan vacías.
 
+La interfaz **no muestra la preclasificación** (almacén o minimarket) que traen los locales de la muestra, para no sesgar la observación. Ese dato se sigue conservando en `SampleLocals` y en la columna `Tipo de local` de las hojas, pero no aparece en la ficha de identificación ni en la de Clasificación. Al registrar un local nuevo, el tipo ofrece una sola opción «Almacén o minimarket»; la distinción la hace la Clasificación.
+
 ### Guía de autocapacitación
 
-[`guia-clasificacion.html`](guia-clasificacion.html) es una página independiente para estudiantes y profesionales de apoyo que aplican **solo** el instrumento de Clasificación. Explica la regla, el recorrido en el local en orden de observación, definiciones operativas de conteo, un simulador y seis casos de práctica con retroalimentación. Se abre desde la ficha de Clasificación de la aplicación.
+[`guia-clasificacion.html`](guia-clasificacion.html) es una página independiente para estudiantes y profesionales de apoyo que aplican **solo** el instrumento de Clasificación. Explica la regla, el recorrido en el local en orden de observación, definiciones operativas de conteo, un simulador y siete casos de práctica con retroalimentación. Se abre desde la ficha de Clasificación de la aplicación.
 
 El simulador y los casos replican `classifyLocal_` de `app.js`; si la regla cambia, también debe actualizarse la función `classify` de la guía. Las definiciones de conteo (por ejemplo, que colores de un mismo producto cuentan como una variedad o que los embutidos no cuentan como categoría proteica) son criterios operativos propuestos por el equipo y deben validarse metodológicamente.
 
@@ -106,10 +108,7 @@ Antes, el código de local (por ejemplo `LM01A1`) no bastaba para reconocer de q
 
 ## Muestra de locales
 
-`sample-locals.js` contiene 107 locales de la muestra sugerida. Al ingresar su código, la aplicación completa nombre, dirección, tipo y subtipo; el backend vuelve a validar el código antes de guardar. La latitud y longitud se capturan en terreno mediante geolocalización o ingreso manual, y no se rellenan desde la muestra.
-
-- Para locales **Almacén** o **Minimarket**, se solicita la recategorización observada entre ambas opciones.
-- Para **Importador Frutas y Verduras**, se solicita confirmar si existe venta al detalle/menor.
+`sample-locals.js` contiene 107 locales de la muestra sugerida. Al elegir un local, la aplicación completa nombre, dirección y coordenadas de muestra; el backend vuelve a validar el código antes de guardar. El tipo preasignado en la muestra no se muestra en pantalla: la categoría almacén/minimarket la determina el instrumento de Clasificación.
 
 ### Códigos de locales nuevos
 
@@ -120,6 +119,12 @@ Las iniciales se piden una vez en la ficha de identificación y quedan guardadas
 Como red de seguridad —por ejemplo si dos personas comparten iniciales, o si alguien usa dos dispositivos—, el backend verifica dentro de su bloqueo de escritura que el código no esté ya asignado a un local con **otro nombre**. Si lo está, rechaza el envío indicando qué local lo ocupa, y el botón **Generar otro código** permite reintentar con un número nuevo. Registrar otra visita al **mismo** local con el mismo código sí está permitido: es una revisita, no un conflicto.
 
 Los códigos antiguos con el formato `LM108N1` siguen siendo válidos para lectura; solo la generación usa el formato nuevo. Las iniciales no se guardan como columna aparte: van dentro del código, de modo que este cambio no altera los encabezados de las hojas y no requiere ejecutar `setupDatabase()`.
+
+## Presentación de la investigación
+
+`presentacion/Entornos_Alimentarios_Coyhaique_ESPORA.pptx` (y su versión PDF) resume el propósito, el marco, el territorio y la muestra, los instrumentos, la regla de clasificación, el flujo de datos y los próximos pasos, con la autoría tal como figura en la plataforma y referencias en formato APA 7. Se descarga desde el pie de la aplicación y de la guía.
+
+Para regenerarla: `pip install python-pptx` y `python presentacion/generar_presentacion.py`. El PDF se exporta desde PowerPoint. Las referencias a materiales internos (muestra, capa KML, matriz de precios) figuran como conjuntos de datos no publicados del Proyecto ESPORA. La capa de unidades vecinales se cita sin año (`s.f.`): conviene confirmar el año y la versión en los metadatos del archivo descargado.
 
 ## Diagnóstico: guardado y notificaciones
 

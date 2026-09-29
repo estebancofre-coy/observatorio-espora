@@ -245,3 +245,12 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - El simulador replica `classifyLocal_` de `app.js`. Se verifico la paridad en 576 combinaciones y que cada caso de practica entregue la respuesta indicada en su explicacion.
 - Las definiciones de conteo son criterios operativos propuestos y requieren validacion metodologica del equipo.
 - Solo frontend: no requiere cambios en Apps Script.
+
+## 2026-09-29 (7) - Preclasificacion oculta, pescados o mariscos y presentacion
+
+- La interfaz ya no muestra el tipo de local preasignado en la muestra (campo `Tipo de local registrado` y referencia en la ficha de Clasificacion), para no sesgar la observacion. El dato se sigue guardando en `Visitas` y en `Clasificacion` desde `SampleLocals`.
+- En locales nuevos, el tipo `Almacen` / `Minimarket` se unifico en `Almacen o minimarket`; la distincion la hace la Clasificacion. Los borradores antiguos se migran al abrirse.
+- Se agrego `pescados_mariscos` como quinta categoria proteica (pescados y mariscos frescos o congelados cuentan como una sola categoria; las conservas no cuentan). Actualizado en `app.js`, `apps-script/Code.gs` y la guia. Paridad guia/app/backend verificada en 192 combinaciones; los siete casos de practica entregan la respuesta esperada.
+- La guia renombra la seccion "La regla, en una mirada" a "En una mirada", ya no pide mirar el tipo registrado y suma un septimo caso ("Pollo y merluza").
+- Nueva presentacion descargable `presentacion/Entornos_Alimentarios_Coyhaique_ESPORA.pptx` (y PDF), generada por `presentacion/generar_presentacion.py`, con autoria segun la plataforma y referencias APA 7. Enlazada desde el pie de la aplicacion y de la guia.
+- **Orden de despliegue:** republicar primero `Code.gs` (nueva version del Web App). Un backend sin actualizar rechaza `pescados_mariscos` con "Seleccione solo categorias proteicas validas". No requiere `setupDatabase()`: las categorias se guardan en una celda existente.

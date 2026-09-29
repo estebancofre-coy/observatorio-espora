@@ -79,13 +79,12 @@
                 </div>
                 <label class="required">Nombre del nuevo local<input id="newLocalName" placeholder="Ejemplo: Almacén del barrio"></label>
                 <label class="required">Dirección o referencia<input id="newLocalAddress" placeholder="Calle, número o referencia"></label>
-                <label class="required">Tipo de local<select id="newLocalType"><option value="">Seleccione</option><option>Almacén</option><option>Minimarket</option><option>Supermercado</option><option>Venta de Frutas y Verduras</option><option>Mercado Campesino</option><option>Productor Hortícola</option><option>Otro</option></select></label>
+                <label class="required">Tipo de local<select id="newLocalType"><option value="">Seleccione</option><option value="Almacén o minimarket">Almacén o minimarket</option><option>Supermercado</option><option>Venta de Frutas y Verduras</option><option>Mercado Campesino</option><option>Productor Hortícola</option><option>Otro</option></select></label>
               </div>
               <p class="field-help">El código sigue el patrón de SampleLocals y termina con las iniciales de quien registra, sin modificar ese archivo. Use «Generar otro código» solo si el sistema avisa que el código ya está ocupado.</p>
             </div>
             <label>Local o establecimiento<input id="establishment" readonly></label>
             <label>Dirección o referencia<input id="address" readonly></label>
-            <label>Tipo de local registrado<input id="localType" readonly></label>
             <label class="required">Unidad vecinal del local<select id="visitUnit" required><option value="">Seleccione</option></select></label>
             <p id="uvSuggestion" class="field-help"></p>
             <label class="required">Latitud levantada<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
@@ -183,6 +182,7 @@
                     <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="cerdo"> Cerdo</label>
                     <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="pollo"> Pollo</label>
                     <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="cordero"> Cordero</label>
+                    <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="pescados_mariscos"> Pescados o mariscos</label>
                   </div>
                 </fieldset>
                 <label class="required">Oferta habitual de lácteos
@@ -234,7 +234,8 @@
     <footer>
       <strong>ESPORA Coyhaique</strong> · Economía Social, Precios, Orgánicos, Residuos y Alimentación · Universidad de Aysén<br>
       Marco de referencia alimentaria: FAO · Investigación original: PhD. Ana Zazo Moratalla, Universidad Rey Juan Carlos<br>
-      Aplicación: Dr. Esteban Cofré-Morales, Universidad de Aysén
+      Aplicación: Dr. Esteban Cofré-Morales, Universidad de Aysén<br>
+      Presentación «Entornos Alimentarios en Coyhaique»: <a href="presentacion/Entornos_Alimentarios_Coyhaique_ESPORA.pptx" download>PowerPoint</a> · <a href="presentacion/Entornos_Alimentarios_Coyhaique_ESPORA.pdf" download>PDF</a>
     </footer>
   </main>
   <script src="sample-locals.js"></script>

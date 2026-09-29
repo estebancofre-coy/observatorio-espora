@@ -145,12 +145,11 @@ function updateLocal({ restore = false } = {}) {
     }
     $('#establishment').value = $('#newLocalName').value;
     $('#address').value = $('#newLocalAddress').value;
-    $('#localType').value = $('#newLocalType').value;
     return;
   }
   if (!local) {
     code.setCustomValidity(code.value ? 'Ingrese un código válido de la muestra.' : '');
-    ['establishment', 'address', 'localType'].forEach((id) => { $('#' + id).value = ''; });
+    ['establishment', 'address'].forEach((id) => { $('#' + id).value = ''; });
     if (!restore) {
       $('#latitude').value = '';
       $('#longitude').value = '';
@@ -162,7 +161,7 @@ function updateLocal({ restore = false } = {}) {
     return;
   }
   code.setCustomValidity('');
-  $('#establishment').value = local.name; $('#address').value = local.address; $('#localType').value = local.criterion;
+  $('#establishment').value = local.name; $('#address').value = local.address;
   if (!restore) {
     $('#latitude').value = local.latitude || '';
     $('#longitude').value = local.longitude || '';
@@ -194,7 +193,7 @@ function fillVisit(visit) {
   Object.entries({ observationDate: visit.observationDate, collector: visit.collector, collectorInitials: visit.collectorInitials || getCollectorProfile()?.initials, latitude, longitude, visitUnit: savedUv }).forEach(([id, value]) => { $('#' + id).value = value || ''; });
   $('#isNewLocal').checked = Boolean(visit.isNewLocal);
   populateLocalCodeOptions();
-  if (visit.isNewLocal) { $('#newLocalCode').value = visit.localCode || ''; $('#newLocalName').value = visit.localName || ''; $('#newLocalAddress').value = visit.localAddress || ''; $('#newLocalType').value = visit.localType || ''; } else { $('#localCode').value = visit.localCode || ''; }
+  if (visit.isNewLocal) { $('#newLocalCode').value = visit.localCode || ''; $('#newLocalName').value = visit.localName || ''; $('#newLocalAddress').value = visit.localAddress || ''; $('#newLocalType').value = ['Almacén', 'Minimarket'].includes(visit.localType) ? 'Almacén o minimarket' : visit.localType || ''; } else { $('#localCode').value = visit.localCode || ''; }
   autoSuggestedUv = savedUv === inferredUv ? inferredUv || '' : '';
   unitVecinalWasManuallySet = Boolean(savedUv && savedUv !== inferredUv);
   $('#uvSuggestion').textContent = inferredUv
@@ -336,7 +335,7 @@ function compressImage_(file) {
 function renderClassification(data = {}) {
   const local = getLocal();
   const draft = getDraft();
-  $('#classificationLinkedLocal').textContent = local ? `${local.code} · ${local.name} · ${local.address} · ${local.criterion}` : 'No hay un local de SampleLocals vinculado.';
+  $('#classificationLinkedLocal').textContent = local ? `${local.code} · ${local.name} · ${local.address}` : 'No hay un local de SampleLocals vinculado.';
   $('#classificationLinkedUnit').textContent = draft?.unitVecinal || 'Sin unidad vecinal registrada en la visita.';
   const fields = {
     classificationService: data.sistemaAtencion === 'acceso_libre' ? 'autoservicio' : data.sistemaAtencion,
@@ -356,7 +355,7 @@ function renderClassification(data = {}) {
   $('#classificationInteriorPermission').checked = Boolean(data.interiorAuthorized);
   updateClassificationVisibility();
 }
-const PROTEIN_CATEGORIES = ['vacuno', 'cerdo', 'pollo', 'cordero'];
+const PROTEIN_CATEGORIES = ['vacuno', 'cerdo', 'pollo', 'cordero', 'pescados_mariscos'];
 function classifyLocal_(sistemaAtencion, produceVarieties, proteinCategories, dairyRegular, eggsRegular) {
   const varieties = Number(produceVarieties);
   const proteins = Array.isArray(proteinCategories) ? [...new Set(proteinCategories)] : [];
