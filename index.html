@@ -54,11 +54,14 @@
             <label class="required">Persona recolectora<input id="collector" required></label>
             <div class="wide uv-map-help">
               <a id="uvMapButton" class="button-like" href="https://earth.google.com/earth/d/1ELFkikpamAG-HdZ0Kcy3PBn-gsOhvNup?usp=sharing" target="_blank" rel="noopener">Ver mapa de unidades vecinales (Google Earth)</a>
-              <p class="field-help">Use el mapa para identificar visualmente en qué unidad vecinal (UV) está el local, por sus colores, antes de registrar coordenadas.</p>
+              <p class="field-help">La UV se sugiere según las coordenadas del local. Revísela y corríjala si el punto está cerca de un límite.</p>
             </div>
             <label class="checkbox-field wide"><input id="isNewLocal" type="checkbox"> Es un local nuevo (no aparece en la lista de la muestra)</label>
-            <label class="wide" id="uvFilterField">Filtrar la lista por unidad vecinal asignada (opcional)<select id="uvFilter"><option value="">Mostrar todos los locales</option><option>UV1</option><option>UV2</option><option>UV3</option><option>UV4</option><option>UV5</option><option>UV6</option><option>UV7</option><option>UV8</option><option>UV9</option><option>UV10</option><option>UV11</option><option>UV12</option><option>Otra / borde</option></select></label>
             <div id="sampleLocalFields" class="wide">
+              <details id="uvFilterDetails" class="uv-filter-details">
+                <summary>Filtrar esta lista por UV — no es otro dato de la visita</summary>
+                <label>UV para filtrar los locales (opcional)<select id="uvFilter"><option value="">Mostrar todos los locales</option></select></label>
+              </details>
               <label class="required wide">Código de local de la muestra<select id="localCode" required><option value="">Seleccione un local…</option></select></label>
               <p class="field-help">La lista muestra código, nombre y dirección para identificar el local sin memorizar el número.</p>
             </div>
@@ -74,7 +77,7 @@
             <label>Local o establecimiento<input id="establishment" readonly></label>
             <label>Dirección o referencia<input id="address" readonly></label>
             <label>Tipo de local registrado<input id="localType" readonly></label>
-            <label class="required">Unidad vecinal del local<select id="visitUnit" required><option value="">Seleccione</option><option>UV1</option><option>UV2</option><option>UV3</option><option>UV4</option><option>UV5</option><option>UV6</option><option>UV7</option><option>UV8</option><option>UV9</option><option>UV10</option><option>UV11</option><option>UV12</option><option>Otra / borde</option></select></label>
+            <label class="required">Unidad vecinal del local<select id="visitUnit" required><option value="">Seleccione</option></select></label>
             <p id="uvSuggestion" class="field-help"></p>
             <label class="required">Latitud levantada<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
             <label class="required">Longitud levantada<input id="longitude" type="number" step="any" min="-180" max="180" placeholder="-72.067" required></label>
@@ -187,6 +190,7 @@
     </footer>
   </main>
   <script src="sample-locals.js"></script>
+  <script src="uv-polygons.js"></script>
   <script src="uv-boundaries.js"></script>
   <script src="app.js"></script>
 </body>

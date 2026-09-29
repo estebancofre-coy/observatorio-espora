@@ -44,13 +44,16 @@ button:disabled { cursor: wait; opacity: .65; }
 .price-review-item span { color: #526a76; font-size: 13px; text-align: right; }
 .empty-state { background: #f3f7f4; border: 1px dashed #9aa0a6; border-radius: 8px; color: #526a76; padding: 18px; text-align: center; }
 .classification-result { background: #e5f2ee; border-radius: 8px; color: #14645f; font-weight: 700; margin: 10px 0; padding: 12px; }
-.linked-local { background: #eef7f5; border-left: 4px solid #2d948c; border-radius: 6px; color: #365866; font-size: 13px; margin: 12px 0; padding: 10px; }
+.linked-local { background: #eef7f5; border: 1px solid #c9ded9; border-radius: 6px; color: #365866; font-size: 13px; margin: 12px 0; padding: 10px; }
 .field-help { color: #526a76; font-size: 12px; margin: 4px 0 0; }
 .required::after { color: #d93025; content: ' *'; }
 .checkbox-field { align-items: center; display: flex; font-weight: 700; gap: 8px; }
 .checkbox-field input { margin-top: 0; width: auto; }
 .button-like { border: 1px solid #0f7180; border-radius: 6px; color: #0f7180; display: inline-block; font-weight: 700; margin-top: 6px; padding: 11px 16px; text-align: center; text-decoration: none; }
 .uv-map-help { background: #eef7f5; border-radius: 8px; padding: 12px; }
+.uv-filter-details { background: #f3f7f4; border-radius: 6px; margin-bottom: 12px; padding: 10px 12px; }
+.uv-filter-details summary { color: #0f5d74; cursor: pointer; font-weight: 700; min-height: 24px; }
+.uv-filter-details label { padding-top: 10px; }
 #connection, #message { border-radius: 4px; margin: 10px 0; padding: 10px; white-space: pre-line; }
 .online, #message.success { background: #e6f4ea; color: #137333; }
 .offline { background: #fef7e0; color: #7a4d00; }

@@ -167,17 +167,23 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - El selector `Local de la muestra` / `Local nuevo` cambió de menú desplegable a una casilla de verificación `Es un local nuevo`.
 - El código de local de la muestra ahora se elige desde un `<select>` que muestra código, nombre y dirección, para poder identificar el negocio sin memorizar el número.
 - Se agregó el botón `Ver mapa de unidades vecinales (Google Earth)` que abre en pestaña nueva `https://earth.google.com/earth/d/1ELFkikpamAG-HdZ0Kcy3PBn-gsOhvNup`.
-- Se creó `uv-boundaries.js` con la lógica de *point-in-polygon* para sugerir la UV automáticamente a partir de latitud/longitud y para filtrar la lista de locales de la muestra por UV asignada. El objeto `UV_POLYGONS` queda vacío hasta recibir el KML exportado de ese proyecto de Google Earth (ver README, sección "Unidad vecinal (UV) del local").
+- Se creó `uv-boundaries.js` con la lógica de *point-in-polygon* para sugerir la UV automáticamente a partir de latitud/longitud y para filtrar la lista de locales de la muestra por UV asignada. En ese momento faltaba cargar los polígonos, pendiente que se resolvió el 2026-09-29 con los adjuntos del Censo 2017.
 - Backend: `Code.gs` valida que la visita incluya `unitVecinal`, agrega la columna `Unidad vecinal` a `Visitas` y usa ese valor (en vez de repetirlo en el instrumento) para `Clasificación`.
 
 ## 2026-09-29 — Revisión del KML de Google Earth
 
 - Se revisó `Locales Manuales - Por Subcategoría - Final (1).kml`: contiene 216 puntos de locales agrupados por rubro económico y ningún polígono ni nombre de unidad vecinal.
-- No se usó para `UV_POLYGONS`; la sugerencia automática de UV sigue inactiva y la UV se selecciona manualmente.
-- README documenta fuentes oficiales para obtener los límites de UV (Dato Vecino INE/MDSF, Geoportal IDE Chile, Municipalidad).
+- No se usó para `UV_POLYGONS`; el KML contiene puntos de locales por rubro económico, no polígonos.
 
 ## 2026-09-29 — Fix estructura de hoja Visitas
 
 - `setupDatabase()` fallaba con "La estructura de la hoja Visitas no coincide con la versión esperada" porque la columna `Unidad vecinal` se había insertado en medio de los encabezados. `ensureSheet_` solo admite agregar columnas al final para no desplazar datos.
 - Se movió `Unidad vecinal` al final de `Visitas` (y en `upsertVisit_`); ahora `setupDatabase()` la agrega sin tocar registros existentes.
 
+## 2026-09-29 — Asignación de UV desde polígonos del Censo 2017
+
+- Se inspeccionaron los adjuntos: el diccionario define `NOMBRE_COMUNA`, `CODIGO_UV` y `NOMBRE_UV`, y la geodatabase contiene la capa poligonal `Unidades_Vecinales`.
+- Se extrajeron las 34 UV de Coyhaique a `uv-polygons.js`, transformadas a EPSG:4326; `uv-boundaries.js` ahora considera multipolígonos y huecos.
+- Al seleccionar un local de la muestra se precargan latitud, longitud y UV calculada. Las coordenadas ingresadas o capturadas por GPS también sugieren la UV; la persona puede corregirla manualmente.
+- El filtro de la lista de muestra quedó dentro de un panel opcional plegado para distinguirlo del único campo de UV que se guarda en la ficha.
+- La comprobación espacial ubicó 107 de 107 puntos de muestra dentro de los polígonos; 19 están a menos de 20 m de un límite. Se documentó una posible coordenada errónea en `LM04A1` para revisión.

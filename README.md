@@ -61,32 +61,21 @@ Se agregó un botón **Ver mapa de unidades vecinales (Google Earth)** que abre 
 `https://earth.google.com/earth/d/1ELFkikpamAG-HdZ0Kcy3PBn-gsOhvNup`
 Ahí se ven los colores por UV para identificar visualmente en qué unidad está el local antes de registrar coordenadas.
 
-### Sugerencia automática de UV por coordenadas (requiere el KML del mapa)
+### Asignación de UV por coordenadas
 
-`uv-boundaries.js` contiene la lógica para deducir la UV a partir de latitud/longitud (algoritmo *ray casting* sobre los polígonos de cada UV), pero el objeto `UV_POLYGONS` está vacío porque el proyecto de Google Earth no puede leerse automáticamente (requiere sesión autenticada y no expone un KML público). Para activarlo:
+La capa adjunta de geodatabase contiene la tabla espacial `Unidades_Vecinales`, con los campos `NOMBRE_COMUNA`, `CODIGO_UV` y `NOMBRE_UV`. Se extrajeron las 34 unidades de Coyhaique, se transformaron del CRS original EPSG:4674 a WGS 84 (EPSG:4326) y se guardaron como geometrías multipoligonales en `uv-polygons.js`; `uv-boundaries.js` resuelve la UV con latitud/longitud, incluidos huecos y polígonos separados. El diccionario de variables adjunto documenta esos campos y la fuente del Censo 2017.
 
-1. Abra el proyecto en Google Earth con la cuenta editora: `https://earth.google.com/earth/d/1ELFkikpamAG-HdZ0Kcy3PBn-gsOhvNup`.
-2. Menú (⋮) del proyecto → **Exportar como KML** (o KMZ; si es KMZ, descomprímalo, es un `.kml` dentro de un zip).
-3. Comparta ese archivo `.kml` con el equipo de desarrollo (o súbalo al repositorio como `apps-script/uv.kml`).
-4. Con las coordenadas de cada polígono se completará `UV_POLYGONS` en `uv-boundaries.js`.
+Al elegir un local de la muestra, la plataforma carga sus coordenadas existentes y asigna la UV que contiene ese punto. En locales nuevos, la UV se sugiere al usar GPS o ingresar las coordenadas. En ambos casos la selección se puede corregir antes de continuar. Los nombres de UV se muestran junto con su código para distinguir sectores homónimos.
 
-> **Nota (revisión 2026-09-29):** se recibió el archivo `Locales Manuales - Por Subcategoría - Final (1).kml` para completar `UV_POLYGONS`, pero al inspeccionarlo se comprobó que **no contiene polígonos**: son 216 `Placemark` de tipo punto, agrupados en carpetas por **rubro/subcategoría económica** (ferias, cervecerías, panaderías, procesamiento de alimentos, etc.), sin ningún nombre de Unidad Vecinal. Es decir, corresponde a otra capa del mismo proyecto de Google Earth (catastro de locales), no a la capa de límites de UV con colores. Ese archivo no se usó para `UV_POLYGONS`; puede servir en el futuro como catastro complementario si se solicita explícitamente.
->
-> Para obtener la capa de límites de UV se recomienda una fuente oficial en vez del proyecto de Earth (que no expone un KML público descargable):
-> - **Dato Vecino (INE / MDSF)**: https://datovecino.ine.cl — visor con las Unidades Vecinales oficiales por comuna, ajustadas al estándar del Ministerio de Desarrollo Social y Familia. Permite ubicar Coyhaique y descargar la capa (SHP; conviene convertir a GeoJSON/KML con QGIS si no ofrece ese formato directo).
-> - **Geoportal.cl (IDE Chile)**: https://geoportal.cl/geoportal/catalog/36395/Unidades%20vecinales — catálogo con la capa nacional de unidades vecinales; requiere iniciar sesión para descargar.
-> - Alternativamente, solicitar la capa directamente a la Municipalidad de Coyhaique (SECPLA) o al MDSF vía solicitud de datos abiertos.
->
-> Una vez se obtenga el `.shp`/`.kml`/`.geojson` oficial con los polígonos y el nombre de cada UV de Coyhaique, se puede completar `UV_POLYGONS` siguiendo el mismo formato documentado arriba.
+El filtro territorial es una opción plegada **“Filtrar esta lista por UV — no es otro dato de la visita”** dentro de la sección de locales de muestra; no es otra pregunta ni cambia lo guardado. La única UV que se registra se muestra en **“Unidad vecinal del local”** y se hereda en Clasificación como dato informativo, sin volver a solicitarla.
 
-Una vez cargado, la aplicación:
-- Sugiere automáticamente la UV al capturar o ingresar latitud/longitud (`getUvForCoordinates`), dejando siempre la posibilidad de corregirla manualmente.
-- Precompleta la UV de un local de la muestra al seleccionarlo, según sus coordenadas conocidas.
-- Permite filtrar la lista de locales de la muestra por UV (selector **Filtrar la lista por unidad vecinal asignada**), para que una persona recolectora asignada a una UV solo vea los negocios de esa zona.
+**Precaución cartográfica:** los polígonos adjuntos corresponden al Censo 2017, no necesariamente a la división municipal vigente. Las 107 coordenadas de la muestra caen dentro de una UV del archivo; 19 están a menos de 20 m de un límite, por lo que conviene validar esos puntos en el mapa y confirmar con la fuente municipal. En particular, `LM04A1` (“JACE Panadería Artesanal”) tiene coordenadas `-45.343027, -72.055981`, que lo ubican en Villa Ortega y parecen no concordar con la dirección céntrica registrada; revise ese dato en `sample-locals.js` antes de usar su UV como definitiva. La capa de puntos `Locales Manuales - Por Subcategoría - Final (1).kml` no se utilizó para los límites: son puntos de locales por rubro y no polígonos de UV.
+
+Este cambio solo modifica el frontend y la capa geográfica; no altera el contrato ni el esquema de Apps Script/Sheets. No requiere ejecutar `setupDatabase()` ni republicar el Web App. Basta publicar los archivos estáticos actualizados en GitHub Pages.
 
 ### Identificación de locales y responsabilidades por zona
 
-Antes, el código de local (por ejemplo `LM01A1`) no bastaba para reconocer de qué negocio se trataba. Ahora el selector de local de la muestra muestra **código — nombre — dirección** en cada opción, y el selector de **Filtrar por unidad vecinal asignada** permite acotar esa lista a los locales de una UV específica una vez cargado el KML de límites. Esto resuelve el problema de asignar responsabilidades por zona: al asignar una UV a una persona recolectora, la lista de locales que ve queda restringida a esa unidad vecinal, evitando duplicidad de esfuerzos o local mal identificado.
+Antes, el código de local (por ejemplo `LM01A1`) no bastaba para reconocer de qué negocio se trataba. Ahora el selector muestra **código — nombre — dirección**, asigna la UV mediante las coordenadas de muestra y ofrece el filtro territorial opcional para acotar la lista a la zona asignada. Así se facilita el reparto por UV y se reduce el riesgo de duplicar o confundir locales.
 
 ### Actualización del backend tras cambios
 

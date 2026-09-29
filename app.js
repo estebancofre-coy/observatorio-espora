@@ -32,6 +32,8 @@ const AVAILABILITY = [
 const ORIGIN_PRODUCTS = ['Carne vacuna', 'Cordero', 'Pollo/aves', 'Pescado', 'Lácteos', 'Huevos', 'Otro (especificar)'];
 const $ = (selector, root = document) => root.querySelector(selector);
 let currentView = 'visitView';
+let autoSuggestedUv = '';
+let unitVecinalWasManuallySet = false;
 
 function getDraft() { try { return JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null'); } catch (_) { return null; } }
 function setDraft(draft) { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)); updateMenu(); }
@@ -85,6 +87,22 @@ async function api(payload) {
 
 function getLocal() { return SAMPLE_LOCALS.find((local) => local.code === $('#localCode').value.trim().toUpperCase()); }
 function localUv_(local) { return typeof getUvForCoordinates === 'function' ? getUvForCoordinates(local.latitude, local.longitude) : null; }
+function populateUvOptions(unitValue = '') {
+  const options = UV_POLYGONS.map((unit) => new Option(unit.value, unit.value));
+  options.push(new Option('Otra / borde de comuna (verificar manualmente)', 'Otra / borde'));
+  if (unitValue && !options.some((option) => option.value === unitValue)) {
+    const legacyMatch = unitValue.match(/^UV\s*(\d+)$/i);
+    const migrated = legacyMatch && UV_POLYGONS.find((unit) => unit.code === String(Number(legacyMatch[1])));
+    if (migrated) unitValue = migrated.value;
+    else options.push(new Option(`${unitValue} (guardada anteriormente)`, unitValue));
+  }
+  const unitSelect = $('#visitUnit');
+  unitSelect.replaceChildren(new Option('Seleccione una unidad vecinal…', ''), ...options);
+  unitSelect.value = unitValue;
+  const filter = $('#uvFilter');
+  filter.replaceChildren(new Option('Mostrar todos los locales', ''), ...UV_POLYGONS.map((unit) => new Option(unit.value, unit.value)));
+  return unitValue;
+}
 function populateLocalCodeOptions() {
   const select = $('#localCode');
   const previous = select.value;
@@ -95,13 +113,13 @@ function populateLocalCodeOptions() {
   select.replaceChildren(new Option('Seleccione un local…', ''), ...options);
   if ([...select.options].some((option) => option.value === previous)) select.value = previous;
 }
-function updateLocal() {
+function updateLocal({ restore = false } = {}) {
   const isNew = $('#isNewLocal').checked;
   const local = getLocal();
   const code = $('#localCode');
   $('#sampleLocalFields').hidden = isNew;
   $('#newLocalFields').hidden = !isNew;
-  $('#uvFilterField').hidden = isNew;
+  $('#uvFilterDetails').hidden = isNew;
   $('#localCode').required = !isNew;
   ['newLocalName', 'newLocalAddress', 'newLocalType'].forEach((id) => { $('#' + id).required = isNew; });
   if (isNew) {
@@ -114,12 +132,28 @@ function updateLocal() {
   if (!local) {
     code.setCustomValidity(code.value ? 'Ingrese un código válido de la muestra.' : '');
     ['establishment', 'address', 'localType'].forEach((id) => { $('#' + id).value = ''; });
+    if (!restore) {
+      $('#latitude').value = '';
+      $('#longitude').value = '';
+      if (autoSuggestedUv && $('#visitUnit').value === autoSuggestedUv) $('#visitUnit').value = '';
+      autoSuggestedUv = '';
+      unitVecinalWasManuallySet = false;
+      $('#uvSuggestion').textContent = '';
+    }
     return;
   }
   code.setCustomValidity('');
   $('#establishment').value = local.name; $('#address').value = local.address; $('#localType').value = local.criterion;
-  const uv = localUv_(local);
-  if (uv && !$('#visitUnit').value) $('#visitUnit').value = uv;
+  if (!restore) {
+    $('#latitude').value = local.latitude || '';
+    $('#longitude').value = local.longitude || '';
+    autoSuggestedUv = localUv_(local) || '';
+    unitVecinalWasManuallySet = false;
+    $('#visitUnit').value = autoSuggestedUv;
+    $('#uvSuggestion').textContent = autoSuggestedUv
+      ? `UV sugerida desde las coordenadas del local de muestra: ${autoSuggestedUv}. Verifique el punto y corrija la selección si está cerca de un límite.`
+      : 'No se encontró una UV para estas coordenadas. Revise la ubicación y seleccione la unidad vecinal manualmente.';
+  }
 }
 function localFormIsValid() {
   return $('#isNewLocal').checked
@@ -131,17 +165,32 @@ function visitFromForm(existing) {
   return { id: existing?.id || newId(), observationDate: $('#observationDate').value, collector: $('#collector').value, localCode: isNew ? $('#newLocalCode').value : $('#localCode').value, unitVecinal: $('#visitUnit').value, latitude: $('#latitude').value, longitude: $('#longitude').value, isNewLocal: isNew, localName: isNew ? $('#newLocalName').value.trim() : '', localAddress: isNew ? $('#newLocalAddress').value.trim() : '', localType: isNew ? $('#newLocalType').value : '', instruments: existing?.instruments || {} };
 }
 function fillVisit(visit) {
-  Object.entries({ observationDate: visit.observationDate, collector: visit.collector, latitude: visit.latitude, longitude: visit.longitude, visitUnit: visit.unitVecinal }).forEach(([id, value]) => { $('#' + id).value = value || ''; });
+  const sampleLocal = SAMPLE_LOCALS.find((local) => local.code === visit.localCode);
+  const latitude = visit.latitude || sampleLocal?.latitude;
+  const longitude = visit.longitude || sampleLocal?.longitude;
+  const inferredUv = latitude && longitude ? getUvForCoordinates(latitude, longitude) : '';
+  const savedUv = populateUvOptions(visit.unitVecinal || inferredUv);
+  Object.entries({ observationDate: visit.observationDate, collector: visit.collector, latitude, longitude, visitUnit: savedUv }).forEach(([id, value]) => { $('#' + id).value = value || ''; });
   $('#isNewLocal').checked = Boolean(visit.isNewLocal);
   populateLocalCodeOptions();
   if (visit.isNewLocal) { $('#newLocalCode').value = visit.localCode || ''; $('#newLocalName').value = visit.localName || ''; $('#newLocalAddress').value = visit.localAddress || ''; $('#newLocalType').value = visit.localType || ''; } else { $('#localCode').value = visit.localCode || ''; }
-  updateLocal();
+  autoSuggestedUv = savedUv === inferredUv ? inferredUv || '' : '';
+  unitVecinalWasManuallySet = Boolean(savedUv && savedUv !== inferredUv);
+  $('#uvSuggestion').textContent = inferredUv
+    ? `UV sugerida según las coordenadas guardadas: ${inferredUv}. Verifique el punto y corrija la selección si está cerca de un límite.`
+    : '';
+  updateLocal({ restore: true });
 }
 function suggestUvFromCoordinates() {
-  if (typeof hasUvBoundaries !== 'function' || !hasUvBoundaries()) { $('#uvSuggestion').textContent = ''; return; }
+  if (!$('#latitude').value || !$('#longitude').value) { $('#uvSuggestion').textContent = ''; return; }
   const uv = getUvForCoordinates($('#latitude').value, $('#longitude').value);
-  $('#uvSuggestion').textContent = uv ? `Sugerencia según coordenadas: ${uv}. Verifique con el mapa antes de confirmar.` : '';
-  if (uv && !$('#visitUnit').value) $('#visitUnit').value = uv;
+  $('#uvSuggestion').textContent = uv
+    ? `Sugerencia según coordenadas: ${uv}. Verifique el punto y corrija la selección si está cerca de un límite.`
+    : 'No se encontró una UV para estas coordenadas. Revise la ubicación y seleccione la unidad vecinal manualmente.';
+  if (!unitVecinalWasManuallySet || !$('#visitUnit').value || $('#visitUnit').value === autoSuggestedUv) {
+    $('#visitUnit').value = uv || '';
+    autoSuggestedUv = uv || '';
+  }
 }
 function updateMenu() {
   const draft = getDraft(); if (!draft) return;
@@ -317,10 +366,22 @@ function openInstrument(instrument) {
 function useCurrentLocation() { if (!navigator.geolocation) return showMessage('Este navegador no admite geolocalización.', 'error'); navigator.geolocation.getCurrentPosition((pos) => { $('#latitude').value = pos.coords.latitude.toFixed(6); $('#longitude').value = pos.coords.longitude.toFixed(6); suggestUvFromCoordinates(); showMessage('Ubicación actual cargada. Verifíquela antes de continuar.', 'success'); }, () => showMessage('No fue posible obtener la ubicación.', 'error'), { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }); }
 
 function initialize() {
-  populateLocalCodeOptions(); updateConnection();
+  populateUvOptions(); populateLocalCodeOptions(); updateConnection();
   const draft = getDraft(); $('#observationDate').value = new Date().toISOString().slice(0, 10); if (draft) { fillVisit(draft); showView('menuView'); updateMenu(); }
-  $('#localCode').addEventListener('change', updateLocal); $('#isNewLocal').addEventListener('change', updateLocal);
-  $('#uvFilter').addEventListener('change', populateLocalCodeOptions);
+  $('#localCode').addEventListener('change', updateLocal);
+  $('#isNewLocal').addEventListener('change', () => {
+    if ($('#isNewLocal').checked) {
+      $('#latitude').value = '';
+      $('#longitude').value = '';
+      $('#visitUnit').value = '';
+      autoSuggestedUv = '';
+      unitVecinalWasManuallySet = false;
+      $('#uvSuggestion').textContent = '';
+    }
+    updateLocal();
+  });
+  $('#uvFilter').addEventListener('change', () => { populateLocalCodeOptions(); updateLocal(); });
+  $('#visitUnit').addEventListener('change', () => { unitVecinalWasManuallySet = Boolean($('#visitUnit').value && $('#visitUnit').value !== autoSuggestedUv); });
   ['latitude', 'longitude'].forEach((id) => $('#' + id).addEventListener('input', suggestUvFromCoordinates));
   ['newLocalName', 'newLocalAddress', 'newLocalType'].forEach((id) => $('#' + id).addEventListener('input', updateLocal)); $('#locationButton').addEventListener('click', useCurrentLocation);
   $('#visitForm').addEventListener('submit', (event) => { event.preventDefault(); const current = getDraft(); const visit = visitFromForm(current); if (!localFormIsValid()) { showMessage('Complete los datos del local seleccionado o del local nuevo.', 'error'); return; } setDraft(visit); showView('menuView'); });
