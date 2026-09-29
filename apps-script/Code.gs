@@ -4,7 +4,7 @@ const IMAGE_FOLDER_NAME = 'ESPORA - Imágenes de levantamiento';
 const SHEETS = {
   visits: {
     name: 'Visitas',
-    headers: ['ID de visita', 'Fecha de registro', 'Fecha de observación', 'Persona recolectora', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local', 'Latitud levantada', 'Longitud levantada', 'Recategorización observada', 'Importador con venta al detalle/menor'],
+    headers: ['ID de visita', 'Fecha de registro', 'Fecha de observación', 'Persona recolectora', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local', 'Unidad vecinal', 'Latitud levantada', 'Longitud levantada', 'Recategorización observada', 'Importador con venta al detalle/menor'],
   },
   availability: {
     name: 'Disponibilidad',
@@ -189,6 +189,9 @@ function validateVisit_(visit) {
   if (!visit || !visit.id || !visit.observationDate || !String(visit.collector || '').trim()) {
     throw new Error('Los datos generales de la visita están incompletos.');
   }
+  if (!String(visit.unitVecinal || '').trim()) {
+    throw new Error('Seleccione la unidad vecinal del local.');
+  }
   getVisitLocal_(visit);
   ['latitude', 'longitude'].forEach((key) => {
     if (!Number.isFinite(Number(visit[key]))) {
@@ -209,7 +212,8 @@ function upsertVisit_(database, visit) {
   const row = [
     visit.id, new Date(), new Date(visit.observationDate + 'T12:00:00'),
     visit.collector.trim(), local.code, local.id, local.name, local.address,
-    local.criterion, local.criterion2 || '', Number(visit.latitude), Number(visit.longitude),
+    local.criterion, local.criterion2 || '', String(visit.unitVecinal || '').trim(),
+    Number(visit.latitude), Number(visit.longitude),
     visit.recategorization || '', visit.retailSale || '',
   ];
   if (rowIndex > 0) {
@@ -273,10 +277,10 @@ function originRows_(visit, data) {
 }
 
 function classificationRows_(visit, data) {
-  if (!data || !data.unitVecinal) {
-    throw new Error('Complete la unidad vecinal.');
+  if (!String(visit.unitVecinal || '').trim()) {
+    throw new Error('Falta la unidad vecinal registrada en la visita.');
   }
-  if (data.estadoLocal !== 'abierto') {
+  if (!data || data.estadoLocal !== 'abierto') {
     throw new Error('Solo se registran locales abiertos.');
   }
   const local = getVisitLocal_(visit);
@@ -298,7 +302,7 @@ function classificationRows_(visit, data) {
   }
   const finalClassification = data.clasificacionOverride || automatic;
   return [[
-    visit.id, new Date(), data.unitVecinal, 'abierto', data.superficie || '', data.sistemaAtencion || '',
+    visit.id, new Date(), String(visit.unitVecinal).trim(), 'abierto', data.superficie || '', data.sistemaAtencion || '',
     data.personasAtendiendo || '', data.abarrotes || '', data.frutaVerdura || '', data.carnes || '',
     rubros.join(', '), '', '', '', automatic, finalClassification,
     data.clasificacionOverride ? 'manual' : 'automatica', String(data.justificacionOverride || '').trim(),

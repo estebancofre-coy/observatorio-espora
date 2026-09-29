@@ -160,3 +160,12 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - Se añadieron cargas de imágenes para frontis, interior autorizado, frutas y verduras, carnes y congelados.
 - Las imágenes se comprimen en el navegador, se guardan en Drive en `ESPORA - Imágenes de levantamiento` y sus enlaces se agregan al final de `Clasificación`.
 - Se mantuvieron las columnas históricas de clasificación con valores vacíos donde dejaron de aplicar, evitando migraciones destructivas.
+
+## 2026-09-29 — Unidad vecinal en identificación y filtro por zona
+
+- La ficha de identificación de la visita ahora exige `Unidad vecinal (UV)` para locales de la muestra y locales nuevos; ese dato se guarda en `Visitas` (columna nueva) y se hereda en `Clasificación` sin volver a preguntarlo.
+- El selector `Local de la muestra` / `Local nuevo` cambió de menú desplegable a una casilla de verificación `Es un local nuevo`.
+- El código de local de la muestra ahora se elige desde un `<select>` que muestra código, nombre y dirección, para poder identificar el negocio sin memorizar el número.
+- Se agregó el botón `Ver mapa de unidades vecinales (Google Earth)` que abre en pestaña nueva `https://earth.google.com/earth/d/1ELFkikpamAG-HdZ0Kcy3PBn-gsOhvNup`.
+- Se creó `uv-boundaries.js` con la lógica de *point-in-polygon* para sugerir la UV automáticamente a partir de latitud/longitud y para filtrar la lista de locales de la muestra por UV asignada. El objeto `UV_POLYGONS` queda vacío hasta recibir el KML exportado de ese proyecto de Google Earth (ver README, sección "Unidad vecinal (UV) del local").
+- Backend: `Code.gs` valida que la visita incluya `unitVecinal`, agrega la columna `Unidad vecinal` a `Visitas` y usa ese valor (en vez de repetirlo en el instrumento) para `Clasificación`.

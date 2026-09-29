@@ -52,14 +52,19 @@
           <div class="grid">
             <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
             <label class="required">Persona recolectora<input id="collector" required></label>
-            <label class="required">Tipo de local
-              <select id="localMode"><option value="sample">Local de la muestra</option><option value="new">Local nuevo</option></select>
-            </label>
-            <label class="required">Código de local de la muestra<input id="localCode" list="localCodes" autocomplete="off" placeholder="Ejemplo: LM01A1" required></label>
-            <datalist id="localCodes"></datalist>
-            <div id="sampleLocalFields" class="wide"><p class="field-help">Seleccione un código existente de SampleLocals.</p></div>
+            <div class="wide uv-map-help">
+              <a id="uvMapButton" class="button-like" href="https://earth.google.com/earth/d/1ELFkikpamAG-HdZ0Kcy3PBn-gsOhvNup?usp=sharing" target="_blank" rel="noopener">Ver mapa de unidades vecinales (Google Earth)</a>
+              <p class="field-help">Use el mapa para identificar visualmente en qué unidad vecinal (UV) está el local, por sus colores, antes de registrar coordenadas.</p>
+            </div>
+            <label class="checkbox-field wide"><input id="isNewLocal" type="checkbox"> Es un local nuevo (no aparece en la lista de la muestra)</label>
+            <label class="wide" id="uvFilterField">Filtrar la lista por unidad vecinal asignada (opcional)<select id="uvFilter"><option value="">Mostrar todos los locales</option><option>UV1</option><option>UV2</option><option>UV3</option><option>UV4</option><option>UV5</option><option>UV6</option><option>UV7</option><option>UV8</option><option>UV9</option><option>UV10</option><option>UV11</option><option>UV12</option><option>Otra / borde</option></select></label>
+            <div id="sampleLocalFields" class="wide">
+              <label class="required wide">Código de local de la muestra<select id="localCode" required><option value="">Seleccione un local…</option></select></label>
+              <p class="field-help">La lista muestra código, nombre y dirección para identificar el local sin memorizar el número.</p>
+            </div>
             <div id="newLocalFields" class="wide" hidden>
               <div class="grid">
+                <label>Código asignado<input id="newLocalCode" readonly></label>
                 <label class="required">Nombre del nuevo local<input id="newLocalName" placeholder="Ejemplo: Almacén del barrio"></label>
                 <label class="required">Dirección o referencia<input id="newLocalAddress" placeholder="Calle, número o referencia"></label>
                 <label class="required">Tipo de local<select id="newLocalType"><option value="">Seleccione</option><option>Almacén</option><option>Minimarket</option><option>Supermercado</option><option>Venta de Frutas y Verduras</option><option>Mercado Campesino</option><option>Productor Hortícola</option><option>Otro</option></select></label>
@@ -69,6 +74,8 @@
             <label>Local o establecimiento<input id="establishment" readonly></label>
             <label>Dirección o referencia<input id="address" readonly></label>
             <label>Tipo de local registrado<input id="localType" readonly></label>
+            <label class="required">Unidad vecinal del local<select id="visitUnit" required><option value="">Seleccione</option><option>UV1</option><option>UV2</option><option>UV3</option><option>UV4</option><option>UV5</option><option>UV6</option><option>UV7</option><option>UV8</option><option>UV9</option><option>UV10</option><option>UV11</option><option>UV12</option><option>Otra / borde</option></select></label>
+            <p id="uvSuggestion" class="field-help"></p>
             <label class="required">Latitud levantada<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
             <label class="required">Longitud levantada<input id="longitude" type="number" step="any" min="-180" max="180" placeholder="-72.067" required></label>
             <div><label>Ubicación</label><button class="secondary" id="locationButton" type="button">Usar ubicación actual</button></div>
@@ -140,10 +147,8 @@
         <h2>ESPORA · Clasificación del local</h2>
         <p>Ficha inicial de catastro. La clasificación automática combina sistema de atención, fruta/verdura y carnes; cualquier corrección manual exige una justificación.</p>
         <div class="linked-local"><strong>Local vinculado a SampleLocals:</strong> <span id="classificationLinkedLocal"></span></div>
+        <div class="linked-local"><strong>Unidad vecinal registrada en la visita:</strong> <span id="classificationLinkedUnit"></span></div>
         <form id="classificationForm">
-          <div class="grid">
-            <label class="required">Unidad vecinal<select id="classificationUnit" required><option value="">Seleccione</option><option>UV1</option><option>UV2</option><option>UV3</option><option>UV4</option><option>UV5</option><option>UV6</option><option>UV7</option><option>UV8</option><option>UV9</option><option>UV10</option><option>UV11</option><option>UV12</option><option>Otra / borde</option></select></label>
-          </div>
           <div id="classificationOpenFields">
             <fieldset><legend>Estructura y atención</legend><div class="grid">
               <label class="required">Superficie<select id="classificationSurface"><option value="">Seleccione</option><option value="muy_pequena">Muy pequeña</option><option value="pequena">Pequeña</option><option value="mediana">Mediana</option><option value="grande">Grande</option></select></label>
@@ -153,7 +158,7 @@
             <fieldset><legend>Rubros observados</legend>
               <label class="required wide">Seleccione uno o varios rubros (puede combinar opciones)<select id="classificationOther" multiple required><option value="abarrotes">Abarrotes básicos</option><option value="frutas">Frutas</option><option value="verduras">Verduras</option><option value="carnes">Carnes frescas</option><option value="congelados">Congelados</option><option value="panaderia">Panadería</option><option value="bebidas">Bebidas / licores</option><option value="limpieza">Limpieza</option><option value="preparacion">Comida preparada</option><option value="lacteos">Lácteos y huevos</option><option value="legumbres">Legumbres y granos</option><option value="pescados">Pescados y mariscos</option><option value="otro">Otro</option></select></label>
             </fieldset>
-            <fieldset><legend>Imágenes del punto de venta</legend><p class="field-help">Registre imágenes del frontis y, solo si el responsable autoriza, del interior y módulos. Se comprimen antes del envío.</p><div class="grid"><label>Frontis<input id="classificationFront" type="file" accept="image/*" multiple></label><label>Interior autorizado<input id="classificationInterior" type="file" accept="image/*" multiple></label><label class="wide"><input id="classificationInteriorPermission" type="checkbox"> El responsable autorizó fotografiar el interior</label><label>Módulo de frutas y verduras<input id="classificationProduceImages" type="file" accept="image/*" multiple></label><label>Módulo de carnes<input id="classificationMeatImages" type="file" accept="image/*" multiple></label><label>Congelados<input id="classificationFrozenImages" type="file" accept="image/*" multiple></label></div><p id="classificationImageStatus" class="field-help"></p></fieldset>
+            <fieldset><legend>Imágenes del punto de venta</legend><p class="field-help">Registre imágenes del frontis y, solo si el responsable autoriza, del interior y módulos. Se comprimen antes del envío.</p><div class="grid"><label>Frontis<input id="classificationFront" type="file" accept="image/*" multiple></label><label>Interior autorizado<input id="classificationInterior" type="file" accept="image/*" multiple></label><label class="checkbox-field wide"><input id="classificationInteriorPermission" type="checkbox"> El responsable autorizó fotografiar el interior</label><label>Módulo de frutas y verduras<input id="classificationProduceImages" type="file" accept="image/*" multiple></label><label>Módulo de carnes<input id="classificationMeatImages" type="file" accept="image/*" multiple></label><label>Congelados<input id="classificationFrozenImages" type="file" accept="image/*" multiple></label></div><p id="classificationImageStatus" class="field-help"></p></fieldset>
             <fieldset><legend>Resultado</legend><p id="classificationResult" class="classification-result">Complete los campos para calcular.</p><label>Corrección manual<select id="classificationOverride"><option value="">Mantener clasificación automática</option><option value="minimarket">Corregir a MINIMARKET</option><option value="almacen_barrio">Corregir a ALMACÉN DE BARRIO</option></select></label><label id="classificationJustificationField" hidden>Justificación<textarea id="classificationJustification"></textarea></label></fieldset>
           </div>
           <label>Observaciones<textarea id="classificationNotes"></textarea></label>
@@ -182,6 +187,7 @@
     </footer>
   </main>
   <script src="sample-locals.js"></script>
+  <script src="uv-boundaries.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
