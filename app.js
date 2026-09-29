@@ -42,16 +42,29 @@ function setDraft(draft) { localStorage.setItem(DRAFT_KEY, JSON.stringify(draft)
 function getQueue() { try { return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]'); } catch (_) { return []; } }
 function setQueue(queue) { localStorage.setItem(QUEUE_KEY, JSON.stringify(queue)); }
 function newId() { return 'VIS-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8).toUpperCase(); }
+const NAME_PARTICLES = ['de', 'del', 'la', 'las', 'los', 'y', 'da', 'do', 'dos', 'van', 'von'];
 function normalizeInitials_(value) {
   return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/[^A-Za-z]/g, '').slice(0, 3).toUpperCase();
 }
+function initialsFromName_(name) {
+  const words = String(name || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .split(/[^A-Za-z]+/).filter((word) => word && !NAME_PARTICLES.includes(word.toLowerCase()));
+  if (!words.length) return '';
+  if (words.length === 1) return normalizeInitials_(words[0].slice(0, 2));
+  return normalizeInitials_(words.slice(0, 3).map((word) => word[0]).join(''));
+}
 function getCollectorProfile() { try { return JSON.parse(localStorage.getItem(COLLECTOR_KEY) || 'null'); } catch (_) { return null; } }
 function rememberCollector() {
-  const initials = normalizeInitials_($('#collectorInitials').value);
-  localStorage.setItem(COLLECTOR_KEY, JSON.stringify({ name: $('#collector').value.trim(), initials }));
+  localStorage.setItem(COLLECTOR_KEY, JSON.stringify({ name: $('#collector').value.trim(), initials: currentInitials() }));
 }
-function currentInitials() { return normalizeInitials_($('#collectorInitials').value); }
+function currentInitials() { return initialsFromName_($('#collector').value); }
+function updateCollectorHint() {
+  const initials = currentInitials();
+  $('#collectorCodeHint').textContent = initials.length >= 2
+    ? `Iniciales para locales nuevos: ${initials} (se obtienen del nombre).`
+    : 'Escriba nombre y apellidos. Sus iniciales se agregan solas al código de los locales nuevos.';
+}
 function newLocalCode(initials) {
   const stored = Number(localStorage.getItem(NEW_LOCAL_COUNTER_KEY) || '0');
   const highest = SAMPLE_LOCALS.reduce((max, local) => {
@@ -139,7 +152,7 @@ function updateLocal({ restore = false } = {}) {
     const codeField = $('#newLocalCode');
     if (initials.length < 2) {
       codeField.value = '';
-      codeField.placeholder = 'Ingrese primero las iniciales';
+      codeField.placeholder = 'Ingrese primero el nombre de la persona recolectora';
     } else if (!NEW_LOCAL_CODE_PATTERN.test(codeField.value)) {
       codeField.value = newLocalCode(initials);
     }
@@ -190,7 +203,8 @@ function fillVisit(visit) {
   const longitude = visit.longitude || sampleLocal?.longitude;
   const inferredUv = latitude && longitude ? getUvForCoordinates(latitude, longitude) : '';
   const savedUv = populateUvOptions(visit.unitVecinal || inferredUv);
-  Object.entries({ observationDate: visit.observationDate, collector: visit.collector, collectorInitials: visit.collectorInitials || getCollectorProfile()?.initials, latitude, longitude, visitUnit: savedUv }).forEach(([id, value]) => { $('#' + id).value = value || ''; });
+  Object.entries({ observationDate: visit.observationDate, collector: visit.collector, latitude, longitude, visitUnit: savedUv }).forEach(([id, value]) => { $('#' + id).value = value || ''; });
+  updateCollectorHint();
   $('#isNewLocal').checked = Boolean(visit.isNewLocal);
   populateLocalCodeOptions();
   if (visit.isNewLocal) { $('#newLocalCode').value = visit.localCode || ''; $('#newLocalName').value = visit.localName || ''; $('#newLocalAddress').value = visit.localAddress || ''; $('#newLocalType').value = ['Almacén', 'Minimarket'].includes(visit.localType) ? 'Almacén o minimarket' : visit.localType || ''; } else { $('#localCode').value = visit.localCode || ''; }
@@ -422,18 +436,23 @@ function initialize() {
   populateUvOptions(); populateLocalCodeOptions(); updateConnection();
   const draft = getDraft(); $('#observationDate').value = new Date().toISOString().slice(0, 10);
   const profile = getCollectorProfile();
-  if (profile) { $('#collector').value = profile.name || ''; $('#collectorInitials').value = profile.initials || ''; }
+  if (profile) { $('#collector').value = profile.name || ''; }
+  updateCollectorHint();
   if (draft) { fillVisit(draft); showView('menuView'); updateMenu(); }
   $('#localCode').addEventListener('change', updateLocal);
-  $('#collector').addEventListener('input', rememberCollector);
-  $('#collectorInitials').addEventListener('input', () => {
-    $('#collectorInitials').value = normalizeInitials_($('#collectorInitials').value);
+  $('#collector').addEventListener('input', () => {
     rememberCollector();
+    updateCollectorHint();
+  });
+  $('#collector').addEventListener('change', () => {
+    const codeField = $('#newLocalCode');
+    const suffix = (codeField.value.match(/N([A-Z]{2,3})$/i) || [])[1];
+    if ($('#isNewLocal').checked && suffix && suffix.toUpperCase() !== currentInitials()) codeField.value = '';
     updateLocal();
   });
   $('#regenerateCodeButton').addEventListener('click', () => {
     const initials = currentInitials();
-    if (initials.length < 2) return showMessage('Ingrese primero las iniciales de la recolectora.', 'error');
+    if (initials.length < 2) return showMessage('Ingrese primero el nombre de la persona recolectora.', 'error');
     $('#newLocalCode').value = newLocalCode(initials);
     showMessage('Código nuevo asignado: ' + $('#newLocalCode').value, 'success');
   });
@@ -452,7 +471,7 @@ function initialize() {
   $('#visitUnit').addEventListener('change', () => { unitVecinalWasManuallySet = Boolean($('#visitUnit').value && $('#visitUnit').value !== autoSuggestedUv); });
   ['latitude', 'longitude'].forEach((id) => $('#' + id).addEventListener('input', suggestUvFromCoordinates));
   ['newLocalName', 'newLocalAddress', 'newLocalType'].forEach((id) => $('#' + id).addEventListener('input', updateLocal)); $('#locationButton').addEventListener('click', useCurrentLocation);
-  $('#visitForm').addEventListener('submit', (event) => { event.preventDefault(); const current = getDraft(); const visit = visitFromForm(current); if (currentInitials().length < 2) { showMessage('Ingrese dos o tres iniciales de la recolectora.', 'error'); return; } if (!localFormIsValid()) { showMessage('Complete los datos del local seleccionado o del local nuevo.', 'error'); return; } rememberCollector(); setDraft(visit); showView('menuView'); });
+  $('#visitForm').addEventListener('submit', (event) => { event.preventDefault(); const current = getDraft(); const visit = visitFromForm(current); if (currentInitials().length < 2) { showMessage('Escriba el nombre de la persona recolectora (nombre y apellido).', 'error'); return; } if (!localFormIsValid()) { showMessage('Complete los datos del local seleccionado o del local nuevo.', 'error'); return; } rememberCollector(); setDraft(visit); showView('menuView'); });
   document.querySelectorAll('.instrument').forEach((button) => button.addEventListener('click', () => openInstrument(button.dataset.instrument)));
   document.querySelectorAll('.return-menu').forEach((button) => button.addEventListener('click', () => { showView('menuView'); updateMenu(); }));
   $('#editVisitButton').addEventListener('click', () => showView('visitView')); $('#backupJsonButton').addEventListener('click', () => downloadBackup('json')); $('#backupHtmlButton').addEventListener('click', () => downloadBackup('html')); $('#closeVisitButton').addEventListener('click', () => { if (confirm('¿Eliminar el borrador local de esta visita? Los instrumentos ya guardados permanecerán en la base de datos.')) { localStorage.removeItem(DRAFT_KEY); $('#visitForm').reset(); $('#observationDate').value = new Date().toISOString().slice(0, 10); showView('visitView'); } });

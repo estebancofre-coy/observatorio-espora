@@ -254,3 +254,10 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - La guia renombra la seccion "La regla, en una mirada" a "En una mirada", ya no pide mirar el tipo registrado y suma un septimo caso ("Pollo y merluza").
 - Nueva presentacion descargable `presentacion/Entornos_Alimentarios_Coyhaique_ESPORA.pptx` (y PDF), generada por `presentacion/generar_presentacion.py`, con autoria segun la plataforma y referencias APA 7. Enlazada desde el pie de la aplicacion y de la guia.
 - **Orden de despliegue:** republicar primero `Code.gs` (nueva version del Web App). Un backend sin actualizar rechaza `pescados_mariscos` con "Seleccione solo categorias proteicas validas". No requiere `setupDatabase()`: las categorias se guardan en una celda existente.
+
+## 2026-09-29 (8) - Iniciales automaticas desde el nombre
+
+- Se elimino el campo "Iniciales de la recolectora". Las iniciales se derivan del campo "Persona recolectora": primera letra de hasta tres palabras, ignorando particulas (de, del, la, los, y...). Una sola palabra usa sus dos primeras letras.
+- Bajo el nombre se muestran las iniciales resultantes. El nombre sigue recordado en el dispositivo.
+- Si se cambia el nombre mientras se registra un local nuevo, el codigo se regenera con las nuevas iniciales; los borradores guardados conservan su codigo.
+- Formato de codigo sin cambios (`LM<numero>N<iniciales>`), ya aceptado por Code.gs. Solo frontend: no requiere republicar Apps Script.

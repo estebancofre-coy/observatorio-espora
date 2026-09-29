@@ -51,9 +51,8 @@
         <form id="visitForm">
           <div class="grid">
             <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
-            <label class="required">Persona recolectora<input id="collector" required></label>
-            <label class="required">Iniciales de la recolectora<input id="collectorInitials" maxlength="3" placeholder="MB" required>
-              <span class="field-help">Dos o tres letras. Quedan guardadas en este dispositivo y forman parte del código de los locales nuevos, para que dos personas en terreno no generen el mismo código.</span>
+            <label class="required">Persona recolectora<input id="collector" autocomplete="name" placeholder="Nombre y apellidos" required>
+              <span class="field-help" id="collectorCodeHint">Escriba nombre y apellidos. Sus iniciales se agregan solas al código de los locales nuevos.</span>
             </label>
             <div class="wide uv-map-help">
               <a id="uvMapButton" class="button-like" href="https://earth.google.com/earth/d/1ELFkikpamAG-HdZ0Kcy3PBn-gsOhvNup?usp=sharing" target="_blank" rel="noopener">Ver mapa de unidades vecinales (Google Earth)</a>

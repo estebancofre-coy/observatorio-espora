@@ -98,7 +98,7 @@ flowchart LR
 
 - `sample-locals.js` y `apps-script/SampleLocals.gs` son copias del catálogo de muestra para dos capas distintas: selección en el navegador y validación/enriquecimiento en el backend. No son una tabla maestra sincronizada.
 - Un local nuevo **no se inserta** en esas copias. Sus datos viajan con la visita y se escriben en `Visitas` y, para Clasificación, también en esa hoja con el código del local.
-- El código de local nuevo incorpora iniciales para separar los espacios de numeración offline. Apps Script comprueba que el código no esté asociado a otro nombre; una revisita al mismo local puede conservarlo.
+- El código de local nuevo incorpora iniciales, derivadas automáticamente del nombre de la persona recolectora, para separar los espacios de numeración offline. Apps Script comprueba que el código no esté asociado a otro nombre; una revisita al mismo local puede conservarlo.
 - Las iniciales identifican el espacio de códigos, pero no se almacenan como columna aparte en `Visitas`; la hoja conserva el nombre de la recolectora y el código del local.
 - El GPS no asigna la UV por proximidad a un punto de muestra: `uv-boundaries.js` prueba la coordenada contra los polígonos de `uv-polygons.js`. La sugerencia se puede corregir manualmente y se guarda la UV elegida en la visita.
 - El botón de Google Earth abre un mapa compartido de referencia. **No** publica ni actualiza registros de ESPORA en ese mapa.
