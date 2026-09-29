@@ -55,6 +55,12 @@ Si no hay autoservicio, o se cumplen menos de dos criterios, asigna `almacen_bar
 
 Los campos **Superficie dedicada a la exposición** y **Rubros observados** se retiraron de la ficha: no participaban en la regla y se solapaban con los tres criterios de surtido. Sus columnas se conservan en la hoja `Clasificación` para no alterar la estructura ni el historial; los registros nuevos las dejan vacías.
 
+### Guía de autocapacitación
+
+[`guia-clasificacion.html`](guia-clasificacion.html) es una página independiente para estudiantes y profesionales de apoyo que aplican **solo** el instrumento de Clasificación. Explica la regla, el recorrido en el local en orden de observación, definiciones operativas de conteo, un simulador y seis casos de práctica con retroalimentación. Se abre desde la ficha de Clasificación de la aplicación.
+
+El simulador y los casos replican `classifyLocal_` de `app.js`; si la regla cambia, también debe actualizarse la función `classify` de la guía. Las definiciones de conteo (por ejemplo, que colores de un mismo producto cuentan como una variedad o que los embutidos no cuentan como categoría proteica) son criterios operativos propuestos por el equipo y deben validarse metodológicamente.
+
 `app.js` y `apps-script/Code.gs` implementan la misma regla. Si se modifica una, debe modificarse la otra. El backend conserva el conteo, las categorías seleccionadas y las dos respuestas de oferta habitual en columnas nuevas al final de `Clasificación`.
 
 La foto del frontis es obligatoria. Las fotos del interior (solo con autorización), frutas y verduras, carnes y congelados son opcionales y están agrupadas en una sección plegable. Las imágenes se comprimen en el navegador y Apps Script las almacena en la carpeta de Drive `ESPORA - Imágenes de levantamiento`; la hoja `Clasificación` conserva sus enlaces.

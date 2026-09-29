@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f5d74">
+  <meta name="description" content="Guía de autocapacitación para aplicar el instrumento de Clasificación del local de ESPORA Coyhaique: almacén de barrio o minimarket.">
+  <title>Guía de Clasificación del local | ESPORA Coyhaique</title>
+  <style>
+    :root {
+      --ink: #183346;
+      --ink-soft: #3f5966;
+      --muted: #526a76;
+      --teal-900: #0c4a5e;
+      --teal-700: #0f5d74;
+      --teal-600: #0f7180;
+      --teal-100: #e5f2ee;
+      --paper: #f3f7f4;
+      --surface: #ffffff;
+      --line: #d5e1df;
+      --ok: #137333;
+      --ok-bg: #e6f4ea;
+      --no: #a3281e;
+      --no-bg: #fce8e6;
+      --warn-bg: #fef7e0;
+      --warn: #6b4400;
+      color: var(--ink);
+      font-family: Arial, sans-serif;
+      line-height: 1.55;
+    }
+    * { box-sizing: border-box; }
+    body { background: var(--paper); margin: 0; }
+    a { color: var(--teal-600); }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, summary:focus-visible {
+      outline: 3px solid #f2b84b; outline-offset: 2px;
+    }
+
+    .top {
+      background: var(--teal-900);
+      color: #fff;
+      padding: 14px 20px;
+    }
+    .top-inner { align-items: center; display: flex; gap: 16px; justify-content: space-between; margin: auto; max-width: 1080px; }
+    .top strong { font-size: 15px; letter-spacing: .01em; }
+    .top a { color: #d6f0e8; font-size: 14px; font-weight: 700; }
+
+    .layout { display: grid; gap: 40px; grid-template-columns: 210px minmax(0, 1fr); margin: auto; max-width: 1080px; padding: 40px 20px 64px; }
+    nav.toc { align-self: start; position: sticky; top: 24px; }
+    nav.toc p { color: var(--muted); font-size: 12px; font-weight: 700; margin: 0 0 10px; }
+    nav.toc ol { list-style: none; margin: 0; padding: 0; }
+    nav.toc li { margin: 0; }
+    nav.toc a { border-radius: 6px; color: var(--ink-soft); display: block; font-size: 14px; padding: 7px 10px; text-decoration: none; }
+    nav.toc a:hover { background: var(--teal-100); color: var(--teal-700); }
+
+    article { max-width: 72ch; }
+    h1 { color: var(--teal-700); font-size: 2.1rem; letter-spacing: -.01em; line-height: 1.15; margin: 0 0 16px; text-wrap: balance; }
+    h2 { color: var(--ink); font-size: 1.45rem; line-height: 1.25; margin: 64px 0 14px; scroll-margin-top: 20px; text-wrap: balance; }
+    h3 { color: var(--teal-700); font-size: 1.05rem; margin: 30px 0 8px; }
+    p, li { font-size: 1rem; }
+    .lead { color: var(--ink-soft); font-size: 1.15rem; margin: 0 0 20px; }
+    .scope { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; color: var(--ink-soft); font-size: .95rem; margin: 24px 0 0; padding: 14px 16px; }
+    .scope strong { color: var(--ink); }
+
+    /* Regla de decisión */
+    .rule { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 24px rgba(20, 70, 80, .08); margin: 24px 0; overflow: hidden; }
+    .rule-gate { align-items: center; background: var(--teal-700); color: #fff; display: flex; gap: 14px; padding: 18px 20px; }
+    .rule-gate b { font-size: 1.1rem; }
+    .rule-gate span { color: #d6f0e8; font-size: .95rem; }
+    .rule-body { padding: 20px; }
+    .rule-body > p { margin: 0 0 14px; }
+    .criteria { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(0, 1fr)); list-style: none; margin: 0; padding: 0; }
+    .criteria li { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; font-size: .95rem; padding: 14px; }
+    .criteria b { color: var(--teal-700); display: block; font-size: 1.05rem; margin-bottom: 4px; }
+    .outcomes { border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; }
+    .outcomes div { font-size: .95rem; padding: 14px 20px; }
+    .outcomes div + div { border-left: 1px solid var(--line); }
+    .outcomes b { display: block; font-size: 1rem; }
+    .is-mini b { color: var(--ok); }
+    .is-alm b { color: var(--teal-700); }
+
+    /* Pasos de terreno */
+    .steps { counter-reset: step; list-style: none; margin: 20px 0 0; padding: 0; }
+    .steps > li { border-top: 1px solid var(--line); counter-increment: step; padding: 22px 0 22px 62px; position: relative; }
+    .steps > li::before { align-items: center; background: var(--teal-100); border-radius: 50%; color: var(--teal-700); content: counter(step); display: flex; font-size: 1.05rem; font-weight: 700; height: 40px; justify-content: center; left: 0; position: absolute; top: 22px; width: 40px; }
+    .steps h3 { margin: 6px 0 4px; }
+    .steps p { margin: 0 0 8px; }
+    .where { color: var(--muted); font-size: .85rem; font-weight: 700; }
+    .edge { background: var(--warn-bg); border-radius: 8px; color: var(--warn); font-size: .92rem; margin: 6px 0 0; padding: 10px 12px; }
+    .edge b { color: #4d3100; }
+
+    table { border-collapse: collapse; font-size: .95rem; margin: 14px 0; width: 100%; }
+    th, td { border-bottom: 1px solid var(--line); padding: 10px 8px; text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-size: .8rem; font-weight: 700; letter-spacing: .02em; }
+    td:first-child { font-weight: 700; }
+
+    /* Simulador y práctica */
+    .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 10px 24px rgba(20, 70, 80, .08); margin: 20px 0; padding: 22px; }
+    .sim-grid { display: grid; gap: 16px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    fieldset { border: 0; margin: 0; min-width: 0; padding: 0; }
+    legend, .field > span { color: var(--ink); display: block; font-size: .92rem; font-weight: 700; margin-bottom: 6px; }
+    .field input, .field select { border: 1px solid #8b979d; border-radius: 6px; font: inherit; padding: 9px 10px; width: 100%; }
+    .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .chips label { align-items: center; background: var(--paper); border: 1px solid var(--line); border-radius: 20px; cursor: pointer; display: inline-flex; font-size: .92rem; gap: 6px; padding: 6px 12px; }
+    .chips label:has(input:checked) { background: var(--teal-100); border-color: var(--teal-600); color: var(--teal-700); font-weight: 700; }
+    .sim-result { border-radius: 10px; font-weight: 700; margin-top: 18px; padding: 14px 16px; transition: background-color .2s ease-out, color .2s ease-out; }
+    .sim-result small { display: block; font-weight: 400; margin-top: 4px; }
+    .sim-result.pending { background: var(--paper); color: var(--muted); }
+    .sim-result.mini { background: var(--ok-bg); color: var(--ok); }
+    .sim-result.alm { background: var(--teal-100); color: var(--teal-700); }
+    .sim-checks { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 10px 0 0; padding: 0; }
+    .sim-checks li { background: rgba(255, 255, 255, .7); border-radius: 6px; font-size: .85rem; font-weight: 400; padding: 4px 8px; }
+
+    .case { border-top: 1px solid var(--line); padding: 20px 0; }
+    .case:first-of-type { border-top: 0; padding-top: 4px; }
+    .case h3 { color: var(--ink); margin: 0 0 6px; }
+    .case p { margin: 0 0 12px; }
+    .answers { display: flex; flex-wrap: wrap; gap: 10px; }
+    .answers button { background: var(--surface); border: 1px solid var(--teal-600); border-radius: 8px; color: var(--teal-700); cursor: pointer; font: inherit; font-weight: 700; padding: 10px 16px; transition: background-color .15s ease-out; }
+    .answers button:hover { background: var(--teal-100); }
+    .answers button[aria-pressed="true"].right { background: var(--ok-bg); border-color: var(--ok); color: var(--ok); }
+    .answers button[aria-pressed="true"].wrong { background: var(--no-bg); border-color: var(--no); color: var(--no); }
+    .feedback { font-size: .95rem; margin-top: 12px; }
+    .feedback:empty { display: none; }
+    .feedback.right { color: var(--ok); }
+    .feedback.wrong { color: var(--no); }
+    .feedback span { color: var(--ink-soft); display: block; margin-top: 4px; }
+    .score { color: var(--muted); font-size: .95rem; font-weight: 700; margin: 8px 0 0; }
+
+    .checklist { list-style: none; padding: 0; }
+    .checklist li { border-bottom: 1px solid var(--line); padding: 10px 0 10px 30px; position: relative; }
+    .checklist li::before { border: 2px solid var(--teal-600); border-radius: 4px; content: ""; height: 14px; left: 2px; position: absolute; top: 14px; width: 14px; }
+
+    blockquote { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; color: var(--ink-soft); font-size: .95rem; margin: 14px 0; padding: 14px 16px; }
+    footer { border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; margin-top: 64px; padding-top: 20px; }
+
+    @media (max-width: 860px) {
+      .layout { display: block; padding-top: 28px; }
+      nav.toc { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; margin-bottom: 28px; padding: 12px; position: static; }
+      nav.toc ol { display: flex; flex-wrap: wrap; gap: 4px; }
+      nav.toc a { padding: 5px 9px; }
+    }
+    @media (max-width: 620px) {
+      h1 { font-size: 1.7rem; }
+      .criteria, .sim-grid, .outcomes { grid-template-columns: 1fr; }
+      .outcomes div + div { border-left: 0; border-top: 1px solid var(--line); }
+      .steps > li { padding-left: 48px; }
+      .steps > li::before { height: 34px; width: 34px; }
+      table, thead, tbody, tr, th, td { display: block; }
+      thead { display: none; }
+      tr { border-bottom: 1px solid var(--line); padding: 8px 0; }
+      td { border: 0; padding: 3px 0; }
+      td[data-label]::before { color: var(--muted); content: attr(data-label); display: block; font-size: .8rem; font-weight: 700; }
+    }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="top-inner">
+      <strong>ESPORA Coyhaique · Guía de terreno</strong>
+      <a href="./">Volver a la aplicación</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="toc" aria-label="Contenido de la guía">
+      <p>Contenido</p>
+      <ol>
+        <li><a href="#regla">La regla</a></li>
+        <li><a href="#antes">Antes de entrar</a></li>
+        <li><a href="#recorrido">Recorrido en el local</a></li>
+        <li><a href="#definiciones">Cómo contar</a></li>
+        <li><a href="#simulador">Simulador</a></li>
+        <li><a href="#practica">Casos de práctica</a></li>
+        <li><a href="#correccion">Corrección manual</a></li>
+        <li><a href="#cierre">Antes de guardar</a></li>
+      </ol>
+    </nav>
+
+    <article>
+      <h1>Clasificar un local: almacén de barrio o minimarket</h1>
+      <p class="lead">Esta guía le prepara para aplicar el instrumento <strong>0. Clasificación del local</strong> de forma rápida y consistente. Está pensada para estudiantes universitarios y profesionales de apoyo que salen a terreno por primera vez. Lectura: 10 minutos. Práctica: 5 minutos.</p>
+      <p>Clasificar no es opinar sobre el local. Es registrar cuatro observaciones verificables y dejar que la regla decida. Si dos personas visitan el mismo local el mismo día, deberían obtener el mismo resultado. Ese es el estándar de calidad.</p>
+      <p class="scope"><strong>Alcance:</strong> esta guía cubre solo la ficha de Clasificación. Los instrumentos de disponibilidad, precios y origen tienen su propia capacitación.</p>
+
+      <h2 id="regla">La regla, en una mirada</h2>
+      <p>Hay una condición obligatoria y tres criterios de surtido. El local es minimarket solo si cumple la condición <strong>y</strong> al menos dos de los tres criterios.</p>
+      <div class="rule" role="group" aria-label="Regla de clasificación">
+        <div class="rule-gate"><b>¿Es autoservicio?</b><span>Condición obligatoria. Si no lo es, el resultado es almacén de barrio sin importar el surtido.</span></div>
+        <div class="rule-body">
+          <p>Si es autoservicio, revise estos tres criterios. Se necesitan <strong>dos o más</strong>:</p>
+          <ul class="criteria">
+            <li><b>Frutas y verduras</b>Más de 10 variedades distintas. Con 10 no se cumple; hacen falta 11.</li>
+            <li><b>Proteínas</b>Al menos 2 categorías entre vacuno, cerdo, pollo y cordero.</li>
+            <li><b>Lácteos y huevos</b>Oferta habitual de ambos. Uno solo no cumple.</li>
+          </ul>
+        </div>
+        <div class="outcomes">
+          <div class="is-mini"><b>Minimarket</b>Autoservicio y 2 o 3 criterios.</div>
+          <div class="is-alm"><b>Almacén de barrio</b>Sin autoservicio, o con 0 o 1 criterio.</div>
+        </div>
+      </div>
+      <p>La aplicación calcula el resultado mientras usted completa la ficha y le muestra cuántos criterios se cumplen. Usted no clasifica: observa bien.</p>
+
+      <h2 id="antes">Antes de entrar al local</h2>
+      <p>La ficha de Clasificación se abre desde el menú de la visita. Para llegar ahí ya debe haber completado la identificación: su nombre e iniciales, el local de la muestra (o el registro de uno nuevo), la unidad vecinal y las coordenadas.</p>
+      <ul>
+        <li><strong>Solo se clasifican locales abiertos.</strong> Si el local está cerrado, no abra la ficha: la aplicación no permite guardar un local cerrado.</li>
+        <li><strong>No mire el tipo registrado como respuesta.</strong> La ficha de identificación muestra el tipo que tenía el local en la muestra (por ejemplo, «Almacén»). Es un dato antiguo. Si lo usa como punto de partida, tenderá a confirmarlo. Observe como si no lo supiera.</li>
+        <li><strong>Preséntese antes de fotografiar el interior.</strong> Las fotos interiores requieren autorización de la persona responsable.</li>
+      </ul>
+
+      <h2 id="recorrido">Recorrido en el local</h2>
+      <p>El orden de la ficha sigue el orden físico de una visita: de afuera hacia adentro, y de lo más rápido de observar a lo que requiere contar. Seguir este orden reduce el tiempo en el local a unos 5 minutos.</p>
+      <ol class="steps">
+        <li>
+          <span class="where">Desde la vereda</span>
+          <h3>Foto del frontis</h3>
+          <p>Es la única foto obligatoria. Tómela antes de entrar, con el letrero y la puerta visibles. Sirve para verificar después que el local clasificado es el correcto.</p>
+        </li>
+        <li>
+          <span class="where">Al cruzar la puerta</span>
+          <h3>Sistema de atención</h3>
+          <p>Pregúntese: ¿la clientela toma por sí misma la mayor parte de los productos y paga en caja? Entonces es <strong>autoservicio</strong>. Si la mayoría de los productos se piden a quien atiende detrás de un mesón, es <strong>atención por mesón</strong>.</p>
+          <p class="edge"><b>Caso mixto:</b> góndolas de acceso libre para abarrotes, pero carnes y fiambres en mesón. Decida por la mayor parte del surtido que el público puede tomar. Si las góndolas de libre acceso concentran la mayoría, es autoservicio.</p>
+        </li>
+        <li>
+          <span class="where">Módulo de frutas y verduras</span>
+          <h3>Variedades de frutas y verduras</h3>
+          <p>Cuente cuántos productos distintos hay a la venta en este momento y escriba el número. Vea cómo contar en la sección siguiente.</p>
+          <p class="edge"><b>Atajo si falta tiempo:</b> si el conteo ya superó claramente las 11 variedades, puede registrar la cifra alcanzada y escribir «conteo parcial» en Observaciones. El criterio queda bien evaluado y el dato queda marcado.</p>
+        </li>
+        <li>
+          <span class="where">Carnicería, vitrina o congeladoras</span>
+          <h3>Categorías de proteínas</h3>
+          <p>Marque cada categoría que esté a la venta: vacuno, cerdo, pollo, cordero. Fresca o congelada, ambas cuentan.</p>
+        </li>
+        <li>
+          <span class="where">Refrigeradores</span>
+          <h3>Lácteos y huevos</h3>
+          <p>Responda por separado si el local ofrece habitualmente lácteos y si ofrece habitualmente huevos. El criterio solo se cumple si ambas respuestas son «Sí».</p>
+          <p class="edge"><b>Góndola vacía:</b> «habitual» significa que forma parte del surtido regular. Si el espacio existe pero está vacío, pregunte si es un quiebre de stock pasajero. Si lo es, responda «Sí» y anótelo en Observaciones.</p>
+        </li>
+        <li>
+          <span class="where">Al terminar</span>
+          <h3>Resultado, fotos opcionales y observaciones</h3>
+          <p>Lea el resultado calculado y cuántos criterios se cumplen. Si coincide con lo que vio, guarde. Las fotos interiores se despliegan en «Otras fotografías (opcionales)»; marque primero la autorización.</p>
+        </li>
+      </ol>
+
+      <h2 id="definiciones">Cómo contar, sin dudas</h2>
+      <p>Las diferencias entre personas encuestadoras nacen casi siempre de aquí. Use estas definiciones operativas en todas las visitas.</p>
+      <table>
+        <thead><tr><th>Dato</th><th>Cuenta</th><th>No cuenta</th></tr></thead>
+        <tbody>
+          <tr><td>Variedad de fruta o verdura</td><td data-label="Cuenta">Cada producto distinto a la venta: manzana, plátano, papa, lechuga, cebolla. Fresco y a granel o envasado.</td><td data-label="No cuenta">Colores o calibres del mismo producto (manzana roja y verde son 1). Conservas, jugos, frutos secos, congelados procesados.</td></tr>
+          <tr><td>Categoría proteica</td><td data-label="Cuenta">Carne cruda de vacuno, cerdo, pollo o cordero, fresca o congelada.</td><td data-label="No cuenta">Embutidos, cecinas, hamburguesas industriales, pescados y mariscos (no forman parte del criterio).</td></tr>
+          <tr><td>Lácteos habituales</td><td data-label="Cuenta">Leche, yogur o quesos en refrigerador como parte del surtido regular.</td><td data-label="No cuenta">Solo leche en polvo o crema para café.</td></tr>
+          <tr><td>Huevos habituales</td><td data-label="Cuenta">Huevos por bandeja o por unidad, a la venta de forma regular.</td><td data-label="No cuenta">Huevos que se venden solo en temporadas o por encargo.</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Técnica de conteo:</strong> recorra el módulo en un solo sentido, de izquierda a derecha, y cuente con los dedos o con marcas en papel. No vuelva atrás. Así evita contar dos veces el mismo cajón.</p>
+
+      <h2 id="simulador">Simulador</h2>
+      <p>Pruebe la regla con cualquier combinación. Funciona igual que la ficha de la aplicación.</p>
+      <div class="panel" id="simPanel">
+        <div class="sim-grid">
+          <label class="field"><span>Sistema de atención</span>
+            <select id="simService">
+              <option value="">Seleccione</option>
+              <option value="autoservicio">Autoservicio</option>
+              <option value="transmeson">Atención por mesón</option>
+            </select>
+          </label>
+          <label class="field"><span>Variedades de frutas y verduras</span>
+            <input id="simVarieties" type="number" min="0" step="1" inputmode="numeric" placeholder="Ej.: 12">
+          </label>
+          <fieldset class="field">
+            <legend>Categorías de proteínas</legend>
+            <div class="chips">
+              <label><input type="checkbox" name="simProtein" value="vacuno"> Vacuno</label>
+              <label><input type="checkbox" name="simProtein" value="cerdo"> Cerdo</label>
+              <label><input type="checkbox" name="simProtein" value="pollo"> Pollo</label>
+              <label><input type="checkbox" name="simProtein" value="cordero"> Cordero</label>
+            </div>
+          </fieldset>
+          <fieldset class="field">
+            <legend>Oferta habitual</legend>
+            <div class="chips">
+              <label><input type="checkbox" id="simDairy"> Lácteos</label>
+              <label><input type="checkbox" id="simEggs"> Huevos</label>
+            </div>
+          </fieldset>
+        </div>
+        <div id="simResult" class="sim-result pending" aria-live="polite">Elija el sistema de atención y escriba las variedades para calcular.</div>
+      </div>
+
+      <h2 id="practica">Casos de práctica</h2>
+      <p>Lea cada descripción y elija la clasificación. Son situaciones reales de terreno, incluidos los bordes donde más se equivoca la gente.</p>
+      <div class="panel" id="cases">
+        <p class="score" id="score" aria-live="polite">Aciertos: 0 de 6</p>
+      </div>
+
+      <h2 id="correccion">Corrección manual</h2>
+      <p>La ficha permite cambiar el resultado automático, pero exige una justificación escrita. Úsela muy poco: cada corrección vuelve el dato menos comparable entre locales.</p>
+      <p><strong>Corrija solo cuando la regla falla por una razón observable y pasajera</strong>, por ejemplo un quiebre de stock evidente el día de la visita. No corrija porque «se siente» como minimarket, ni porque así figuraba en la muestra.</p>
+      <p>Una buena justificación dice qué vio, por qué la regla no lo captura y cómo lo supo:</p>
+      <blockquote>«Carnicería cerrada por mantención ese día (letrero en vitrina). El encargado indica que vende vacuno, cerdo y pollo de forma regular. Con ese criterio cumpliría 2 de 3.»</blockquote>
+
+      <h2 id="cierre">Antes de guardar</h2>
+      <p>Revise en diez segundos:</p>
+      <ul class="checklist">
+        <li>La foto del frontis está cargada y muestra el letrero.</li>
+        <li>El sistema de atención refleja la mayor parte del surtido, no un solo sector.</li>
+        <li>El número de variedades es un conteo, no una estimación. Si es parcial, lo anotó.</li>
+        <li>Marcó todas las categorías proteicas que vio, no solo la principal.</li>
+        <li>Si fotografió el interior, marcó la autorización.</li>
+        <li>Si corrigió el resultado, la justificación dice qué vio y cómo lo supo.</li>
+      </ul>
+      <p>Sin conexión, la ficha queda en cola y se envía sola al recuperar señal. Espere el mensaje de confirmación antes de cerrar la visita.</p>
+
+      <footer>
+        ESPORA Coyhaique · Economía Social, Precios, Orgánicos, Residuos y Alimentación · Universidad de Aysén.<br>
+        Las definiciones de conteo de esta guía son criterios operativos del equipo para asegurar consistencia entre personas encuestadoras.
+      </footer>
+    </article>
+  </div>
+
+  <script>
+    const PROTEINS = ['vacuno', 'cerdo', 'pollo', 'cordero'];
+
+    function classify(service, varieties, proteins, dairy, eggs) {
+      const count = Number(varieties);
+      const checks = [
+        Number.isInteger(count) && count > 10,
+        new Set(proteins.filter((p) => PROTEINS.includes(p))).size >= 2,
+        dairy && eggs,
+      ];
+      const fulfilled = checks.filter(Boolean).length;
+      return {
+        result: service === 'autoservicio' && fulfilled >= 2 ? 'minimarket' : 'almacen_barrio',
+        fulfilled,
+        checks,
+      };
+    }
+
+    const sim = {
+      service: document.getElementById('simService'),
+      varieties: document.getElementById('simVarieties'),
+      dairy: document.getElementById('simDairy'),
+      eggs: document.getElementById('simEggs'),
+      out: document.getElementById('simResult'),
+    };
+
+    function renderSimulation() {
+      const proteins = [...document.querySelectorAll('input[name="simProtein"]:checked')].map((i) => i.value);
+      if (!sim.service.value || sim.varieties.value === '') {
+        sim.out.className = 'sim-result pending';
+        sim.out.textContent = 'Elija el sistema de atención y escriba las variedades para calcular.';
+        return;
+      }
+      const { result, fulfilled, checks } = classify(sim.service.value, sim.varieties.value, proteins, sim.dairy.checked, sim.eggs.checked);
+      const labels = ['Más de 10 variedades', '2 o más proteínas', 'Lácteos y huevos'];
+      const reason = sim.service.value !== 'autoservicio'
+        ? 'Sin autoservicio, el surtido no cambia el resultado.'
+        : `Cumple ${fulfilled} de 3 criterios; se necesitan 2.`;
+      sim.out.className = 'sim-result ' + (result === 'minimarket' ? 'mini' : 'alm');
+      sim.out.innerHTML = '';
+      sim.out.append(result === 'minimarket' ? 'Minimarket' : 'Almacén de barrio');
+      const small = document.createElement('small');
+      small.textContent = reason;
+      const list = document.createElement('ul');
+      list.className = 'sim-checks';
+      checks.forEach((ok, i) => {
+        const li = document.createElement('li');
+        li.textContent = (ok ? '✓ ' : '✗ ') + labels[i];
+        list.append(li);
+      });
+      sim.out.append(small, list);
+    }
+    document.querySelectorAll('#simPanel input, #simPanel select')
+      .forEach((el) => el.addEventListener(el.type === 'number' ? 'input' : 'change', renderSimulation));
+
+    const CASES = [
+      {
+        title: 'Góndolas y caja al fondo',
+        text: 'La clientela recorre pasillos y paga en caja. Hay 14 variedades de frutas y verduras, solo pollo congelado, y refrigerador con leche, yogur y huevos.',
+        data: ['autoservicio', 14, ['pollo'], true, true],
+        why: 'Autoservicio. Cumple variedades (14) y lácteos y huevos. Proteínas no (solo pollo). 2 de 3: minimarket.',
+      },
+      {
+        title: 'Justo en el borde',
+        text: 'Autoservicio. Exactamente 10 variedades de frutas y verduras, vacuno y pollo en vitrina, leche pero no huevos.',
+        data: ['autoservicio', 10, ['vacuno', 'pollo'], true, false],
+        why: '10 variedades no cumple: se necesitan más de 10. Proteínas sí. Lácteos sin huevos no cumple. 1 de 3: almacén de barrio.',
+      },
+      {
+        title: 'Todo, pero por el mesón',
+        text: 'Un local amplio, bien surtido: 18 variedades de frutas y verduras, vacuno, cerdo y cordero, lácteos y huevos. Todo se pide a quien atiende detrás del mesón.',
+        data: ['transmeson', 18, ['vacuno', 'cerdo', 'cordero'], true, true],
+        why: 'Cumple los 3 criterios, pero no es autoservicio. La condición es obligatoria: almacén de barrio.',
+      },
+      {
+        title: 'Muchas cecinas',
+        text: 'Autoservicio. 6 variedades de frutas y verduras. En la vitrina hay salchichas, jamón y longanizas de cerdo, además de pollo. Lácteos y huevos habituales.',
+        data: ['autoservicio', 6, ['pollo'], true, true],
+        why: 'Los embutidos no cuentan como categoría proteica: solo pollo cuenta. Variedades no cumple. Solo lácteos y huevos: 1 de 3, almacén de barrio.',
+      },
+      {
+        title: 'Manzanas de tres colores',
+        text: 'Autoservicio. El módulo tiene manzana roja, verde y amarilla, plátano, naranja, limón, papa, cebolla, zanahoria, tomate, lechuga y zapallo. Vacuno y cerdo. Sin huevos.',
+        data: ['autoservicio', 10, ['vacuno', 'cerdo'], true, false],
+        why: 'Las tres manzanas son 1 variedad: el total es 10, no 12. Variedades no cumple. Proteínas sí. Sin huevos no cumple. 1 de 3: almacén de barrio.',
+      },
+      {
+        title: 'Local mixto',
+        text: 'La mayor parte del local son góndolas de acceso libre con caja; carnes en mesón aparte. 12 variedades, vacuno y pollo. Sin lácteos.',
+        data: ['autoservicio', 12, ['vacuno', 'pollo'], false, true],
+        why: 'La mayor parte del surtido es de libre acceso: autoservicio. Cumple variedades y proteínas. 2 de 3: minimarket.',
+      },
+    ];
+
+    const casesRoot = document.getElementById('cases');
+    const scoreEl = document.getElementById('score');
+    const answered = new Map();
+
+    CASES.forEach((c, index) => {
+      const expected = classify(...c.data).result;
+      const box = document.createElement('div');
+      box.className = 'case';
+      const h = document.createElement('h3');
+      h.textContent = c.title;
+      const p = document.createElement('p');
+      p.textContent = c.text;
+      const answers = document.createElement('div');
+      answers.className = 'answers';
+      answers.setAttribute('role', 'group');
+      answers.setAttribute('aria-label', 'Clasificación para: ' + c.title);
+      const feedback = document.createElement('div');
+      feedback.className = 'feedback';
+      feedback.setAttribute('aria-live', 'polite');
+      [['minimarket', 'Minimarket'], ['almacen_barrio', 'Almacén de barrio']].forEach(([value, label]) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = label;
+        b.setAttribute('aria-pressed', 'false');
+        b.addEventListener('click', () => {
+          answers.querySelectorAll('button').forEach((x) => { x.setAttribute('aria-pressed', 'false'); x.classList.remove('right', 'wrong'); });
+          const ok = value === expected;
+          b.setAttribute('aria-pressed', 'true');
+          b.classList.add(ok ? 'right' : 'wrong');
+          feedback.className = 'feedback ' + (ok ? 'right' : 'wrong');
+          feedback.textContent = ok ? 'Correcto.' : 'No es correcto.';
+          const why = document.createElement('span');
+          why.textContent = c.why;
+          feedback.append(why);
+          answered.set(index, ok);
+          const hits = [...answered.values()].filter(Boolean).length;
+          scoreEl.textContent = `Aciertos: ${hits} de ${CASES.length}` + (answered.size === CASES.length && hits === CASES.length ? ' · Listo para terreno.' : '');
+        });
+        answers.append(b);
+      });
+      box.append(h, p, answers, feedback);
+      casesRoot.insertBefore(box, scoreEl);
+    });
+  </script>
+</body>
+</html>

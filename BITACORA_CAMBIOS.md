@@ -237,3 +237,11 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - La validacion del backend ya no exige superficie ni rubros; sigue exigiendo el sistema de atencion.
 - Se verifico que la fila conserva 34 valores alineados con los 34 encabezados.
 - Para activar: actualizar Code.gs y republicar una nueva version del Web App. No hace falta setupDatabase().
+
+## 2026-09-29 (6) - Guia de autocapacitacion de Clasificacion
+
+- Nueva pagina `guia-clasificacion.html`, enlazada desde la ficha de Clasificacion. Cubre solo ese instrumento.
+- Contenido: regla de decision, preparacion previa, recorrido del local en orden fisico de observacion, definiciones operativas de conteo, simulador y seis casos de practica con retroalimentacion (incluidos los bordes: 10 variedades, embutidos, colores del mismo producto, local mixto, surtido completo con atencion por meson).
+- El simulador replica `classifyLocal_` de `app.js`. Se verifico la paridad en 576 combinaciones y que cada caso de practica entregue la respuesta indicada en su explicacion.
+- Las definiciones de conteo son criterios operativos propuestos y requieren validacion metodologica del equipo.
+- Solo frontend: no requiere cambios en Apps Script.
