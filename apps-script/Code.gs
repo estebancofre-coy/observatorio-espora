@@ -20,7 +20,7 @@ const SHEETS = {
   },
   classification: {
     name: 'Clasificación',
-    headers: ['ID de visita', 'Fecha de registro', 'Unidad vecinal', 'Estado del local', 'Superficie estimada', 'Sistema de atención', 'Personas atendiendo', 'Abarrotes básicos', 'Fruta y verdura', 'Carnes', 'Otros rubros', 'Es mixto', 'Rubro principal', 'Detalle mixto', 'Clasificación automática', 'Clasificación final', 'Modo de clasificación', 'Justificación de corrección', 'Observaciones', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local', 'Fotos frontis', 'Fotos interior autorizado', 'Fotos frutas y verduras', 'Fotos carnes', 'Fotos congelados'],
+    headers: ['ID de visita', 'Fecha de registro', 'Unidad vecinal', 'Estado del local', 'Superficie estimada', 'Sistema de atención', 'Personas atendiendo', 'Abarrotes básicos', 'Fruta y verdura', 'Carnes', 'Otros rubros', 'Es mixto', 'Rubro principal', 'Detalle mixto', 'Clasificación automática', 'Clasificación final', 'Modo de clasificación', 'Justificación de corrección', 'Observaciones', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local', 'Fotos frontis', 'Fotos interior autorizado', 'Fotos frutas y verduras', 'Fotos carnes', 'Fotos congelados', 'Variedades de frutas y verduras', 'Categorías proteicas', 'Oferta habitual de lácteos', 'Oferta habitual de huevos'],
   },
 };
 
@@ -174,23 +174,28 @@ function saveInstrument_(payload) {
   if (!['availability', 'prices', 'origins', 'classification'].includes(instrument)) {
     throw new Error('El instrumento no es válido.');
   }
+  if (instrument === 'classification') {
+    classificationCriteria_(payload.data);
+  }
   const database = getDatabase_();
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
     assertNewLocalCodeIsFree_(database, payload.visit);
+    let rows;
+    if (instrument === 'classification') {
+      payload.data.imageUrls = {};
+      classificationRows_(payload.visit, payload.data);
+      payload.data.imageUrls = saveClassificationImages_(payload.visit, payload.data);
+      rows = classificationRows_(payload.visit, payload.data);
+    } else if (instrument === 'availability') {
+      rows = availabilityRows_(payload.visit, payload.data);
+    } else if (instrument === 'prices') {
+      rows = priceRows_(payload.visit, payload.data);
+    } else {
+      rows = originRows_(payload.visit, payload.data);
+    }
     upsertVisit_(database, payload.visit);
-    const imageUrls = instrument === 'classification'
-      ? saveClassificationImages_(payload.visit, payload.data)
-      : {};
-    if (instrument === 'classification') payload.data.imageUrls = imageUrls;
-    const rows = instrument === 'availability'
-      ? availabilityRows_(payload.visit, payload.data)
-      : instrument === 'prices'
-        ? priceRows_(payload.visit, payload.data)
-        : instrument === 'origins'
-          ? originRows_(payload.visit, payload.data)
-          : classificationRows_(payload.visit, payload.data);
     const sheet = database.getSheetByName(SHEETS[instrument].name);
     replaceRowsForVisit_(sheet, payload.visit.id, SHEETS[instrument].headers.length);
     sheet.getRange(sheet.getLastRow() + 1, 1, rows.length, SHEETS[instrument].headers.length).setValues(rows);
@@ -308,18 +313,49 @@ function originRows_(visit, data) {
   });
 }
 
-const PERISHABLE_GROUPS = [['frutas', 'verduras'], ['carnes'], ['congelados'], ['lacteos'], ['pescados']];
-const MINIMARKET_SURFACES = ['mediana', 'grande'];
-function countPerishableGroups_(rubros) {
-  const list = Array.isArray(rubros) ? rubros : [];
-  return PERISHABLE_GROUPS.filter((group) => group.some((item) => list.indexOf(item) !== -1)).length;
+const PROTEIN_CATEGORIES = ['vacuno', 'cerdo', 'pollo', 'cordero'];
+function classificationCriteria_(data) {
+  const source = data || {};
+  const keys = ['variedadesFrutasVerduras', 'categoriasProteicas', 'lacteosHabituales', 'huevosHabituales'];
+  const present = keys.filter((key) => Object.prototype.hasOwnProperty.call(source, key));
+  if (!present.length) {
+    return { varieties: '', proteins: [], dairy: '', eggs: '', fulfilledCriteria: 0 };
+  }
+  if (present.length !== keys.length) {
+    throw new Error('Complete los tres criterios de surtido antes de guardar la clasificación.');
+  }
+  if (String(source.variedadesFrutasVerduras).trim() === '') {
+    throw new Error('Ingrese el número de variedades de frutas y verduras.');
+  }
+  const varieties = Number(source.variedadesFrutasVerduras);
+  if (!Number.isInteger(varieties) || varieties < 0) {
+    throw new Error('Ingrese un número entero igual o mayor que cero para las variedades de frutas y verduras.');
+  }
+  if (!Array.isArray(source.categoriasProteicas) ||
+      source.categoriasProteicas.some((category) => !PROTEIN_CATEGORIES.includes(category))) {
+    throw new Error('Seleccione solo categorías proteicas válidas: vacuno, cerdo, pollo o cordero.');
+  }
+  if (!['si', 'no'].includes(source.lacteosHabituales) ||
+      !['si', 'no'].includes(source.huevosHabituales)) {
+    throw new Error('Indique si ofrece habitualmente lácteos y huevos.');
+  }
+  const proteins = [...new Set(source.categoriasProteicas)];
+  const fulfilledCriteria = [
+    varieties > 10,
+    proteins.length >= 2,
+    source.lacteosHabituales === 'si' && source.huevosHabituales === 'si',
+  ].filter(Boolean).length;
+  return {
+    varieties: varieties,
+    proteins: proteins,
+    dairy: source.lacteosHabituales,
+    eggs: source.huevosHabituales,
+    fulfilledCriteria: fulfilledCriteria,
+  };
 }
-function classifyLocal_(superficie, sistemaAtencion, rubros) {
-  const list = Array.isArray(rubros) ? rubros : [];
-  return sistemaAtencion === 'acceso_libre'
-    && list.indexOf('abarrotes') !== -1
-    && countPerishableGroups_(list) >= 2
-    && MINIMARKET_SURFACES.indexOf(superficie) !== -1
+function classifyLocal_(sistemaAtencion, criteria) {
+  const service = sistemaAtencion === 'acceso_libre' ? 'autoservicio' : sistemaAtencion;
+  return service === 'autoservicio' && criteria.fulfilledCriteria >= 2
     ? 'minimarket' : 'almacen_barrio';
 }
 
@@ -332,13 +368,15 @@ function classificationRows_(visit, data) {
   }
   const local = getVisitLocal_(visit);
   const rubros = Array.isArray(data.rubros) ? data.rubros : data.otrosRubros;
-  if (!data.superficie || !data.sistemaAtencion || !Array.isArray(rubros) || !rubros.length) {
+  if (!data.superficie || !['autoservicio', 'transmeson', 'acceso_libre'].includes(data.sistemaAtencion) ||
+      !Array.isArray(rubros) || !rubros.length) {
     throw new Error('Complete la estructura, atención y al menos un rubro.');
   }
   if (Array.isArray(data.images && data.images.interior) && data.images.interior.length && !data.interiorAuthorized) {
     throw new Error('El interior solo puede registrarse con autorización.');
   }
-  const automatic = classifyLocal_(data.superficie, data.sistemaAtencion, rubros);
+  const criteria = classificationCriteria_(data);
+  const automatic = classifyLocal_(data.sistemaAtencion, criteria);
   if (data.clasificacionOverride && !String(data.justificacionOverride || '').trim()) {
     throw new Error('Justifique la corrección manual de la clasificación.');
   }
@@ -351,6 +389,7 @@ function classificationRows_(visit, data) {
     String(data.observaciones || '').trim(), local.code, local.id, local.name, local.address,
     local.criterion, local.criterion2 || '', data.imageUrls.frontis || '', data.imageUrls.interior || '',
     data.imageUrls.frutasVerduras || '', data.imageUrls.carnes || '', data.imageUrls.congelados || '',
+    criteria.varieties, criteria.proteins.join(', '), criteria.dairy, criteria.eggs,
   ]];
 }
 

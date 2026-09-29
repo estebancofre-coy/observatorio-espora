@@ -157,7 +157,7 @@
     <section id="classificationView" class="view" hidden>
       <div class="card">
         <h2>ESPORA · Clasificación del local</h2>
-        <p>Ficha inicial de catastro. La clasificación automática combina sistema de atención, fruta/verdura y carnes; cualquier corrección manual exige una justificación.</p>
+        <p>Ficha inicial de catastro. Para asignar automáticamente “minimarket” se requiere autoservicio y cumplir al menos dos de los tres criterios de surtido. Una corrección manual exige justificación.</p>
         <div class="linked-local"><strong>Local vinculado a SampleLocals:</strong> <span id="classificationLinkedLocal"></span></div>
         <div class="linked-local"><strong>Unidad vecinal registrada en la visita:</strong> <span id="classificationLinkedUnit"></span></div>
         <form id="classificationForm">
@@ -173,9 +173,37 @@
                 </select>
                 <span class="field-help">Cuente solo el mobiliario que exhibe productos; no incluya lo que está detrás del mesón. Para evitar que se solapen los rangos, exactamente 4 corresponde a pequeño.</span>
               </label>
-              <label class="required">Sistema de atención<select id="classificationService"><option value="">Seleccione</option><option value="transmeson">Transmesón</option><option value="acceso_libre">Acceso libre</option></select></label>
+              <label class="required">Sistema de atención
+                <select id="classificationService" required><option value="">Seleccione</option><option value="transmeson">Atención por mesón</option><option value="autoservicio">Autoservicio</option></select>
+                <span class="field-help">Marque autoservicio si la clientela selecciona por sí misma la mayor parte de los productos y paga en caja.</span>
+              </label>
               <label>Nº de personas atendiendo<input id="classificationPeople" type="number" min="0" max="15"></label>
             </div></fieldset>
+            <fieldset><legend>Criterios de surtido para minimarket</legend>
+              <p class="field-help">El autoservicio es obligatorio. Además, deben cumplirse al menos dos de estos tres criterios:</p>
+              <div class="grid">
+                <label class="required">Variedades distintas de frutas y verduras
+                  <input id="classificationProduceVarieties" type="number" min="0" step="1" required>
+                  <span class="field-help">Cuenta cada tipo distinto disponible. Este criterio se cumple con más de 10 variedades (11 o más).</span>
+                </label>
+                <fieldset class="wide"><legend>Categorías de proteínas disponibles</legend>
+                  <p class="field-help">Seleccione las categorías presentes. Este criterio se cumple con al menos dos.</p>
+                  <div class="grid protein-categories">
+                    <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="vacuno"> Vacuno</label>
+                    <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="cerdo"> Cerdo</label>
+                    <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="pollo"> Pollo</label>
+                    <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="cordero"> Cordero</label>
+                  </div>
+                </fieldset>
+                <label class="required">Oferta habitual de lácteos
+                  <select id="classificationDairyRegular" required><option value="">Seleccione</option><option value="si">Sí</option><option value="no">No</option></select>
+                </label>
+                <label class="required">Oferta habitual de huevos
+                  <select id="classificationEggsRegular" required><option value="">Seleccione</option><option value="si">Sí</option><option value="no">No</option></select>
+                </label>
+                <p class="field-help wide">El criterio de lácteos y huevos se cumple solo si ambos se ofrecen habitualmente.</p>
+              </div>
+            </fieldset>
             <fieldset><legend>Rubros observados</legend>
               <label class="required wide">Seleccione uno o varios rubros (puede combinar opciones)<select id="classificationOther" multiple required><option value="abarrotes">Abarrotes básicos</option><option value="frutas">Frutas</option><option value="verduras">Verduras</option><option value="carnes">Carnes frescas</option><option value="congelados">Congelados</option><option value="panaderia">Panadería</option><option value="bebidas">Bebidas / licores</option><option value="limpieza">Limpieza</option><option value="preparacion">Comida preparada</option><option value="lacteos">Lácteos y huevos</option><option value="legumbres">Legumbres y granos</option><option value="pescados">Pescados y mariscos</option><option value="otro">Otro</option></select></label>
             </fieldset>
@@ -195,7 +223,7 @@
               </details>
               <p id="classificationImageStatus" class="field-help"></p>
             </fieldset>
-            <fieldset><legend>Resultado</legend><p id="classificationResult" class="classification-result">Complete los campos para calcular.</p><label>Corrección manual<select id="classificationOverride"><option value="">Mantener clasificación automática</option><option value="minimarket">Corregir a MINIMARKET</option><option value="almacen_barrio">Corregir a ALMACÉN DE BARRIO</option></select></label><label id="classificationJustificationField" hidden>Justificación<textarea id="classificationJustification"></textarea></label></fieldset>
+            <fieldset><legend>Resultado</legend><p id="classificationResult" class="classification-result" aria-live="polite">Complete los campos para calcular.</p><label>Corrección manual<select id="classificationOverride"><option value="">Mantener clasificación automática</option><option value="minimarket">Corregir a MINIMARKET</option><option value="almacen_barrio">Corregir a ALMACÉN DE BARRIO</option></select></label><label id="classificationJustificationField" hidden>Justificación<textarea id="classificationJustification"></textarea></label></fieldset>
           </div>
           <label>Observaciones<textarea id="classificationNotes"></textarea></label>
           <div class="actions"><button type="submit">Guardar clasificación</button><button class="secondary return-menu" type="button">Volver al menú</button></div>

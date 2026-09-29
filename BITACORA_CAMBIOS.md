@@ -215,3 +215,14 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - Las iniciales viajan dentro del código y no como columna nueva, así que no cambian los encabezados ni hace falta ejecutar `setupDatabase()`.
 - Se validó con pruebas sobre normalización de iniciales y nombres, formato de códigos (incluido el formato antiguo `LM108N1`), colisión, revisita, misma visita y hoja vacía.
 - Requiere copiar `Code.gs` al proyecto de Apps Script y publicar una nueva versión del Web App.
+
+## 2026-09-29 (4) — Criterios de autoservicio para minimarket
+
+- Se reemplazó “Acceso libre” por **Autoservicio** como condición obligatoria de la regla automática.
+- Además, el local debe cumplir al menos dos de estos tres criterios: más de 10 variedades distintas de frutas y verduras; al menos dos categorías proteicas entre vacuno, cerdo, pollo y cordero; oferta habitual tanto de lácteos como de huevos.
+- La superficie sigue registrada como descriptor del local, pero dejó de influir en el resultado automático.
+- La ficha solicita el conteo de variedades, selección múltiple de categorías proteicas y oferta habitual de lácteos y huevos por separado; el resultado muestra cuántos de los tres criterios se cumplen.
+- `app.js` y `apps-script/Code.gs` calculan la misma regla. El backend valida los valores antes de guardar o subir imágenes y mantiene un resultado conservador (almacén de barrio) en cargas antiguas que no incluyan los nuevos criterios.
+- Se agregaron cuatro columnas al final de `Clasificación` para conservar el conteo, las categorías proteicas y las respuestas de lácteos/huevos. `setupDatabase()` agrega estas columnas si los encabezados existentes coinciden como prefijo; no elimina ni reordena datos.
+- Actualizados README y diagrama `FLUJO_DATOS_Y_MAPEO.md`.
+- Para activar: actualizar `Code.gs`, ejecutar `setupDatabase()` una vez para anexar las columnas y republicar una nueva versión del Web App; publicar también el frontend actualizado.

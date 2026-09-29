@@ -290,6 +290,10 @@ function classificationData() {
   return {
     unitVecinal: getDraft()?.unitVecinal || '', estadoLocal: 'abierto',
     superficie: $('#classificationSurface').value, sistemaAtencion: $('#classificationService').value,
+    variedadesFrutasVerduras: $('#classificationProduceVarieties').value,
+    categoriasProteicas: [...document.querySelectorAll('input[name="proteinCategory"]:checked')].map((input) => input.value),
+    lacteosHabituales: $('#classificationDairyRegular').value,
+    huevosHabituales: $('#classificationEggsRegular').value,
     personasAtendiendo: $('#classificationPeople').value, abarrotes: rubros.includes('abarrotes') ? 'si' : 'no',
     frutaVerdura: rubros.some((item) => ['frutas', 'verduras'].includes(item)) ? 'presente' : 'ausente',
     carnes: rubros.includes('carnes') ? 'presente' : 'ausente',
@@ -338,26 +342,40 @@ function renderClassification(data = {}) {
   const draft = getDraft();
   $('#classificationLinkedLocal').textContent = local ? `${local.code} · ${local.name} · ${local.address} · ${local.criterion}` : 'No hay un local de SampleLocals vinculado.';
   $('#classificationLinkedUnit').textContent = draft?.unitVecinal || 'Sin unidad vecinal registrada en la visita.';
-  const fields = { classificationSurface: data.superficie, classificationService: data.sistemaAtencion, classificationPeople: data.personasAtendiendo, classificationOverride: data.clasificacionOverride, classificationJustification: data.justificacionOverride, classificationNotes: data.observaciones };
+  const fields = {
+    classificationSurface: data.superficie,
+    classificationService: data.sistemaAtencion === 'acceso_libre' ? 'autoservicio' : data.sistemaAtencion,
+    classificationPeople: data.personasAtendiendo,
+    classificationProduceVarieties: data.variedadesFrutasVerduras,
+    classificationDairyRegular: data.lacteosHabituales,
+    classificationEggsRegular: data.huevosHabituales,
+    classificationOverride: data.clasificacionOverride,
+    classificationJustification: data.justificacionOverride,
+    classificationNotes: data.observaciones,
+  };
   Object.entries(fields).forEach(([id, value]) => { if ($('#' + id)) $('#' + id).value = value || ''; });
+  document.querySelectorAll('input[name="proteinCategory"]').forEach((input) => {
+    input.checked = (data.categoriasProteicas || []).includes(input.value);
+  });
   [...$('#classificationOther').options].forEach((option) => { option.selected = (data.otrosRubros || []).includes(option.value); });
   $('#classificationImageStatus').textContent = data.imageUrls ? 'Imágenes guardadas en Drive.' : '';
   $('#classificationInteriorPermission').checked = Boolean(data.interiorAuthorized);
   updateClassificationVisibility();
 }
-const PERISHABLE_GROUPS = [['frutas', 'verduras'], ['carnes'], ['congelados'], ['lacteos'], ['pescados']];
-const MINIMARKET_SURFACES = ['mediana', 'grande'];
-function countPerishableGroups_(rubros) {
-  const list = Array.isArray(rubros) ? rubros : [];
-  return PERISHABLE_GROUPS.filter((group) => group.some((item) => list.includes(item))).length;
-}
-function classifyLocal_(superficie, sistemaAtencion, rubros) {
-  const list = Array.isArray(rubros) ? rubros : [];
-  return sistemaAtencion === 'acceso_libre'
-    && list.includes('abarrotes')
-    && countPerishableGroups_(list) >= 2
-    && MINIMARKET_SURFACES.indexOf(superficie) !== -1
-    ? 'minimarket' : 'almacen_barrio';
+const PROTEIN_CATEGORIES = ['vacuno', 'cerdo', 'pollo', 'cordero'];
+function classifyLocal_(sistemaAtencion, produceVarieties, proteinCategories, dairyRegular, eggsRegular) {
+  const varieties = Number(produceVarieties);
+  const proteins = Array.isArray(proteinCategories) ? [...new Set(proteinCategories)] : [];
+  const fulfilledCriteria = [
+    Number.isInteger(varieties) && varieties > 10,
+    proteins.filter((category) => PROTEIN_CATEGORIES.includes(category)).length >= 2,
+    dairyRegular === 'si' && eggsRegular === 'si',
+  ].filter(Boolean).length;
+  return {
+    classification: sistemaAtencion === 'autoservicio' && fulfilledCriteria >= 2
+      ? 'minimarket' : 'almacen_barrio',
+    fulfilledCriteria,
+  };
 }
 function updateClassificationVisibility() {
   const open = true;
@@ -366,22 +384,20 @@ function updateClassificationVisibility() {
   $('#classificationOther').required = true;
   const manual = Boolean($('#classificationOverride').value);
   $('#classificationJustificationField').hidden = !manual; $('#classificationJustification').required = manual;
-  const rubros = [...$('#classificationOther').selectedOptions].map((option) => option.value);
-  const superficie = $('#classificationSurface').value;
   const servicio = $('#classificationService').value;
-  if (!superficie || !servicio || !rubros.length) {
-    $('#classificationResult').textContent = 'Complete superficie, atención y rubros para calcular.';
+  const variedades = $('#classificationProduceVarieties').value;
+  const lacteos = $('#classificationDairyRegular').value;
+  const huevos = $('#classificationEggsRegular').value;
+  const categoriasProteicas = [...document.querySelectorAll('input[name="proteinCategory"]:checked')].map((input) => input.value);
+  if (!servicio || variedades === '' || lacteos === '' || huevos === '') {
+    $('#classificationResult').textContent = 'Complete el sistema de atención y los datos de los tres criterios para calcular.';
     return;
   }
-  const auto = classifyLocal_(superficie, servicio, rubros);
-  const faltantes = [];
-  if (servicio !== 'acceso_libre') faltantes.push('atención de acceso libre');
-  if (!rubros.includes('abarrotes')) faltantes.push('abarrotes básicos');
-  if (countPerishableGroups_(rubros) < 2) faltantes.push('al menos dos grupos perecibles distintos');
-  if (MINIMARKET_SURFACES.indexOf(superficie) === -1) faltantes.push('superficie mediana o grande');
-  $('#classificationResult').textContent = auto === 'minimarket'
-    ? 'Clasificación automática: MINIMARKET'
-    : 'Clasificación automática: ALMACÉN DE BARRIO — falta ' + faltantes.join(', ') + '.';
+  const result = classifyLocal_(servicio, variedades, categoriasProteicas, lacteos, huevos);
+  $('#classificationResult').textContent = servicio !== 'autoservicio'
+    ? 'Clasificación automática: ALMACÉN DE BARRIO — se requiere autoservicio. Criterios de surtido cumplidos: ' + result.fulfilledCriteria + ' de 3.'
+    : 'Clasificación automática: ' + (result.classification === 'minimarket' ? 'MINIMARKET' : 'ALMACÉN DE BARRIO')
+      + ' — criterios cumplidos: ' + result.fulfilledCriteria + ' de 3; se requieren al menos 2.';
 }
 
 function addOriginItem(data = {}) {
@@ -459,7 +475,12 @@ function initialize() {
   $('#saveReviewedPrices').addEventListener('click', () => { const draft = getDraft(); const data = draft.instruments.prices?.data; if (!priceEntries_(data).length) return showMessage('Agregue al menos un alimento antes de guardar.', 'error'); saveInstrument('prices', { products: priceEntries_(data), notes: $('#pricesNotes').value }, $('#saveReviewedPrices')).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#addOriginItem').addEventListener('click', () => addOriginItem());
   $('#classificationOverride').addEventListener('change', updateClassificationVisibility);
-  ['classificationService', 'classificationOther'].forEach((id) => $('#' + id).addEventListener('change', updateClassificationVisibility));
+  ['classificationService', 'classificationOther', 'classificationDairyRegular', 'classificationEggsRegular']
+    .forEach((id) => $('#' + id).addEventListener('change', updateClassificationVisibility));
+  $('#classificationProduceVarieties').addEventListener('input', updateClassificationVisibility);
+  document.querySelectorAll('input[name="proteinCategory"]').forEach((input) => {
+    input.addEventListener('change', updateClassificationVisibility);
+  });
   $('#classificationForm').addEventListener('submit', async (event) => { event.preventDefault(); try { const data = await prepareClassificationImages_(classificationData()); await saveInstrument('classification', data, event.submitter); } catch (error) { showMessage(errorText_(error), 'error'); } });
   window.addEventListener('online', () => { updateConnection(); syncQueue().catch((error) => showMessage(errorText_(error), 'error')); }); window.addEventListener('offline', updateConnection);
   syncQueue().catch(() => {});

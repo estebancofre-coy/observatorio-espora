@@ -23,7 +23,9 @@ La URL de implementación debe terminar en `/exec` y estar configurada en `app.j
 
 ## Datos
 
-La Google Sheet creada por `setupDatabase()` contiene `Visitas`, `Disponibilidad`, `Precios`, `Origen` y `Panel ESPORA`. Los instrumentos se enlazan mediante un ID de visita común. La hoja histórica `Observaciones` se conserva sin modificaciones.
+La Google Sheet creada por `setupDatabase()` contiene `Visitas`, `Clasificación`, `Disponibilidad`, `Precios`, `Origen` y `Panel ESPORA`. Los instrumentos se enlazan mediante un ID de visita común. La hoja histórica `Observaciones` se conserva sin modificaciones.
+
+El diagrama de captura, persistencia, relaciones entre hojas y arquitectura propuesta para consolidar locales y generar mapas está en [FLUJO_DATOS_Y_MAPEO.md](FLUJO_DATOS_Y_MAPEO.md). Distingue el funcionamiento actual del diseño futuro; todavía no existe sincronización de la base con Google Earth ni una hoja maestra `Locales_Vigente`.
 
 ## Instrumentos
 
@@ -43,20 +45,19 @@ El flujo de precios se organiza en tres pantallas: entrada del instrumento, revi
 
 `Clasificación` es el instrumento inicial de la recogida. Registra estructura, sistema de atención, rubros combinables y observaciones; la unidad vecinal se hereda de la ficha de identificación de la visita. La superficie se estima contando góndolas, naves y congeladoras de exposición, sin contar lo que está detrás del mesón: muy pequeño (1–2), pequeño (3–4), mediano (5–8) y grande (más de 8). El punto 4 se asigna a pequeño para que los rangos no se superpongan.
 
-La regla automática vigente para el tipo de local combina **amplitud del surtido y escala**. Asigna `minimarket` solo cuando se cumplen las cuatro condiciones:
+La regla automática usa **autoservicio como condición obligatoria** y, además, exige cumplir al menos **dos de estos tres criterios**:
 
-1. Sistema de atención de **acceso libre** (autoservicio).
-2. Presencia de **abarrotes básicos**.
-3. Al menos **dos grupos perecibles distintos**. Los grupos son: frutas y verduras (cuentan como uno solo), carnes frescas, congelados, lácteos y huevos, pescados y mariscos.
-4. Superficie **mediana o grande** (5 o más góndolas, naves o congeladoras de exposición).
+1. Más de 10 variedades distintas de frutas y verduras (11 o más).
+2. Al menos dos categorías proteicas entre vacuno, cerdo, pollo y cordero.
+3. Oferta habitual tanto de lácteos como de huevos.
 
-Si falla cualquiera de las cuatro, asigna `almacen_barrio`. El resultado en pantalla indica qué condición falta, para que la persona encuestadora pueda verificarla en terreno. La selección manual puede cambiar el resultado, pero requiere justificación escrita.
+Si no hay autoservicio, o se cumplen menos de dos criterios, asigna `almacen_barrio`. La superficie de exposición sigue registrándose para describir el local, pero ya no determina la clasificación. El resultado en pantalla indica cuántos criterios se cumplen. La selección manual puede cambiar el resultado, pero requiere justificación escrita.
 
-Esta regla reemplaza a la anterior, que asignaba `minimarket` con acceso libre y un solo rubro fresco: un almacén con acceso libre y una sola caja de frutas quedaba clasificado como minimarket. La condición de dos grupos perecibles y superficie mediana evita ese falso positivo. `app.js` y `apps-script/Code.gs` implementan la misma función `classifyLocal_`; si se modifica una, debe modificarse la otra y republicarse el Web App.
+`app.js` y `apps-script/Code.gs` implementan la misma regla. Si se modifica una, debe modificarse la otra. El backend conserva el conteo, las categorías seleccionadas y las dos respuestas de oferta habitual en columnas nuevas al final de `Clasificación`.
 
 La foto del frontis es obligatoria. Las fotos del interior (solo con autorización), frutas y verduras, carnes y congelados son opcionales y están agrupadas en una sección plegable. Las imágenes se comprimen en el navegador y Apps Script las almacena en la carpeta de Drive `ESPORA - Imágenes de levantamiento`; la hoja `Clasificación` conserva sus enlaces.
 
-Al publicar la versión que incorpora este instrumento, ejecuta `setupDatabase()` para crear la hoja **Clasificación** con sus encabezados. Si la hoja ya existe, la función verifica que su estructura coincida y no borra datos. Después crea una nueva versión del Web App para que el endpoint acepte `instrument: "classification"`.
+Al aplicar esta regla, actualiza `Code.gs` en Apps Script y ejecuta `setupDatabase()` una vez. Si la hoja `Clasificación` ya existe con los encabezados actuales, la función añadirá al final cuatro columnas para los datos de los criterios; no borra ni reordena datos. Luego crea una nueva versión del Web App. Publica también el frontend actualizado para que la captura y el cálculo coincidan con el backend.
 
 La ficha de clasificación se vincula automáticamente con el código de local de la visita y vuelve a validar ese código contra `SampleLocals.gs`. La hoja `Clasificación` guarda también código, ID de muestra, nombre, dirección, tipo y subtipo provenientes de `SampleLocals`; por eso el panel inicial ya no solicita subtipo, recategorización ni venta al detalle.
 
