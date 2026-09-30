@@ -114,11 +114,24 @@
           <button class="instrument" data-instrument="prices" type="button">2. Precios<span id="pricesStatus"></span></button>
           <button class="instrument" data-instrument="origins" type="button">3. Origen (borrador)<span id="originsStatus"></span></button>
         </div>
-        <div class="actions">
+        <p id="visitSaveStatus" class="visit-save-status" role="status" aria-live="polite"></p>
+        <div class="visit-actions">
           <button class="secondary" id="editVisitButton" type="button">Editar datos de visita</button>
-          <button class="secondary" id="backupJsonButton" type="button">Descargar respaldo JSON</button>
-          <button class="secondary" id="backupHtmlButton" type="button">Descargar respaldo HTML</button>
-          <button class="secondary" id="closeVisitButton" type="button">Cerrar visita y borrar borrador local</button>
+          <details class="backup-group">
+            <summary>Descargar respaldo offline</summary>
+            <p>El respaldo permite recuperar el trabajo de este dispositivo; no sustituye guardar los instrumentos en Sheets.</p>
+            <div class="backup-options">
+              <button class="secondary" id="backupJsonButton" type="button">Descargar JSON</button>
+              <button class="secondary" id="backupHtmlButton" type="button">Descargar HTML</button>
+            </div>
+          </details>
+          <div class="close-visit-group">
+            <div>
+              <strong>Finalizar visita</strong>
+              <p>Guarde los instrumentos en Sheets antes de cerrar. El cierre elimina el borrador de este dispositivo.</p>
+            </div>
+            <button class="danger" id="closeVisitButton" type="button">Cerrar visita</button>
+          </div>
         </div>
       </div>
     </section>

@@ -252,6 +252,20 @@ function updateMenu() {
   const local = SAMPLE_LOCALS.find((item) => item.code === draft.localCode);
   $('#visitSummary').textContent = `${draft.id} · ${local?.name || draft.localCode} · ${draft.unitVecinal || 'Sin UV'} · ${draft.observationDate} · ${draft.collector}`;
   ['classification', 'availability', 'prices', 'origins'].forEach((name) => { $('#' + name + 'Status').textContent = draft.instruments[name]?.saved ? ' ✓ guardado' : draft.instruments[name]?.data ? ' · borrador' : ' · pendiente'; });
+  const unsaved = unsavedInstrumentNames_(draft);
+  const queuedCount = getQueue().filter((item) => item.visit?.id === draft.id).length;
+  const status = $('#visitSaveStatus');
+  status.textContent = unsaved.length
+    ? `Pendiente de guardar en Sheets: ${unsaved.join(', ')}.${queuedCount ? ` ${queuedCount} envío(s) en cola de sincronización.` : ''} Descargue un respaldo offline antes de cerrar.`
+    : queuedCount
+      ? `${queuedCount} envío(s) pendiente(s) de sincronización. Mantenga la conexión hasta confirmar el guardado en Sheets.`
+      : 'Los instrumentos con registros están guardados en Sheets.';
+}
+function unsavedInstrumentNames_(draft) {
+  const labels = { classification: 'Clasificación', availability: 'Disponibilidad y variedad', prices: 'Precios', origins: 'Origen' };
+  return Object.entries(labels)
+    .filter(([name]) => draft.instruments[name]?.data && !draft.instruments[name]?.saved)
+    .map(([, label]) => label);
 }
 function updateConnection() { const online = navigator.onLine; $('#connection').textContent = online ? 'Con conexión. Los instrumentos se guardan en la base de datos.' : 'Sin conexión. Los instrumentos se conservarán en este dispositivo hasta sincronizarlos.'; $('#connection').className = online ? 'online' : 'offline'; }
 
@@ -499,7 +513,25 @@ function initialize() {
   $('#visitForm').addEventListener('submit', (event) => { event.preventDefault(); const current = getDraft(); const visit = visitFromForm(current); if (currentInitials().length < 2) { showMessage('Escriba el nombre de la persona recolectora (nombre y apellido).', 'error'); return; } if (!localFormIsValid()) { showMessage('Complete los datos del local seleccionado o del local nuevo.', 'error'); return; } rememberCollector(); setDraft(visit); showView('menuView'); });
   document.querySelectorAll('.instrument').forEach((button) => button.addEventListener('click', () => openInstrument(button.dataset.instrument)));
   document.querySelectorAll('.return-menu').forEach((button) => button.addEventListener('click', () => { showView('menuView'); updateMenu(); }));
-  $('#editVisitButton').addEventListener('click', () => showView('visitView')); $('#backupJsonButton').addEventListener('click', () => downloadBackup('json')); $('#backupHtmlButton').addEventListener('click', () => downloadBackup('html')); $('#closeVisitButton').addEventListener('click', () => { if (confirm('¿Eliminar el borrador local de esta visita? Los instrumentos ya guardados permanecerán en la base de datos.')) { localStorage.removeItem(DRAFT_KEY); $('#visitForm').reset(); $('#observationDate').value = new Date().toISOString().slice(0, 10); showView('visitView'); } });
+  $('#editVisitButton').addEventListener('click', () => showView('visitView'));
+  $('#backupJsonButton').addEventListener('click', () => downloadBackup('json'));
+  $('#backupHtmlButton').addEventListener('click', () => downloadBackup('html'));
+  $('#closeVisitButton').addEventListener('click', () => {
+    const draft = getDraft();
+    if (!draft) return;
+    const unsaved = unsavedInstrumentNames_(draft);
+    const queuedCount = getQueue().filter((item) => item.visit?.id === draft.id).length;
+    const warning = unsaved.length
+      ? `Aún no están guardados en Sheets: ${unsaved.join(', ')}.${queuedCount ? ` Hay ${queuedCount} envío(s) en cola.` : ''} Si cierra ahora, se borrará el borrador local. Descargue un respaldo para conservar esos datos. ¿Cerrar de todas formas?`
+      : queuedCount
+        ? `Hay ${queuedCount} envío(s) pendientes de sincronización. Cerrar borrará el borrador local, pero los envíos seguirán en cola. ¿Cerrar la visita?`
+        : 'Los instrumentos guardados en Sheets se conservarán. ¿Cerrar la visita y borrar el borrador de este dispositivo?';
+    if (!confirm(warning)) return;
+    localStorage.removeItem(DRAFT_KEY);
+    $('#visitForm').reset();
+    $('#observationDate').value = new Date().toISOString().slice(0, 10);
+    showView('visitView');
+  });
   $('#availabilityForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('availability', availabilityData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#originsForm').addEventListener('submit', (event) => { event.preventDefault(); saveInstrument('origins', originData(), event.submitter).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#openPricesReviewButton').addEventListener('click', () => { renderPriceReview(getDraft().instruments.prices?.data); showView('pricesReviewView'); });

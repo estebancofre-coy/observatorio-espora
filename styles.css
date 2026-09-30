@@ -36,6 +36,20 @@ button.remove { background: #d93025; float: right; padding: 8px 12px; }
 button:disabled { cursor: wait; opacity: .65; }
 .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 18px; }
 .actions button { flex: 1 1 210px; }
+.visit-actions { align-items: start; display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 20px; }
+.visit-actions > button, .backup-group, .close-visit-group { min-width: 0; }
+.visit-actions > button { justify-self: start; }
+.backup-group { background: #f3f7f4; border: 1px solid #d5e1df; border-radius: 8px; padding: 12px 14px; }
+.backup-group summary { color: #0f5d74; cursor: pointer; font-weight: 700; min-height: 24px; }
+.backup-group > p { margin: 8px 0; }
+.backup-options { display: flex; flex-wrap: wrap; gap: 8px; }
+.backup-options button { flex: 1 1 120px; }
+.close-visit-group { align-items: center; background: #fff7f6; border: 1px solid #e5b9b5; border-radius: 8px; display: flex; gap: 16px; grid-column: 1 / -1; justify-content: space-between; padding: 14px; }
+.close-visit-group p { margin: 4px 0 0; }
+button.danger { background: #b3261e; color: #fff; flex: 0 0 auto; }
+button.danger:hover { background: #8c1d18; }
+.visit-save-status { background: #fef7e0; border-radius: 6px; color: #6b4400; margin: 12px 0 0; padding: 10px 12px; }
+.visit-save-status:empty { display: none; }
 .instrument { min-height: 84px; text-align: left; }
 .instrument span { display: block; font-size: 12px; margin-top: 6px; opacity: .85; }
 .instrument-section-title { color: #0f5d74; font-size: 14px; margin: 22px 0 8px; }
@@ -103,4 +117,8 @@ footer strong { color: #0f5d74; }
   .code-field { align-items: stretch; flex-direction: column; }
   .code-field label { flex: 0 0 auto; }
   .code-field button { align-self: flex-start; }
+  .visit-actions { grid-template-columns: minmax(0, 1fr); }
+  .visit-actions > button { justify-self: stretch; }
+  .close-visit-group { align-items: stretch; flex-direction: column; }
+  .close-visit-group button { align-self: flex-start; }
 }

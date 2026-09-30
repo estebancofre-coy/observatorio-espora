@@ -35,7 +35,7 @@ El diagrama de captura, persistencia, relaciones entre hojas y arquitectura prop
 
 La visita y los borradores de cada instrumento persisten localmente en el navegador para permitir volver al menú o recuperar el trabajo tras una interrupción.
 
-En el campo de conservación para carnes están disponibles: **Fresco, Congelado, Al vacío, Embutido, Pillow bag y Granel (papel)**. Desde el menú de la visita activa se pueden descargar respaldos locales en **JSON** (recomendado para recuperar datos) o **HTML** (copia legible). El respaldo incluye la visita, sus instrumentos y cualquier envío pendiente de sincronización; no reemplaza la copia final almacenada en Google Sheets.
+En el campo de conservación para carnes están disponibles: **Fresco, Congelado, Al vacío, Embutido, Pillow bag y Granel (papel)**. Desde el menú de la visita activa, **Descargar respaldo offline** agrupa las opciones **JSON** (recomendado para recuperar datos) y **HTML** (copia legible). El respaldo incluye la visita, sus instrumentos y cualquier envío pendiente de sincronización; no reemplaza la copia final almacenada en Google Sheets. El botón rojo **Cerrar visita** queda como paso explícito de finalización: advierte si hay borradores o sincronizaciones pendientes y confirma antes de borrar la copia local. Los instrumentos que ya se guardaron en Sheets permanecen allí.
 
 En el instrumento de precios, la pantalla inicia sin productos y permite agregar varios alimentos antes de guardar. Cada alimento exige al menos dos observaciones: una en el rango más bajo y otra en el rango más alto. Después de guardar, el instrumento permanece abierto para continuar agregando alimentos; `Volver al menú` permite cerrarlo explícitamente.
 
