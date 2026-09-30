@@ -14,7 +14,7 @@ h1 { color: #0f5d74; font-size: 24px; margin: 0 0 8px; }
 h2 { font-size: 18px; margin: 0 0 16px; }
 p, footer { color: #526a76; font-size: 13px; }
 .card { background: #fff; border: 1px solid #d5e1df; border-radius: 12px; box-shadow: 0 8px 22px rgba(30, 70, 70, .08); margin: 16px 0; padding: 20px; }
-.hero { background: linear-gradient(125deg, #0c536b 0%, #14798a 58%, #2d948c 100%); border-radius: 16px; box-shadow: 0 12px 28px rgba(14, 76, 89, .22); color: #fff; min-height: 278px; overflow: hidden; position: relative; }
+.hero { background: linear-gradient(125deg, #12463c 0%, #1f5a48 58%, #2f7a5e 100%); border-radius: 16px; box-shadow: 0 12px 28px rgba(14, 76, 89, .22); color: #fff; min-height: 278px; overflow: hidden; position: relative; }
 .hero-content { max-width: 57%; padding: 34px; position: relative; z-index: 2; }
 .hero .eyebrow { color: #d6f0e8; }
 .hero h2 { color: #fff; font-size: clamp(26px, 4vw, 38px); line-height: 1.08; margin: 10px 0 14px; }
@@ -23,11 +23,11 @@ p, footer { color: #526a76; font-size: 13px; }
 .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
 .hero-tags span { background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .38); border-radius: 20px; color: #fff; font-size: 11px; padding: 6px 10px; }
 .hero-landscape { bottom: 0; height: 100%; position: absolute; right: 0; width: 52%; }
-.sun { background: #f7cb68; border-radius: 50%; height: 48px; position: absolute; right: 18%; top: 16%; width: 48px; }
-.mountain { bottom: 0; clip-path: polygon(0 100%, 43% 21%, 56% 42%, 77% 0, 100% 100%); position: absolute; width: 100%; }
-.mountain-back { background: #5fb0a2; height: 65%; opacity: .7; right: -4%; }
-.mountain-front { background: #174f62; height: 48%; right: -10%; }
-.forest { background: repeating-linear-gradient(65deg, transparent 0 13px, #123f4c 14px 18px, transparent 19px 30px); bottom: 0; height: 22%; opacity: .78; position: absolute; width: 100%; }
+.hero-landscape .paper { filter: drop-shadow(0 8px 14px rgba(8, 44, 40, .32)); position: absolute; }
+.paper-tree-back { bottom: 6%; opacity: .92; right: 32%; width: 56%; }
+.paper-tree-front { bottom: 2%; right: 3%; width: 50%; }
+.paper-huemul { bottom: 4%; left: 4%; width: 20%; }
+.paper-leaves { left: 2%; opacity: .85; top: 12%; width: 16%; }
 .section-heading { align-items: start; display: flex; gap: 16px; justify-content: space-between; }
 .section-heading h2 { color: #183346; margin: 6px 0 8px; }
 .step { background: #e5f2ee; border-radius: 20px; color: #14645f; font-size: 12px; font-weight: 700; padding: 7px 10px; white-space: nowrap; }
