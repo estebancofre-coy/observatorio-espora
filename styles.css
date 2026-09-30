@@ -24,10 +24,10 @@ p, footer { color: #526a76; font-size: 13px; }
 .hero-tags span { background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .38); border-radius: 20px; color: #fff; font-size: 11px; padding: 6px 10px; }
 .hero-landscape { bottom: 0; height: 100%; position: absolute; right: 0; width: 52%; }
 .hero-landscape .paper { filter: drop-shadow(0 8px 14px rgba(8, 44, 40, .32)); position: absolute; }
-.paper-tree-back { bottom: 6%; opacity: .92; right: 32%; width: 56%; }
-.paper-tree-front { bottom: 2%; right: 3%; width: 50%; }
-.paper-huemul { bottom: 4%; left: 4%; width: 20%; }
-.paper-leaves { left: 2%; opacity: .85; top: 12%; width: 16%; }
+.paper-tree-back { bottom: 6%; max-width: 261px; opacity: .92; right: 32%; width: 56%; }
+.paper-tree-front { bottom: 2%; max-width: 263px; right: 3%; width: 50%; }
+.paper-huemul { bottom: 4%; left: 4%; max-width: 191px; width: 20%; }
+.paper-leaves { left: 2%; max-width: 94px; opacity: .85; top: 12%; width: 16%; }
 .section-heading { align-items: start; display: flex; gap: 16px; justify-content: space-between; }
 .section-heading h2 { color: #183346; margin: 6px 0 8px; }
 .step { background: #e5f2ee; border-radius: 20px; color: #14645f; font-size: 12px; font-weight: 700; padding: 7px 10px; white-space: nowrap; }
