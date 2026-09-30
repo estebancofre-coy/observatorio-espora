@@ -138,6 +138,36 @@ function populateLocalCodeOptions() {
   select.replaceChildren(new Option('Seleccione un local…', ''), ...options);
   if ([...select.options].some((option) => option.value === previous)) select.value = previous;
 }
+function updateTerritoryReference() {
+  const isNew = $('#isNewLocal').checked;
+  const local = isNew ? null : getLocal();
+  const address = isNew ? $('#newLocalAddress').value.trim() : local?.address;
+  const latitude = $('#latitude').value.trim();
+  const longitude = $('#longitude').value.trim();
+  const selectedUv = $('#visitUnit').value;
+  const hasCoordinates = Boolean(latitude && longitude);
+  const detectedUv = hasCoordinates ? getUvForCoordinates(latitude, longitude) : '';
+  const addressText = address ? `Dirección «${address}»` : 'La dirección del local';
+
+  if (!hasCoordinates) {
+    $('#uvSuggestion').textContent = `${addressText}. UV pendiente: capture el GPS para sugerirla o selecciónela manualmente.`;
+    return;
+  }
+
+  const gpsText = `GPS (${Number(latitude).toFixed(6)}, ${Number(longitude).toFixed(6)})`;
+  if (detectedUv && selectedUv && detectedUv !== selectedUv) {
+    $('#uvSuggestion').textContent = `${addressText} · ${gpsText} cae en ${detectedUv}, pero seleccionó ${selectedUv}. Revise el punto o la UV, especialmente cerca de un límite.`;
+    return;
+  }
+  if (selectedUv) {
+    const source = detectedUv
+      ? `El GPS y la dirección corresponden a ${selectedUv}.`
+      : `UV seleccionada: ${selectedUv}; no se pudo verificar el punto dentro de los polígonos.`;
+    $('#uvSuggestion').textContent = `${addressText} · ${gpsText}. ${source}`;
+    return;
+  }
+  $('#uvSuggestion').textContent = `${addressText} · ${gpsText}. No se asignó una UV; selecciónela manualmente.`;
+}
 function updateLocal({ restore = false } = {}) {
   const isNew = $('#isNewLocal').checked;
   const local = getLocal();
@@ -156,35 +186,30 @@ function updateLocal({ restore = false } = {}) {
     } else if (!NEW_LOCAL_CODE_PATTERN.test(codeField.value)) {
       codeField.value = newLocalCode(initials);
     }
-    $('#establishment').value = $('#newLocalName').value;
-    $('#address').value = $('#newLocalAddress').value;
+    updateTerritoryReference();
     return;
   }
   if (!local) {
     code.setCustomValidity(code.value ? 'Ingrese un código válido de la muestra.' : '');
-    ['establishment', 'address'].forEach((id) => { $('#' + id).value = ''; });
     if (!restore) {
       $('#latitude').value = '';
       $('#longitude').value = '';
       if (autoSuggestedUv && $('#visitUnit').value === autoSuggestedUv) $('#visitUnit').value = '';
       autoSuggestedUv = '';
       unitVecinalWasManuallySet = false;
-      $('#uvSuggestion').textContent = '';
     }
+    updateTerritoryReference();
     return;
   }
   code.setCustomValidity('');
-  $('#establishment').value = local.name; $('#address').value = local.address;
   if (!restore) {
     $('#latitude').value = local.latitude || '';
     $('#longitude').value = local.longitude || '';
     autoSuggestedUv = localUv_(local) || '';
     unitVecinalWasManuallySet = false;
     $('#visitUnit').value = autoSuggestedUv;
-    $('#uvSuggestion').textContent = autoSuggestedUv
-      ? `UV sugerida desde las coordenadas del local de muestra: ${autoSuggestedUv}. Verifique el punto y corrija la selección si está cerca de un límite.`
-      : 'No se encontró una UV para estas coordenadas. Revise la ubicación y seleccione la unidad vecinal manualmente.';
   }
+  updateTerritoryReference();
 }
 function localFormIsValid() {
   if ($('#isNewLocal').checked) {
@@ -210,21 +235,17 @@ function fillVisit(visit) {
   if (visit.isNewLocal) { $('#newLocalCode').value = visit.localCode || ''; $('#newLocalName').value = visit.localName || ''; $('#newLocalAddress').value = visit.localAddress || ''; $('#newLocalType').value = ['Almacén', 'Minimarket'].includes(visit.localType) ? 'Almacén o minimarket' : visit.localType || ''; } else { $('#localCode').value = visit.localCode || ''; }
   autoSuggestedUv = savedUv === inferredUv ? inferredUv || '' : '';
   unitVecinalWasManuallySet = Boolean(savedUv && savedUv !== inferredUv);
-  $('#uvSuggestion').textContent = inferredUv
-    ? `UV sugerida según las coordenadas guardadas: ${inferredUv}. Verifique el punto y corrija la selección si está cerca de un límite.`
-    : '';
   updateLocal({ restore: true });
+  updateTerritoryReference();
 }
 function suggestUvFromCoordinates() {
-  if (!$('#latitude').value || !$('#longitude').value) { $('#uvSuggestion').textContent = ''; return; }
+  if (!$('#latitude').value || !$('#longitude').value) { updateTerritoryReference(); return; }
   const uv = getUvForCoordinates($('#latitude').value, $('#longitude').value);
-  $('#uvSuggestion').textContent = uv
-    ? `Sugerencia según coordenadas: ${uv}. Verifique el punto y corrija la selección si está cerca de un límite.`
-    : 'No se encontró una UV para estas coordenadas. Revise la ubicación y seleccione la unidad vecinal manualmente.';
   if (!unitVecinalWasManuallySet || !$('#visitUnit').value || $('#visitUnit').value === autoSuggestedUv) {
     $('#visitUnit').value = uv || '';
     autoSuggestedUv = uv || '';
   }
+  updateTerritoryReference();
 }
 function updateMenu() {
   const draft = getDraft(); if (!draft) return;
@@ -463,14 +484,18 @@ function initialize() {
       $('#visitUnit').value = '';
       autoSuggestedUv = '';
       unitVecinalWasManuallySet = false;
-      $('#uvSuggestion').textContent = '';
     }
     updateLocal();
   });
   $('#uvFilter').addEventListener('change', () => { populateLocalCodeOptions(); updateLocal(); });
-  $('#visitUnit').addEventListener('change', () => { unitVecinalWasManuallySet = Boolean($('#visitUnit').value && $('#visitUnit').value !== autoSuggestedUv); });
-  ['latitude', 'longitude'].forEach((id) => $('#' + id).addEventListener('input', suggestUvFromCoordinates));
-  ['newLocalName', 'newLocalAddress', 'newLocalType'].forEach((id) => $('#' + id).addEventListener('input', updateLocal)); $('#locationButton').addEventListener('click', useCurrentLocation);
+  $('#visitUnit').addEventListener('change', () => {
+    unitVecinalWasManuallySet = Boolean($('#visitUnit').value && $('#visitUnit').value !== autoSuggestedUv);
+    updateTerritoryReference();
+  });
+  ['latitude', 'longitude'].forEach((id) => $('#' + id).addEventListener('change', suggestUvFromCoordinates));
+  ['newLocalName', 'newLocalType'].forEach((id) => $('#' + id).addEventListener('input', updateLocal));
+  $('#newLocalAddress').addEventListener('change', updateTerritoryReference);
+  $('#locationButton').addEventListener('click', useCurrentLocation);
   $('#visitForm').addEventListener('submit', (event) => { event.preventDefault(); const current = getDraft(); const visit = visitFromForm(current); if (currentInitials().length < 2) { showMessage('Escriba el nombre de la persona recolectora (nombre y apellido).', 'error'); return; } if (!localFormIsValid()) { showMessage('Complete los datos del local seleccionado o del local nuevo.', 'error'); return; } rememberCollector(); setDraft(visit); showView('menuView'); });
   document.querySelectorAll('.instrument').forEach((button) => button.addEventListener('click', () => openInstrument(button.dataset.instrument)));
   document.querySelectorAll('.return-menu').forEach((button) => button.addEventListener('click', () => { showView('menuView'); updateMenu(); }));

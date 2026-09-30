@@ -71,24 +71,29 @@
               <p class="field-help">Primero filtre o revise la lista de locales de muestra. Active esta opción solo si el local no está registrado.</p>
             </div>
             <div id="newLocalFields" class="wide" hidden>
-              <div class="grid">
-                <div class="code-field">
+              <div class="grid new-local-grid">
+                <div class="code-field wide">
                   <label>Código asignado<input id="newLocalCode" readonly></label>
                   <button class="secondary" id="regenerateCodeButton" type="button">Generar otro código</button>
                 </div>
                 <label class="required">Nombre del nuevo local<input id="newLocalName" placeholder="Ejemplo: Almacén del barrio"></label>
-                <label class="required">Dirección o referencia<input id="newLocalAddress" placeholder="Calle, número o referencia"></label>
+                <div class="field-stack">
+                  <label class="required">Dirección o referencia<input id="newLocalAddress" placeholder="Calle, número o referencia"></label>
+                  <span class="field-help">La dirección se vinculará a la unidad vecinal indicada por el GPS o seleccionada abajo.</span>
+                </div>
                 <label class="required">Tipo de local<select id="newLocalType"><option value="">Seleccione</option><option value="Almacén o minimarket">Almacén o minimarket</option><option>Supermercado</option><option>Venta de Frutas y Verduras</option><option>Mercado Campesino</option><option>Productor Hortícola</option><option>Otro</option></select></label>
               </div>
-              <p class="field-help">El código sigue el patrón de SampleLocals y termina con las iniciales de quien registra, sin modificar ese archivo. Use «Generar otro código» solo si el sistema avisa que el código ya está ocupado.</p>
+              <p class="field-help">Use «Generar otro código» solo si el sistema avisa que el código ya está ocupado.</p>
             </div>
-            <label>Local o establecimiento<input id="establishment" readonly></label>
-            <label>Dirección o referencia<input id="address" readonly></label>
-            <label class="required">Unidad vecinal del local<select id="visitUnit" required><option value="">Seleccione</option></select></label>
-            <p id="uvSuggestion" class="field-help"></p>
-            <label class="required">Latitud levantada<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
-            <label class="required">Longitud levantada<input id="longitude" type="number" step="any" min="-180" max="180" placeholder="-72.067" required></label>
-            <div><label>Ubicación</label><button class="secondary" id="locationButton" type="button">Usar ubicación actual</button></div>
+            <div class="wide location-capture">
+              <div class="grid">
+                <label class="required">Latitud GPS<input id="latitude" type="number" step="any" min="-90" max="90" placeholder="-45.575" required></label>
+                <label class="required">Longitud GPS<input id="longitude" type="number" step="any" min="-180" max="180" placeholder="-72.067" required></label>
+                <div class="location-action"><span class="field-label">GPS del dispositivo</span><button class="secondary" id="locationButton" type="button">Usar ubicación actual</button></div>
+                <label class="required">Unidad vecinal del local<select id="visitUnit" required><option value="">Seleccione</option></select></label>
+                <p id="uvSuggestion" class="territory-reference wide" role="status" aria-live="polite">Ingrese las coordenadas GPS para sugerir la unidad vecinal. La dirección del local quedará vinculada a la UV indicada aquí.</p>
+              </div>
+            </div>
           </div>
           <div class="actions"><button type="submit">Continuar a instrumentos</button></div>
         </form>

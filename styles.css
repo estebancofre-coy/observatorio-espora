@@ -55,9 +55,17 @@ button:disabled { cursor: wait; opacity: .65; }
 .uv-filter-details summary { color: #0f5d74; cursor: pointer; font-weight: 700; min-height: 24px; }
 .uv-filter-details label { padding-top: 10px; }
 .new-local-choice { background: #f3f7f4; border: 1px solid #d5e1df; border-radius: 6px; padding: 12px; }
+.visit-card #visitForm > .grid, .new-local-grid, .location-capture .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.visit-card #visitForm .grid > * { min-width: 0; }
+.field-stack { min-width: 0; }
+.location-capture { background: #f3f7f4; border-radius: 8px; padding: 16px; }
+.location-action { align-self: end; min-width: 0; }
+.field-label { display: block; font-size: 14px; font-weight: 700; }
+.location-action button { min-height: 42px; }
+.territory-reference { background: #e5f2ee; border-radius: 6px; color: #183346; line-height: 1.5; margin: 0; overflow-wrap: anywhere; padding: 12px 14px; }
 .code-field { align-items: end; display: flex; gap: 10px; }
-.code-field label { flex: 1 1 auto; }
-.code-field button { flex: 0 0 auto; margin-top: 0; padding: 10px 14px; white-space: nowrap; width: auto; }
+.code-field label { flex: 1 1 12rem; min-width: 0; }
+.code-field button { flex: 0 1 auto; margin-top: 0; max-width: 100%; padding: 10px 14px; white-space: normal; width: auto; }
 #newLocalCode { font-variant-numeric: tabular-nums; letter-spacing: .04em; }
 .optional-photos { margin-top: 12px; }
 .optional-photos summary { color: #0f5d74; cursor: pointer; font-weight: 700; padding: 8px 0; }
@@ -89,3 +97,10 @@ footer { line-height: 1.6; margin: 24px 0 8px; text-align: center; }
 footer strong { color: #0f5d74; }
 @media (max-width: 600px) { .brand { align-items: flex-start; flex-direction: column; gap: 8px; } .brand img { width: 100%; } main { padding: 16px; } .hero { min-height: 370px; } .hero-content { max-width: none; padding: 26px 22px; } .hero-landscape { height: 42%; opacity: .9; width: 100%; } .section-heading { align-items: flex-start; flex-direction: column; gap: 6px; } .choice-row { grid-template-columns: 1fr 1fr; } .choice-row span { grid-column: 1 / -1; } }
 @media (max-width: 600px) { .price-review-item { align-items: flex-start; flex-direction: column; gap: 5px; } .price-review-item span { text-align: left; } }
+@media (max-width: 600px) {
+  .visit-card #visitForm > .grid, .new-local-grid, .location-capture .grid { grid-template-columns: minmax(0, 1fr); }
+  .location-capture { padding: 12px; }
+  .code-field { align-items: stretch; flex-direction: column; }
+  .code-field label { flex: 0 0 auto; }
+  .code-field button { align-self: flex-start; }
+}
