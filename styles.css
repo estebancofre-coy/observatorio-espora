@@ -14,16 +14,16 @@ h1 { color: #0f5d74; font-size: 24px; margin: 0 0 8px; }
 h2 { font-size: 18px; margin: 0 0 16px; }
 p, footer { color: #526a76; font-size: 13px; }
 .card { background: #fff; border: 1px solid #d5e1df; border-radius: 12px; box-shadow: 0 8px 22px rgba(30, 70, 70, .08); margin: 16px 0; padding: 20px; }
-.hero { background: linear-gradient(125deg, #12463c 0%, #1f5a48 58%, #2f7a5e 100%); border-radius: 16px; box-shadow: 0 12px 28px rgba(14, 76, 89, .22); color: #fff; min-height: 278px; overflow: hidden; position: relative; }
+.hero { background: linear-gradient(125deg, #cfe6d5 0%, #b9dcc3 55%, #a9d3b5 100%); border-radius: 16px; box-shadow: 0 12px 28px rgba(31, 90, 72, .18); color: #1c3b32; min-height: 278px; overflow: hidden; position: relative; }
 .hero-content { max-width: 57%; padding: 34px; position: relative; z-index: 2; }
-.hero .eyebrow { color: #d6f0e8; }
-.hero h2 { color: #fff; font-size: clamp(26px, 4vw, 38px); line-height: 1.08; margin: 10px 0 14px; }
-.hero-summary { color: #effaf6; font-size: 16px; line-height: 1.55; margin: 0; }
+.hero .eyebrow { color: #2b5d4c; }
+.hero h2 { color: #12382d; font-size: clamp(26px, 4vw, 38px); line-height: 1.08; margin: 10px 0 14px; }
+.hero-summary { color: #24493d; font-size: 16px; line-height: 1.55; margin: 0; }
 .eyebrow { color: #14798a; font-size: 11px; font-weight: 700; letter-spacing: .11em; margin: 0; }
 .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
-.hero-tags span { background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .38); border-radius: 20px; color: #fff; font-size: 11px; padding: 6px 10px; }
+.hero-tags span { background: rgba(255, 255, 255, .62); border: 1px solid rgba(31, 90, 72, .3); border-radius: 20px; color: #1f5040; font-size: 11px; padding: 6px 10px; }
 .hero-landscape { bottom: 0; height: 100%; position: absolute; right: 0; width: 52%; }
-.hero-landscape .paper { filter: drop-shadow(0 8px 14px rgba(8, 44, 40, .32)); position: absolute; }
+.hero-landscape .paper { filter: drop-shadow(0 6px 12px rgba(31, 90, 72, .22)); position: absolute; }
 .paper-tree-back { bottom: 6%; max-width: 261px; opacity: .92; right: 32%; width: 56%; }
 .paper-tree-front { bottom: 2%; max-width: 263px; right: 3%; width: 50%; }
 .paper-huemul { bottom: 4%; left: 4%; max-width: 191px; width: 20%; }
