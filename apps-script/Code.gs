@@ -52,6 +52,9 @@ function doGet() {
 function doPost(event) {
   try {
     const request = JSON.parse(event.postData.contents);
+    if (request.action === 'getVisitsForLocal') {
+      return jsonResponse_({ ok: true, data: getVisitsForLocal_(request.payload) });
+    }
     if (request.action !== 'saveInstrument') {
       throw new Error('La acción solicitada no es válida.');
     }
@@ -64,6 +67,119 @@ function doPost(event) {
 function jsonResponse_(payload) {
   return ContentService.createTextOutput(JSON.stringify(payload))
     .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getVisitsForLocal_(payload) {
+  const code = String(payload && payload.localCode || '').trim().toUpperCase();
+  if (!code) {
+    throw new Error('Indique el código del local.');
+  }
+  const expectedAccessCode = PropertiesService.getScriptProperties().getProperty('ESPORA_RESUME_ACCESS_CODE');
+  if (!expectedAccessCode) {
+    throw new Error('La retoma aún no está habilitada: el administrador debe configurar la clave de acceso en Apps Script.');
+  }
+  if (String(payload.accessCode || '') !== expectedAccessCode) {
+    throw new Error('La clave de acceso no es válida.');
+  }
+  const database = SpreadsheetApp.openById(DATABASE_SPREADSHEET_ID);
+  const visitsSheet = database.getSheetByName(SHEETS.visits.name);
+  if (!visitsSheet || visitsSheet.getLastRow() < 2) {
+    return [];
+  }
+  const visitRows = visitsSheet.getRange(2, 1, visitsSheet.getLastRow() - 1, SHEETS.visits.headers.length).getValues()
+    .filter((row) => String(row[4] || '').trim().toUpperCase() === code);
+  if (!visitRows.length) {
+    return [];
+  }
+  const instrumentRows = {};
+  ['classification', 'availability', 'origins', 'prices'].forEach((key) => {
+    const sheet = database.getSheetByName(SHEETS[key].name);
+    instrumentRows[key] = sheet && sheet.getLastRow() > 1
+      ? sheet.getRange(2, 1, sheet.getLastRow() - 1, SHEETS[key].headers.length).getValues()
+      : [];
+  });
+  return visitRows.map((row) => {
+    const visit = visitFromSheetRow_(row);
+    const instruments = {};
+    Object.keys(instrumentRows).forEach((key) => {
+      const rows = instrumentRows[key].filter((instrumentRow) => String(instrumentRow[0]) === String(visit.id));
+      if (rows.length) {
+        instruments[key] = {
+          saved: true,
+          responsible: String(rows[rows.length - 1][SHEETS[key].headers.length - 1] || ''),
+          data: instrumentDataFromRows_(key, rows),
+        };
+      }
+    });
+    visit.instruments = instruments;
+    return visit;
+  }).sort((a, b) => String(b.observationDate).localeCompare(String(a.observationDate)));
+}
+
+function visitFromSheetRow_(row) {
+  const code = String(row[4] || '').trim().toUpperCase();
+  const sample = SAMPLE_LOCALS.find((local) => local.code === code);
+  return {
+    id: String(row[0]),
+    observationDate: row[2] instanceof Date ? Utilities.formatDate(row[2], Session.getScriptTimeZone(), 'yyyy-MM-dd') : String(row[2] || ''),
+    collector: String(row[3] || ''),
+    collectorInitials: '',
+    localCode: code,
+    unitVecinal: String(row[14] || ''),
+    latitude: String(row[10] || ''),
+    longitude: String(row[11] || ''),
+    isNewLocal: !sample,
+    localName: sample ? '' : String(row[6] || ''),
+    localAddress: sample ? '' : String(row[7] || ''),
+    localType: sample ? '' : String(row[8] || ''),
+    instruments: {},
+  };
+}
+
+function instrumentDataFromRows_(instrument, rows) {
+  if (instrument === 'availability') {
+    return rows.map((row) => ({ section: row[2], category: row[3], label: row[4], value: row[5] }));
+  }
+  if (instrument === 'origins') {
+    if (rows.some((row) => row[2] === 'Sin productos regionales observados')) {
+      return { noneObserved: true, items: [] };
+    }
+    return {
+      noneObserved: false,
+      items: rows.map((row) => ({
+        category: row[6], variety: row[7], commune: row[8], sector: row[9],
+        brand: row[10], source: row[11], notes: row[5],
+      })),
+    };
+  }
+  if (instrument === 'prices') {
+    const products = {};
+    rows.forEach((row) => {
+      const name = String(row[3] || '');
+      if (!products[name]) products[name] = { product: name, prices: [] };
+      products[name].prices.push({
+        type: row[12], brand: row[5], value: String(row[6]), unit: row[7],
+        promotion: row[10], notes: row[11],
+      });
+    });
+    Object.keys(products).forEach((name) => {
+      products[name].prices.sort((a, b) => (a.type === 'Mínimo' ? -1 : 1) - (b.type === 'Mínimo' ? -1 : 1));
+    });
+    return { products: Object.keys(products).map((name) => products[name]), notes: '' };
+  }
+  const row = rows[rows.length - 1];
+  const imageUrls = {
+    frontis: row[25], interior: row[26], frutasVerduras: row[27],
+    carnes: row[28], congelados: row[29], pescadosMariscos: row[34],
+  };
+  return {
+    unitVecinal: row[2], estadoLocal: row[3], superficie: row[4], sistemaAtencion: row[5],
+    personasAtendiendo: row[6], rubroFrutasHortalizas: row[8], rubroCarneFresca: row[9],
+    variedadesFrutasVerduras: String(row[30]), categoriasProteicas: String(row[31] || '').split(', ').filter(Boolean),
+    lacteosHabituales: row[32], huevosHabituales: row[33],
+    clasificacionOverride: row[16] === 'manual' ? row[15] : '',
+    justificacionOverride: row[17], observaciones: row[18], imageUrls: imageUrls,
+  };
 }
 
 function setupDatabase() {
@@ -170,9 +286,10 @@ function saveInstrument_(payload) {
     assertNewLocalCodeIsFree_(database, payload.visit);
     let rows;
     if (instrument === 'classification') {
+      const previousImageUrls = payload.data.imageUrls || {};
       payload.data.imageUrls = {};
       classificationRows_(payload.visit, payload.data);
-      payload.data.imageUrls = saveClassificationImages_(payload.visit, payload.data);
+      payload.data.imageUrls = saveClassificationImages_(payload.visit, payload.data, previousImageUrls);
       rows = classificationRows_(payload.visit, payload.data);
     } else if (instrument === 'availability') {
       rows = availabilityRows_(payload.visit, payload.data);
@@ -415,19 +532,19 @@ function observedRubros_(data, criteria) {
   ].filter(Boolean).join(', ');
 }
 
-function saveClassificationImages_(visit, data) {
+function saveClassificationImages_(visit, data, previousImageUrls) {
   const folder = getImageFolder_();
   const urls = {};
   Object.keys(data.images || {}).forEach((group) => {
     const files = Array.isArray(data.images[group]) ? data.images[group] : [];
-    urls[group] = files.map((image, index) => {
+    urls[group] = files.length ? files.map((image, index) => {
       if (!image || !image.data || image.mimeType !== 'image/jpeg') {
         throw new Error('Una imagen del grupo ' + group + ' no tiene un formato válido.');
       }
       const bytes = Utilities.base64Decode(image.data);
       const blob = Utilities.newBlob(bytes, image.mimeType, visit.id + '-' + group + '-' + (index + 1) + '.jpg');
       return folder.createFile(blob).getUrl();
-    }).join('\n');
+    }).join('\n') : previousImageUrls[group] || '';
   });
   return urls;
 }

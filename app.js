@@ -99,10 +99,10 @@ function downloadBackup(format) {
 }
 function escapeHtml_(value) { return String(value).replace(/[&<>"']/g, (character) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character])); }
 
-async function api(payload) {
+async function api(payload, action = 'saveInstrument') {
   let response;
   try {
-    response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'saveInstrument', payload }), redirect: 'follow' });
+    response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action, payload }), redirect: 'follow' });
   } catch (networkError) {
     throw new Error('No fue posible conectar con el servicio. Verifique su conexión e intente nuevamente.');
   }
@@ -227,7 +227,7 @@ function localFormIsValid() {
 }
 function visitFromForm(existing) {
   const isNew = $('#isNewLocal').checked;
-  return { id: existing?.id || newId(), observationDate: $('#observationDate').value, collector: $('#collector').value, collectorInitials: currentInitials(), localCode: isNew ? $('#newLocalCode').value : $('#localCode').value, unitVecinal: $('#visitUnit').value, latitude: $('#latitude').value, longitude: $('#longitude').value, isNewLocal: isNew, localName: isNew ? $('#newLocalName').value.trim() : '', localAddress: isNew ? $('#newLocalAddress').value.trim() : '', localType: isNew ? $('#newLocalType').value : '', instruments: existing?.instruments || {} };
+  return { id: existing?.id || newId(), observationDate: $('#observationDate').value, collector: $('#collector').value, collectorInitials: currentInitials(), localCode: isNew ? $('#newLocalCode').value : $('#localCode').value, unitVecinal: $('#visitUnit').value, latitude: $('#latitude').value, longitude: $('#longitude').value, isNewLocal: isNew, localName: isNew ? $('#newLocalName').value.trim() : '', localAddress: isNew ? $('#newLocalAddress').value.trim() : '', localType: isNew ? $('#newLocalType').value : '', instruments: existing?.instruments || {}, resumedFromSheets: Boolean(existing?.resumedFromSheets) };
 }
 function fillVisit(visit) {
   const sampleLocal = SAMPLE_LOCALS.find((local) => local.code === visit.localCode);
@@ -258,6 +258,7 @@ function updateMenu() {
   const draft = getDraft(); if (!draft) return;
   const local = SAMPLE_LOCALS.find((item) => item.code === draft.localCode);
   $('#visitSummary').textContent = `${draft.id} · ${local?.name || draft.localName || draft.localCode} · ${draft.unitVecinal || 'Sin UV'} · ${draft.observationDate} · Identificó: ${draft.collector}`;
+  $('#resumedVisitNotice').hidden = !draft.resumedFromSheets;
   ['classification', 'availability', 'prices', 'origins'].forEach((name) => { $('#' + name + 'Status').textContent = draft.instruments[name]?.saved ? ' ✓ guardado' : draft.instruments[name]?.data ? ' · borrador' : ' · pendiente'; });
   const unsaved = unsavedInstrumentNames_(draft);
   const queuedCount = getQueue().filter((item) => item.visit?.id === draft.id).length;
@@ -385,6 +386,7 @@ function classificationData() {
     clasificacionOverride: $('#classificationOverride').value,
     justificacionOverride: $('#classificationJustification').value, observaciones: $('#classificationNotes').value,
     interiorAuthorized: $('#classificationInteriorPermission').checked,
+    imageUrls: getDraft()?.instruments.classification?.data?.imageUrls || {},
     images: collectClassificationImages_(),
   };
 }
@@ -444,7 +446,7 @@ function renderClassification(data = {}) {
   $('#rubroDairy').checked = data.lacteosHabituales === 'si';
   $('#rubroEggs').checked = data.huevosHabituales === 'si';
   document.querySelectorAll('input[name="proteinCategory"]').forEach((input) => { input.checked = proteins.includes(input.value); });
-  $('#classificationImageStatus').textContent = data.imageUrls ? 'Imágenes guardadas en Drive.' : '';
+  $('#classificationImageStatus').textContent = data.imageUrls && Object.values(data.imageUrls).some(Boolean) ? 'Imágenes guardadas en Drive.' : '';
   $('#classificationInteriorPermission').checked = Boolean(data.interiorAuthorized);
   updateClassificationVisibility();
 }
@@ -530,6 +532,75 @@ function fillResponsible(instrument) {
   const field = $(RESPONSIBLE_FIELDS[instrument]);
   field.value = draft?.instruments[instrument]?.responsible || getCollectorProfile()?.name || draft?.collector || '';
 }
+function showResumeResults(visits) {
+  const root = $('#resumeVisitResults');
+  root.replaceChildren();
+  if (!visits.length) {
+    const empty = document.createElement('p');
+    empty.className = 'empty-state';
+    empty.textContent = 'No encontramos visitas para ese código. Revise el código o inicie una visita nueva.';
+    root.append(empty);
+    return;
+  }
+  const labels = { classification: 'Clasificación', availability: 'Disponibilidad', origins: 'Origen', prices: 'Precios' };
+  visits.forEach((visit) => {
+    const item = document.createElement('article');
+    item.className = 'resume-visit-result';
+    const details = document.createElement('div');
+    const title = document.createElement('strong');
+    title.textContent = `${visit.observationDate} · ${visit.collector || 'Persona no indicada'} · ${visit.unitVecinal || 'Sin UV'}`;
+    const status = document.createElement('p');
+    status.className = 'field-help';
+    status.textContent = Object.entries(labels).map(([key, label]) => `${label}: ${visit.instruments[key]?.saved ? 'guardada' : 'pendiente'}`).join(' · ');
+    const id = document.createElement('p');
+    id.className = 'field-help';
+    id.textContent = `ID de visita: ${visit.id}`;
+    details.append(title, status, id);
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.textContent = 'Retomar esta visita';
+    button.addEventListener('click', () => resumeVisit_(visit));
+    item.append(details, button);
+    root.append(item);
+  });
+}
+function resumeVisit_(visit) {
+  const current = getDraft();
+  if (current && current.id !== visit.id) {
+    const unsaved = unsavedInstrumentNames_(current);
+    const queued = getQueue().some((item) => item.visit?.id === current.id);
+    if (unsaved.length || queued) {
+      showMessage('La visita activa tiene pautas pendientes de sincronizar. Guárdelas o descargue un respaldo antes de cambiar a otra visita.', 'error');
+      return;
+    }
+  }
+  visit.resumedFromSheets = true;
+  setDraft(visit);
+  fillVisit(visit);
+  showView('menuView');
+  updateMenu();
+  showMessage('Visita cargada en este dispositivo. Ya puede continuar con otra pauta.', 'success');
+}
+async function searchVisitsForLocal_(event) {
+  event.preventDefault();
+  const button = $('#resumeVisitButton');
+  const code = $('#resumeLocalCode').value.trim().toUpperCase();
+  const accessCode = $('#resumeAccessCode').value;
+  $('#resumeVisitResults').replaceChildren();
+  button.disabled = true;
+  button.textContent = 'Buscando…';
+  try {
+    if (!navigator.onLine) throw new Error('Conéctese a internet para buscar y cargar una visita existente.');
+    const visits = await api({ localCode: code, accessCode }, 'getVisitsForLocal');
+    showResumeResults(visits);
+  } catch (error) {
+    showMessage(errorText_(error), 'error');
+  } finally {
+    button.disabled = false;
+    button.textContent = 'Buscar visitas';
+    $('#resumeAccessCode').value = '';
+  }
+}
 function responsibleFor(instrument) {
   const value = $(RESPONSIBLE_FIELDS[instrument]).value.trim();
   if (!value) throw new Error('Indique la persona responsable de esta pauta.');
@@ -567,6 +638,7 @@ function initialize() {
   if (profile) { $('#collector').value = profile.name || ''; }
   updateCollectorHint();
   if (draft) { fillVisit(draft); showView('menuView'); updateMenu(); }
+  $('#resumeVisitForm').addEventListener('submit', searchVisitsForLocal_);
   $('#localCode').addEventListener('change', updateLocal);
   $('#collector').addEventListener('input', () => {
     rememberCollector();

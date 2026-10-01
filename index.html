@@ -49,6 +49,16 @@
           <span class="step">Paso inicial</span>
         </div>
         <p>Identifique el local y la fecha de observación. Estos datos se comparten con todas las pautas y se guardan en este dispositivo para retomar el trabajo. La persona responsable se registra dentro de cada pauta.</p>
+        <div class="resume-visit-panel">
+          <h3>Continuar una visita existente</h3>
+          <p>Busque el código del local con la clave de acceso del equipo. Necesita conexión para cargar la visita en este dispositivo.</p>
+          <form id="resumeVisitForm" class="resume-visit-search">
+            <label class="required" for="resumeLocalCode">Código del local<input id="resumeLocalCode" autocomplete="off" placeholder="Ej.: LM01A1" required></label>
+            <label class="required" for="resumeAccessCode">Clave de acceso compartida<input id="resumeAccessCode" type="password" autocomplete="off" required></label>
+            <button id="resumeVisitButton" type="submit">Buscar visitas</button>
+          </form>
+          <div id="resumeVisitResults" class="resume-visit-results" aria-live="polite"></div>
+        </div>
         <form id="visitForm">
           <div class="grid">
             <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
@@ -105,6 +115,7 @@
       <div class="card">
         <h2>Visita activa</h2>
         <p id="visitSummary"></p>
+        <p id="resumedVisitNotice" class="resume-visit-notice" hidden>Esta visita se retomó desde Sheets. Su copia local permitirá continuar si pierde conexión.</p>
         <h3 class="instrument-section-title">Pauta opcional</h3>
         <div class="actions">
           <button class="instrument special-instrument" data-instrument="classification" type="button">1. Clasificación del establecimiento (opcional)<span id="classificationStatus"></span></button>

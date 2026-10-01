@@ -272,3 +272,13 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - **Disponibilidad:** sin cambios en la pauta (la sección 2 del anexo no trae modificaciones); solo se agrega la persona responsable.
 - **Sheets:** las columnas nuevas se agregan al final de cada hoja; no se borran ni reordenan datos. Los envíos en cola con el formato anterior de Origen o Precios se rechazan con un mensaje que pide recargar.
 - **Despliegue:** pegar `Code.gs` en Apps Script, ejecutar `setupDatabase()` (opcional; el primer guardado también agrega las columnas) y crear una **nueva versión** del deployment existente. Hasta entonces, el backend anterior rechazará los nuevos productos de precios y el nuevo formato de origen.
+
+## 2026-10-01 (10) - Retomar visitas desde otro dispositivo
+
+- Se añadió a la página inicial la búsqueda de visitas guardadas por código de local. Los resultados muestran fecha, persona que identificó y estado de cada pauta para seleccionar la visita correcta cuando hay más de una.
+- Apps Script expone la acción de lectura `getVisitsForLocal` en el endpoint `/exec`. Reconstruye los datos de la visita y las cuatro pautas desde las hojas actuales; la consulta no crea hojas, no cambia encabezados y no escribe filas.
+- La lectura requiere la propiedad de Apps Script `ESPORA_RESUME_ACCESS_CODE`; la clave la configura el administrador y se comparte solo con los recolectores. No se incluye en el frontend ni se guarda en el dispositivo.
+- Al retomar, el frontend guarda en el borrador local la visita original con el mismo `ID de visita`, incluidos los responsables y estados de instrumentos. La siguiente pauta continúa asociada a ese ID y registra a su propio responsable. Si vuelve a guardarse una pauta existente, se reemplazan sus filas para ese ID conforme al comportamiento previo.
+- La primera búsqueda requiere conexión. La copia descargada queda disponible en ese navegador para continuar sin conexión; los nuevos envíos quedan en cola y se sincronizan al volver internet.
+- Al volver a guardar Clasificación se conservan las URL de imágenes previas si no se cargan reemplazos.
+- **Despliegue:** el administrador configura `ESPORA_RESUME_ACCESS_CODE` en Propiedades de secuencia de comandos; luego publica frontend y actualiza `apps-script/Code.gs` con una nueva versión del Web App (misma URL `/exec`). No ejecutar `setupDatabase()` ni modificar la planilla para habilitar la búsqueda.

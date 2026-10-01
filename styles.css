@@ -57,6 +57,18 @@ button.danger { background: #b3261e; color: #fff; flex: 0 0 auto; }
 button.danger:hover { background: #8c1d18; }
 .visit-save-status { background: #fef7e0; border-radius: 6px; color: #6b4400; margin: 12px 0 0; padding: 10px 12px; }
 .visit-save-status:empty { display: none; }
+.resume-visit-panel { background: #f3f7f4; border: 1px solid #d5e1df; border-radius: 8px; margin: 16px 0 22px; padding: 16px; }
+.resume-visit-panel h3 { color: #1f5a48; font-size: 15px; margin: 0 0 6px; }
+.resume-visit-panel > p { margin: 0 0 12px; }
+.resume-visit-search { align-items: end; display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+.resume-visit-search label { min-width: 0; }
+.resume-visit-search input { margin-top: 0; min-width: 0; }
+.resume-visit-search button { margin-top: 0; }
+.resume-visit-results { display: grid; gap: 8px; margin-top: 12px; }
+.resume-visit-result { align-items: center; background: #fff; border: 1px solid #d5e1df; border-radius: 6px; display: flex; gap: 12px; justify-content: space-between; padding: 12px; }
+.resume-visit-result p { margin: 3px 0 0; }
+.resume-visit-result button { flex: 0 0 auto; }
+.resume-visit-notice { background: #e5f2ee; border-radius: 6px; color: #1f5a48; margin: 8px 0 14px; padding: 10px 12px; }
 .instrument { min-height: 84px; text-align: left; }
 .instrument span { display: block; font-size: 12px; margin-top: 6px; opacity: .85; }
 .instrument-section-title { color: #0f5d74; font-size: 14px; margin: 22px 0 8px; }
@@ -128,6 +140,9 @@ footer strong { color: #0f5d74; }
 @media (max-width: 600px) { .price-review-item { align-items: flex-start; flex-direction: column; gap: 5px; } .price-review-item span { text-align: left; } }
 @media (max-width: 600px) {
   .visit-card #visitForm > .grid, .new-local-grid, .location-capture .grid { grid-template-columns: minmax(0, 1fr); }
+  .resume-visit-search { grid-template-columns: minmax(0, 1fr); }
+  .resume-visit-result { align-items: stretch; flex-direction: column; }
+  .resume-visit-result button { width: 100%; }
   .location-capture { padding: 12px; }
   .code-field { align-items: stretch; flex-direction: column; }
   .code-field label { flex: 0 0 auto; }

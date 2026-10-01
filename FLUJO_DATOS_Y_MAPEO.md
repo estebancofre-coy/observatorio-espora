@@ -40,8 +40,8 @@ flowchart TB
   OR --> DRAFT
 
   subgraph SERVIDOR["Sincronización"]
-    API["POST a API_URL /exec<br/>{action: saveInstrument, payload}"]
-    GAS["Google Apps Script<br/>doPost → validar → LockService<br/>upsert Visitas → guardar filas"]
+    API["POST a API_URL /exec<br/>{action: saveInstrument, payload}<br/>o {action: getVisitsForLocal, payload}"]
+    GAS["Google Apps Script<br/>doPost → consulta de lectura<br/>o validar → LockService → guardar"]
     DRIVE["Google Drive<br/>ESPORA - Imágenes de levantamiento"]
   end
   MENU -->|"con conexión"| API
@@ -107,11 +107,13 @@ flowchart LR
 
 Todos los envíos llevan el mismo objeto `visit` y se relacionan por `ID de visita`. El backend guarda el contenido en una hoja distinta por instrumento. Si se vuelve a guardar el mismo instrumento para el mismo ID de visita, reemplaza sus filas anteriores; no conserva versiones históricas de cada edición.
 
+Para retomar una visita en otro dispositivo, la persona busca por código de local y una clave compartida del equipo. La acción `getVisitsForLocal` verifica la propiedad de Apps Script `ESPORA_RESUME_ACCESS_CODE`, consulta las filas de `Visitas` y las cuatro hojas de instrumentos, devuelve las visitas coincidentes con sus pautas guardadas y no escribe ni cambia el esquema. Al seleccionar una, el frontend guarda la copia completa en el navegador y mantiene el mismo `ID de visita`; las pautas siguientes se enlazan por ese ID. La clave no se persiste en el navegador. La búsqueda requiere conexión; después de cargarla, el borrador local puede seguir usándose sin internet y las nuevas pautas se sincronizan al recuperar conexión.
+
 Sin conexión, el payload del instrumento queda en la cola local del dispositivo. La aplicación intenta vaciarla al recuperar conexión y al iniciar. Si un envío de la cola falla, no retira ese payload ni los que vienen detrás. Cada payload incluye `responsible`, la persona responsable de esa pauta.
 
 | Instrumento | Datos que captura | Forma de persistencia |
 |---|---|---|
-| **Identificación / visita** (página inicial) | ID de visita; fecha de observación; persona que identifica el local (columna `Persona recolectora`); código, ID de muestra, nombre, dirección, tipo/subtipo (heredado de la muestra y guardado, pero **no mostrado** en pantalla; en locales nuevos el tipo es «Almacén o minimarket»); latitud/longitud levantadas; UV. Las iniciales usadas al generar códigos no son una columna de Sheets. | `Visitas`: una fila por ID de visita, actualizada si el mismo borrador se sincroniza de nuevo. |
+| **Identificación / visita** (página inicial) | ID de visita; fecha de observación; persona que identifica el local (columna `Persona recolectora`); código, ID de muestra, nombre, dirección, tipo/subtipo (heredado de la muestra y guardado, pero **no mostrado** en pantalla; en locales nuevos el tipo es «Almacén o minimarket»); latitud/longitud levantadas; UV. Las iniciales usadas al generar códigos no son una columna de Sheets. La pantalla inicial también permite buscar visitas por código y retomar una copia. | `Visitas`: una fila por ID de visita, actualizada si el mismo borrador se sincroniza de nuevo. `getVisitsForLocal` solo lee las hojas existentes; al retomar se conserva ese ID. |
 | **1. Clasificación (opcional)** | Persona responsable; estado abierto; superficie (góndolas); sistema de atención (autoservicio, tras mesón o mixto); rubros observados con número de variedades de frutas/hortalizas y tipos de carne; pescados y mariscos congelados; lácteos; huevos; clasificación automática/final; modo/justificación manual; observaciones; fotos de frontis, interior autorizado y módulos opcionales (incluye pescados y mariscos). | `Clasificación`: fila asociada al ID de visita y código de local. Minimarket requiere autoservicio o mixto (mixto pesa como autoservicio) y al menos 2 de 3 criterios: ≥10 variedades de frutas/hortalizas, 2+ categorías entre vacuno/cerdo/pollo/cordero/pescados o mariscos, lácteos y huevos. `Superficie estimada`, `Fruta y verdura`, `Carnes` y `Otros rubros` vuelven a llenarse; `Abarrotes básicos` queda vacía. Al final: `Fotos pescados y mariscos` y `Persona responsable`. Archivos van a Drive; las URL quedan en la hoja. |
 | **2. Disponibilidad y variedad** | Persona responsable; respuesta Sí/No por cada ítem de la pauta de disponibilidad, preparaciones y variedad. | `Disponibilidad`: varias filas por visita, una por ítem con sección, categoría, texto, respuesta y persona responsable. |
 | **3. Origen** | Persona responsable; productos con evidencia de origen regional: categoría alimentaria, variedad, comuna de Aysén, sector o localidad, marca o productor, fuente de evidencia y observaciones; o la marca «sin productos regionales observados». | `Origen`: una fila por producto. Las columnas antiguas reciben un resumen (`Producto` = categoría: variedad; `Origen declarado` = comuna; detalle = sector · marca) y los campos nuevos quedan en columnas dedicadas al final. |
