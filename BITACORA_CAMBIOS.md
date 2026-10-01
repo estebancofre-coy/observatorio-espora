@@ -261,3 +261,14 @@ Se mantiene el mismo contrato/endpoint (`POST` a `API_URL` con `{action:'saveIns
 - Bajo el nombre se muestran las iniciales resultantes. El nombre sigue recordado en el dispositivo.
 - Si se cambia el nombre mientras se registra un local nuevo, el codigo se regenera con las nuevas iniciales; los borradores guardados conservan su codigo.
 - Formato de codigo sin cambios (`LM<numero>N<iniciales>`), ya aceptado por Code.gs. Solo frontend: no requiere republicar Apps Script.
+
+## 2026-09-30 (9) - Instrumentos según el anexo metodológico (Zazo y Daiana)
+
+- **Orden de aplicación:** página inicial de identificación del establecimiento → menú con 1. Clasificación (opcional), 2. Disponibilidad y variedad, 3. Origen, 4. Precios. Nota en el menú: en pescaderías y carnicerías puede bastar con Origen y Precios.
+- **Persona responsable por pauta:** cada pauta tiene su propio campo (nombre o código), precargado con el último nombre usado. Se envía como `payload.responsible` (mismo endpoint y acción `saveInstrument`) y se guarda en la nueva columna final `Persona responsable` de `Clasificación`, `Disponibilidad`, `Origen` y `Precios`. Si falta, el backend usa la persona de la visita.
+- **Clasificación:** vuelve la superficie (muy pequeño a grande, por góndolas); sistema de atención con **Mixto** como categoría propia que en el cálculo pesa igual que autoservicio; rubros observados con detalle (variedades de frutas y hortalizas; tipos de carne fresca; pescados y mariscos; lácteos; huevos). Umbral de variedades cambia de >10 a **≥10**. Nueva foto opcional de pescados y mariscos. Guía, simulador y casos de práctica actualizados (dos casos ajustados a 9 variedades para mantener el ejemplo de borde).
+- **Origen:** rehecho para productos con evidencia de origen regional: categoría alimentaria, variedad, comuna de Aysén, sector o localidad, marca o productor y fuente de evidencia (observaciones obligatorias con fuente «Otra»). Opción «No se observaron productos de origen regional».
+- **Precios:** canasta de 18 alimentos centinela en cuatro grupos; precio mínimo obligatorio y máximo opcional; unidades kg, 0,5 kg, Unidad y Otros (observaciones obligatorias con «Otros»); marca obligatoria. Se retiran conservación y origen local/externo.
+- **Disponibilidad:** sin cambios en la pauta (la sección 2 del anexo no trae modificaciones); solo se agrega la persona responsable.
+- **Sheets:** las columnas nuevas se agregan al final de cada hoja; no se borran ni reordenan datos. Los envíos en cola con el formato anterior de Origen o Precios se rechazan con un mensaje que pide recargar.
+- **Despliegue:** pegar `Code.gs` en Apps Script, ejecutar `setupDatabase()` (opcional; el primer guardado también agrega las columnas) y crear una **nueva versión** del deployment existente. Hasta entonces, el backend anterior rechazará los nuevos productos de precios y el nuevo formato de origen.

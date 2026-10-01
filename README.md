@@ -29,31 +29,37 @@ El diagrama de captura, persistencia, relaciones entre hojas y arquitectura prop
 
 ## Instrumentos
 
-- **Disponibilidad y variedad:** pauta de alimentos/preparaciones saludables, no saludables y variedad. La sección de publicidad se excluye.
-- **Precios:** cada producto debe registrar al menos dos precios, cada uno con marca, valor, unidad y origen. La conservación se solicita sólo para carnes.
-- **Origen:** borrador con carne vacuna, cordero, pollo/aves, pescado, lácteos, huevos y una opción abierta para otros productos.
+El orden de aplicación sigue el anexo metodológico (Zazo y Daiana, 30/09):
+
+0. **Identificación del establecimiento** (página inicial obligatoria): persona que identifica el local, local de la muestra o nuevo, unidad vecinal y coordenadas. Da paso al menú de pautas.
+1. **Clasificación** (opcional): se aplica solo en los locales indicados.
+2. **Disponibilidad y variedad:** pauta de alimentos/preparaciones saludables, no saludables y variedad. Sin cambios respecto de la versión anterior.
+3. **Origen:** solo productos con evidencia de origen regional. Cada ítem registra categoría alimentaria, variedad, comuna de Aysén, sector o localidad, marca o productor regional y fuente de la evidencia (observaciones obligatorias si la fuente es «Otra»). Se puede marcar «No se observaron productos de origen regional».
+4. **Precios:** canasta de 18 alimentos centinela en cuatro grupos (comparables con ODEPA, básicos de referencia, proteicos relevantes para Aysén, emblemáticos regionales). Cada alimento registra el **precio mínimo** (obligatorio) y, si hay más de una opción, el **máximo**; marca, precio y unidad (kg, 0,5 kg, Unidad u Otros) son obligatorios, y las observaciones también si la unidad es «Otros». Se retiraron la conservación y el origen local/externo, que ahora se recogen en la pauta de Origen.
+
+En pescaderías y carnicerías puede bastar con Origen y Precios. **Cada pauta registra su propia persona responsable** (nombre o código), porque la identificación y las pautas pueden aplicarlas personas distintas; el campo se precarga con el último nombre usado y se guarda en la columna `Persona responsable` al final de cada hoja.
 
 La visita y los borradores de cada instrumento persisten localmente en el navegador para permitir volver al menú o recuperar el trabajo tras una interrupción.
 
-En el campo de conservación para carnes están disponibles: **Fresco, Congelado, Al vacío, Embutido, Pillow bag y Granel (papel)**. Desde el menú de la visita activa, **Descargar respaldo offline** agrupa las opciones **JSON** (recomendado para recuperar datos) y **HTML** (copia legible). El respaldo incluye la visita, sus instrumentos y cualquier envío pendiente de sincronización; no reemplaza la copia final almacenada en Google Sheets. El botón rojo **Cerrar visita** queda como paso explícito de finalización: advierte si hay borradores o sincronizaciones pendientes y confirma antes de borrar la copia local. Los instrumentos que ya se guardaron en Sheets permanecen allí.
+Desde el menú de la visita activa, **Descargar respaldo offline** agrupa las opciones **JSON** (recomendado para recuperar datos) y **HTML** (copia legible). El respaldo incluye la visita, sus instrumentos y cualquier envío pendiente de sincronización; no reemplaza la copia final almacenada en Google Sheets. El botón rojo **Cerrar visita** queda como paso explícito de finalización: advierte si hay borradores o sincronizaciones pendientes y confirma antes de borrar la copia local. Los instrumentos que ya se guardaron en Sheets permanecen allí.
 
-En el instrumento de precios, la pantalla inicia sin productos y permite agregar varios alimentos antes de guardar. Cada alimento exige al menos dos observaciones: una en el rango más bajo y otra en el rango más alto. Después de guardar, el instrumento permanece abierto para continuar agregando alimentos; `Volver al menú` permite cerrarlo explícitamente.
+En el instrumento de precios, la pantalla inicia sin productos y permite agregar varios alimentos antes de guardar. Después de guardar, el instrumento permanece abierto para continuar agregando alimentos; `Volver al menú` permite cerrarlo explícitamente.
 
 El flujo de precios se organiza en tres pantallas: entrada del instrumento, revisión de alimentos agregados y formulario de un alimento. La revisión permite agregar más alimentos, anotar observaciones generales, guardar el conjunto en Sheets o volver al menú.
 
-## Instrumento especial de clasificación
+## Instrumento de clasificación (opcional)
 
-`Clasificación` es el instrumento inicial de la recogida. Registra el sistema de atención, los tres criterios de surtido y las observaciones; la unidad vecinal se hereda de la ficha de identificación de la visita.
+`Clasificación` registra superficie aproximada (por número de góndolas), sistema de atención (autoservicio, tras mesón o **mixto**), personas atendiendo, rubros observados (frutas y hortalizas con su número de variedades; carne fresca con vacuno/cerdo/pollo/cordero; pescados y mariscos congelados; lácteos; huevos), fotos y observaciones. La unidad vecinal se hereda de la ficha de identificación.
 
-La regla automática usa **autoservicio como condición obligatoria** y, además, exige cumplir al menos **dos de estos tres criterios**:
+La regla automática exige **autoservicio o atención mixta** como condición obligatoria. «Mixto» se guarda como categoría propia, pero en el cálculo pesa igual que autoservicio. Además, exige cumplir al menos **dos de estos tres criterios**:
 
-1. Más de 10 variedades distintas de frutas y verduras (11 o más).
-2. Al menos dos categorías proteicas entre vacuno, cerdo, pollo, cordero y pescados o mariscos (esta última agrupa pescados y mariscos frescos o congelados en una sola categoría).
-3. Oferta habitual tanto de lácteos como de huevos.
+1. 10 o más variedades distintas de frutas y hortalizas.
+2. Al menos dos categorías proteicas entre vacuno, cerdo, pollo, cordero y pescados o mariscos (esta última agrupa pescados y mariscos en una sola categoría).
+3. Presencia de lácteos y de huevos.
 
-Si no hay autoservicio, o se cumplen menos de dos criterios, asigna `almacen_barrio`. El resultado en pantalla indica cuántos criterios se cumplen. La selección manual puede cambiar el resultado, pero requiere justificación escrita.
+Si la atención es solo tras mesón, o se cumplen menos de dos criterios, asigna `almacen_barrio`. El resultado en pantalla indica cuántos criterios se cumplen. La selección manual puede cambiar el resultado, pero requiere justificación escrita.
 
-Los campos **Superficie dedicada a la exposición** y **Rubros observados** se retiraron de la ficha: no participaban en la regla y se solapaban con los tres criterios de surtido. Sus columnas se conservan en la hoja `Clasificación` para no alterar la estructura ni el historial; los registros nuevos las dejan vacías.
+La columna `Superficie estimada` vuelve a usarse (muy_pequeno, pequeno, mediano, grande). `Fruta y verdura` y `Carnes` guardan si/no según los rubros marcados, y `Otros rubros` lista los rubros observados. `Abarrotes básicos` queda vacía.
 
 La interfaz **no muestra la preclasificación** (almacén o minimarket) que traen los locales de la muestra, para no sesgar la observación. Ese dato se sigue conservando en `SampleLocals` y en la columna `Tipo de local` de las hojas, pero no aparece en la ficha de identificación ni en la de Clasificación. Al registrar un local nuevo, el tipo ofrece una sola opción «Almacén o minimarket»; la distinción la hace la Clasificación.
 
@@ -65,9 +71,9 @@ El simulador y los casos replican `classifyLocal_` de `app.js`; si la regla camb
 
 `app.js` y `apps-script/Code.gs` implementan la misma regla. Si se modifica una, debe modificarse la otra. El backend conserva el conteo, las categorías seleccionadas y las dos respuestas de oferta habitual en columnas nuevas al final de `Clasificación`.
 
-La foto del frontis es obligatoria. Las fotos del interior (solo con autorización), frutas y verduras, carnes y congelados son opcionales y están agrupadas en una sección plegable. Las imágenes se comprimen en el navegador y Apps Script las almacena en la carpeta de Drive `ESPORA - Imágenes de levantamiento`; la hoja `Clasificación` conserva sus enlaces.
+La foto del frontis es obligatoria. Las fotos del interior (solo con autorización), frutas y verduras, carnes, pescados y mariscos, y congelados son opcionales y están agrupadas en una sección plegable. Las imágenes se comprimen en el navegador y Apps Script las almacena en la carpeta de Drive `ESPORA - Imágenes de levantamiento`; la hoja `Clasificación` conserva sus enlaces.
 
-Al aplicar esta regla, actualiza `Code.gs` en Apps Script y ejecuta `setupDatabase()` una vez. Si la hoja `Clasificación` ya existe con los encabezados actuales, la función añadirá al final cuatro columnas para los datos de los criterios; no borra ni reordena datos. Luego crea una nueva versión del Web App. Publica también el frontend actualizado para que la captura y el cálculo coincidan con el backend.
+Al aplicar estos cambios, actualiza `Code.gs` en Apps Script, ejecuta `setupDatabase()` una vez (o deja que el primer guardado lo haga) y crea una nueva versión del Web App. Las columnas nuevas (`Persona responsable` en las cuatro hojas de pautas, `Tipo de precio (mínimo/máximo)` en `Precios`, los seis campos de origen en `Origen` y `Fotos pescados y mariscos` en `Clasificación`) se **agregan al final**; no se borran ni reordenan datos. Publica también el frontend actualizado para que la captura y el cálculo coincidan con el backend. Los envíos en cola generados con la versión anterior de Origen o Precios serán rechazados con un mensaje que pide recargar y volver a completar la pauta.
 
 La ficha de clasificación se vincula automáticamente con el código de local de la visita y vuelve a validar ese código contra `SampleLocals.gs`. La hoja `Clasificación` guarda también código, ID de muestra, nombre, dirección, tipo y subtipo provenientes de `SampleLocals`; por eso el panel inicial ya no solicita subtipo, recategorización ni venta al detalle.
 

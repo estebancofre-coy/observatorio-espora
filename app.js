@@ -4,19 +4,27 @@ const QUEUE_KEY = 'esporaCoyhaiquePendingV2';
 const NEW_LOCAL_COUNTER_KEY = 'esporaCoyhaiqueNewLocalCounterV1';
 const COLLECTOR_KEY = 'esporaCoyhaiqueCollectorV1';
 const NEW_LOCAL_CODE_PATTERN = /^LM\d+N([A-Z]{2,3}|\d+)$/i;
-const CONSERVATION_OPTIONS = ['Fresco', 'Congelado', 'Al vacío', 'Embutido', 'Pillow bag', 'Granel (papel)'];
+const PRICE_UNITS = ['kg', '0,5 kg', 'Unidad', 'Otros'];
 
 const PRODUCTS = [
-  ['Arroz (grado 2)', 'Cereales y derivados', ['kg', '400 gr/500gr', 'Unidad']], ['Pastas (Fideos, Tallarines 5/77)', 'Cereales y derivados', ['400 gr/500gr', 'kg', 'Unidad']],
-  ['Carne molida (Vacuno)', 'Carnes', ['kg']], ['Pollo', 'Carnes', ['kg']], ['Salchicha', 'Carnes', ['kg']],
-  ['Choritos', 'Pescados y mariscos', ['kg']], ['Merluza Austral', 'Pescados y mariscos', ['kg']],
-  ['Limón', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Manzana', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Palta', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Plátano', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Cebolla', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Lechuga', 'Verduras y Tubérculos', ['Unidad', 'kg', 'malla (10 kg)', 'atado']], ['Papa', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Tomate', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']], ['Zanahoria', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Lenteja', 'Legumbres', ['kg', '400 gr/500gr', 'Unidad']], ['Poroto', 'Legumbres', ['kg', '400 gr/500gr', 'Unidad']],
-  ['Maní Tostado sin Sal', 'Frutos secos', ['250g', '500g', 'kg']], ['Huevo', 'Lácteos y Huevos', ['Bandeja (12)', 'Bandeja (20)', 'Bandeja (30)', 'Unidad']],
-  ['Leche', 'Lácteos y Huevos', ['Litro', '500 ml']], ['Queso Laminado (Gauda, Roda, Mantecoso)', 'Lácteos y Huevos', ['kg']], ['Yogur con sello', 'Lácteos y Huevos', ['Unidad']],
-  ['Azúcar', 'Azúcares y dulces', ['kg', '400 gr/500gr', 'Unidad']], ['Aceite', 'Aceites y grasas', ['900 ml', 'Litro', '500 ml']], ['Mantequilla', 'Aceites y grasas', ['250gr']], ['Margarina', 'Aceites y grasas', ['250gr']], ['Salsa de tomate', 'Otros', ['Doypack (200gr)']],
-].map(([name, category, units]) => ({ name, category, units }));
+  ['Lechuga costina', 'Comparables con ODEPA'], ['Papa de guarda', 'Comparables con ODEPA'], ['Tomate larga vida', 'Comparables con ODEPA'],
+  ['Zanahoria', 'Comparables con ODEPA'], ['Cebolla blanca', 'Comparables con ODEPA'], ['Manzana Fuji', 'Comparables con ODEPA'],
+  ['Arroz blanco grado 1', 'Básicos de referencia'], ['Lenteja 6 mm', 'Básicos de referencia'], ['Leche entera pasteurizada de vaca', 'Básicos de referencia'], ['Pan marraqueta', 'Básicos de referencia'],
+  ['Huevo blanco', 'Proteicos relevantes para Aysén'], ['Queso Gouda', 'Proteicos relevantes para Aysén'], ['Merluza austral congelada', 'Proteicos relevantes para Aysén'],
+  ['Merluza austral fresca', 'Proteicos relevantes para Aysén'], ['Cordero (costillar o pulpa)', 'Proteicos relevantes para Aysén'],
+  ['Calafate (temporada)', 'Emblemáticos regionales'], ['Lechuga local (hidropónica o de productor local)', 'Emblemáticos regionales'], ['Miel regional', 'Emblemáticos regionales'],
+].map(([name, category]) => ({ name, category, units: PRICE_UNITS }));
+
+const ORIGIN_CATEGORIES = [
+  ['Productos hortícolas', ['Verduras y hortalizas frescas']],
+  ['Frutas', ['Frutas frescas', 'Frutos rojos']],
+  ['Productos pecuarios', ['Carne bovina', 'Carne ovina', 'Huevos']],
+  ['Productos pesqueros', ['Pescados frescos', 'Mariscos frescos', 'Productos congelados del mar']],
+  ['Productos procesados', ['Quesos', 'Conservas', 'Mermeladas', 'Miel', 'Otros productos procesados de origen regional']],
+];
+const AYSEN_COMMUNES = ['Coyhaique', 'Lago Verde', 'Aysén', 'Cisnes', 'Guaitecas', 'Río Ibáñez', 'Chile Chico', 'Cochrane', "O'Higgins", 'Tortel'];
+const ORIGIN_SOURCES = ['Etiqueta o envase', 'Cartel', 'Información del responsable del establecimiento', 'Información del productor o feriante', 'Otra'];
+const RESPONSIBLE_FIELDS = { classification: '#classificationResponsible', availability: '#availabilityResponsible', origins: '#originsResponsible', prices: '#pricesResponsible' };
 
 const AVAILABILITY = [
   ['Disponibilidad', 'Frutas', 'Fruta sin azúcar añadida o con edulcorante no calórico.'], ['Disponibilidad', 'Frutas', 'Jugos 100% de fruta sin azúcar añadida o con edulcorante no calórico.'], ['Disponibilidad', 'Frutas', 'Frutas secas sin azúcar ni sal agregada.'], ['Disponibilidad', 'Frutas', 'Frutos secos sin azúcar ni sal agregada.'],
@@ -31,7 +39,6 @@ const AVAILABILITY = [
   ['Disponibilidad', 'No saludables', 'Snacks salados con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Snacks dulces con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Embutidos y cecinas envasados con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Salsas y aderezos con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Salsas dulces con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Helados con más de un sello Alto En.'], ['Disponibilidad', 'No saludables', 'Masas dulces horneadas o fritas con azúcares refinados.'], ['Disponibilidad', 'No saludables', 'Masas saladas fritas u horneadas.'], ['Disponibilidad', 'No saludables', 'Comida rápida.'], ['Disponibilidad', 'No saludables', 'Gaseosas, jugos y néctares procesados con azúcar añadida y sello Alto En.'], ['Disponibilidad', 'No saludables', 'Bebidas deportivas o energéticas.'], ['Disponibilidad', 'No saludables', 'Snacks dulces/salados no saludables vendidos a granel.'],
   ['Variedad', 'Variedad', 'Frutas: 3 o más.'], ['Variedad', 'Variedad', 'Verduras: 3 o más.'], ['Variedad', 'Variedad', 'Leche o yogurt: 3 o más opciones bajas en grasa y sin azúcar o sin sellos Alto En.'], ['Variedad', 'Variedad', 'Quesos o quesillos: 2 o más bajos en grasa y sin sellos Alto En.'], ['Variedad', 'Variedad', 'Legumbres: 2 o más opciones.'], ['Variedad', 'Variedad', 'Carnes bajas en grasas: 2 o más tipos.'], ['Variedad', 'Variedad', 'Cereales para desayuno: 3 o más sin azúcar o sin sellos Alto En.'], ['Variedad', 'Variedad', 'Aguas: 3 o más opciones.'], ['Variedad', 'Variedad', 'Más de una preparación en porción pequeña para niños.'],
 ].map(([section, category, label]) => ({ section, category, label }));
-const ORIGIN_PRODUCTS = ['Carne vacuna', 'Cordero', 'Pollo/aves', 'Pescado', 'Lácteos', 'Huevos', 'Otro (especificar)'];
 const $ = (selector, root = document) => root.querySelector(selector);
 let currentView = 'visitView';
 let autoSuggestedUv = '';
@@ -250,7 +257,7 @@ function suggestUvFromCoordinates() {
 function updateMenu() {
   const draft = getDraft(); if (!draft) return;
   const local = SAMPLE_LOCALS.find((item) => item.code === draft.localCode);
-  $('#visitSummary').textContent = `${draft.id} · ${local?.name || draft.localCode} · ${draft.unitVecinal || 'Sin UV'} · ${draft.observationDate} · ${draft.collector}`;
+  $('#visitSummary').textContent = `${draft.id} · ${local?.name || draft.localName || draft.localCode} · ${draft.unitVecinal || 'Sin UV'} · ${draft.observationDate} · Identificó: ${draft.collector}`;
   ['classification', 'availability', 'prices', 'origins'].forEach((name) => { $('#' + name + 'Status').textContent = draft.instruments[name]?.saved ? ' ✓ guardado' : draft.instruments[name]?.data ? ' · borrador' : ' · pendiente'; });
   const unsaved = unsavedInstrumentNames_(draft);
   const queuedCount = getQueue().filter((item) => item.visit?.id === draft.id).length;
@@ -262,7 +269,7 @@ function updateMenu() {
       : 'Los instrumentos con registros están guardados en Sheets.';
 }
 function unsavedInstrumentNames_(draft) {
-  const labels = { classification: 'Clasificación', availability: 'Disponibilidad y variedad', prices: 'Precios', origins: 'Origen' };
+  const labels = { classification: 'Clasificación', availability: 'Disponibilidad y variedad', origins: 'Origen', prices: 'Precios' };
   return Object.entries(labels)
     .filter(([name]) => draft.instruments[name]?.data && !draft.instruments[name]?.saved)
     .map(([, label]) => label);
@@ -284,24 +291,47 @@ function availabilityData() { return [...document.querySelectorAll('.choice-row'
 
 function addPriceProduct(entry) {
   const card = $('#priceProductTemplate').content.firstElementChild.cloneNode(true); const productSelect = $('.price-product', card);
-  setOptions(productSelect, PRODUCTS.map((product) => product.name)); productSelect.value = entry?.product || PRODUCTS[0].name;
-  const update = () => { const product = PRODUCTS.find((value) => value.name === productSelect.value); $('.price-category', card).value = product.category; card.querySelectorAll('.price-observation').forEach((row) => updatePriceRow(row, product)); };
-  productSelect.addEventListener('change', update); $('.add-price', card).addEventListener('click', () => addPriceRow(card)); $('.remove-product', card).addEventListener('click', () => card.remove());
-  $('#priceProducts').append(card); (entry?.prices || [{}, {}]).forEach((price) => addPriceRow(card, price)); update();
+  const groups = [...new Set(PRODUCTS.map((product) => product.category))];
+  productSelect.replaceChildren(...groups.map((group) => {
+    const optgroup = document.createElement('optgroup'); optgroup.label = group;
+    optgroup.append(...PRODUCTS.filter((product) => product.category === group).map((product) => new Option(product.name, product.name)));
+    return optgroup;
+  }));
+  productSelect.value = entry?.product || PRODUCTS[0].name;
+  const update = () => { const product = PRODUCTS.find((value) => value.name === productSelect.value); $('.price-category', card).value = product.category; };
+  productSelect.addEventListener('change', update); $('.remove-product', card).addEventListener('click', () => card.remove());
+  $('#priceProducts').append(card);
+  const prices = entry?.prices || [];
+  addPriceRow(card, prices[0] || {}, 'min'); addPriceRow(card, prices[1] || {}, 'max'); update();
 }
-function addPriceRow(card, data = {}) {
-  const row = $('#priceObservationTemplate').content.firstElementChild.cloneNode(true); const product = PRODUCTS.find((item) => item.name === $('.price-product', card).value);
-  $('.brand', row).value = data.brand || ''; $('.price-value', row).value = data.value || ''; $('.promotion', row).value = data.promotion || 'No'; $('.notes', row).value = data.notes || ''; $('.origin', row).value = data.origin || 'Externo'; updatePriceRow(row, product, data); $('.price-observations', card).append(row);
-  const rowNumber = card.querySelectorAll('.price-observation').length;
-  $('.price-range-label strong', row).textContent = rowNumber === 1 ? 'más bajo' : rowNumber === 2 ? 'más alto' : 'adicional';
+function addPriceRow(card, data = {}, kind) {
+  const row = $('#priceObservationTemplate').content.firstElementChild.cloneNode(true);
+  row.dataset.kind = kind;
+  setOptions($('.unit', row), PRICE_UNITS); $('.unit', row).value = PRICE_UNITS.includes(data.unit) ? data.unit : PRICE_UNITS[0];
+  $('.brand', row).value = data.brand || ''; $('.price-value', row).value = data.value || ''; $('.promotion', row).value = data.promotion || 'No'; $('.notes', row).value = data.notes || '';
+  $('.price-range-label strong', row).textContent = kind === 'min' ? 'mínimo observado' : 'máximo observado (si hay más de una opción)';
+  if (kind === 'min') { $('.brand-field', row).classList.add('required'); $('.price-field', row).classList.add('required'); $('.unit-field', row).classList.add('required'); $('.brand', row).required = true; $('.price-value', row).required = true; }
+  const syncNotes = () => {
+    const filled = kind === 'min' || $('.price-value', row).value !== '';
+    $('.notes', row).required = $('.unit', row).value === 'Otros' && filled;
+    if (kind !== 'min') $('.brand', row).required = filled;
+  };
+  $('.unit', row).addEventListener('change', syncNotes); $('.price-value', row).addEventListener('input', syncNotes); syncNotes();
+  $('.price-observations', card).append(row);
 }
-function updatePriceRow(row, product, data = {}) {
-  setOptions($('.unit', row), product.units); $('.unit', row).value = data.unit && product.units.includes(data.unit) ? data.unit : product.units[0];
-  const isMeat = product.category === 'Carnes'; $('.conservation-field', row).hidden = !isMeat; $('.conservation', row).required = isMeat; $('.conservation', row).value = data.conservation || '';
+function priceData() {
+  return [...document.querySelectorAll('.product-card')].map((card) => ({
+    product: $('.price-product', card).value,
+    prices: [...card.querySelectorAll('.price-observation')]
+      .filter((row) => row.dataset.kind === 'min' || $('.price-value', row).value !== '')
+      .map((row) => ({ type: row.dataset.kind === 'min' ? 'Mínimo' : 'Máximo', brand: $('.brand', row).value.trim(), value: $('.price-value', row).value, unit: $('.unit', row).value, promotion: $('.promotion', row).value, notes: $('.notes', row).value.trim() })),
+  }));
 }
-function priceData() { return [...document.querySelectorAll('.product-card')].map((card) => ({ product: $('.price-product', card).value, prices: [...card.querySelectorAll('.price-observation')].map((row) => ({ brand: $('.brand', row).value, value: $('.price-value', row).value, unit: $('.unit', row).value, conservation: $('.conservation', row).value, origin: $('.origin', row).value, promotion: $('.promotion', row).value, notes: $('.notes', row).value })) })); }
 function renderPrices(data) { $('#priceProducts').replaceChildren(); (data || []).forEach(addPriceProduct); }
-function priceEntries_(data) { return data && !Array.isArray(data) ? data.products || [] : data || []; }
+function priceEntries_(data) {
+  const entries = data && !Array.isArray(data) ? data.products || [] : data || [];
+  return entries.filter((entry) => PRODUCTS.some((product) => product.name === entry.product));
+}
 function renderPriceReview(data) {
   const entries = priceEntries_(data);
   $('#priceReviewItems').replaceChildren();
@@ -313,7 +343,8 @@ function renderPriceReview(data) {
   entries.forEach((entry) => {
     const item = document.createElement('article');
     item.className = 'price-review-item';
-    item.innerHTML = `<strong>${entry.product}</strong><span>${entry.prices.length} precio(s): ${entry.prices[0]?.value || 'sin valor'} bajo · ${entry.prices[1]?.value || 'sin valor'} alto</span>`;
+    const priceText = (price) => price ? `$${escapeHtml_(price.value)} / ${escapeHtml_(price.unit)}${price.brand ? ' (' + escapeHtml_(price.brand) + ')' : ''}` : '—';
+    item.innerHTML = `<strong>${escapeHtml_(entry.product)}</strong><span>Mínimo: ${priceText(entry.prices[0])} · Máximo: ${priceText(entry.prices[1])}</span>`;
     $('#priceReviewItems').append(item);
   });
 }
@@ -333,14 +364,23 @@ function savePriceDraftFromEditor() {
   renderPriceReview(draft.instruments.prices.data);
   showView('pricesReviewView');
 }
+function selectedProteins_() {
+  return [...document.querySelectorAll('input[name="proteinCategory"]:checked')]
+    .filter((input) => input.value === 'pescados_mariscos' || $('#rubroMeat').checked)
+    .map((input) => input.value);
+}
 function classificationData() {
+  const produce = $('#rubroProduce').checked;
   return {
     unitVecinal: getDraft()?.unitVecinal || '', estadoLocal: 'abierto',
+    superficie: $('#classificationSurface').value,
     sistemaAtencion: $('#classificationService').value,
-    variedadesFrutasVerduras: $('#classificationProduceVarieties').value,
-    categoriasProteicas: [...document.querySelectorAll('input[name="proteinCategory"]:checked')].map((input) => input.value),
-    lacteosHabituales: $('#classificationDairyRegular').value,
-    huevosHabituales: $('#classificationEggsRegular').value,
+    rubroFrutasHortalizas: produce ? 'si' : 'no',
+    rubroCarneFresca: $('#rubroMeat').checked ? 'si' : 'no',
+    variedadesFrutasVerduras: produce ? $('#classificationProduceVarieties').value : '0',
+    categoriasProteicas: selectedProteins_(),
+    lacteosHabituales: $('#rubroDairy').checked ? 'si' : 'no',
+    huevosHabituales: $('#rubroEggs').checked ? 'si' : 'no',
     personasAtendiendo: $('#classificationPeople').value,
     clasificacionOverride: $('#classificationOverride').value,
     justificacionOverride: $('#classificationJustification').value, observaciones: $('#classificationNotes').value,
@@ -349,7 +389,7 @@ function classificationData() {
   };
 }
 function collectClassificationImages_() {
-  const groups = { frontis: '#classificationFront', interior: '#classificationInterior', frutasVerduras: '#classificationProduceImages', carnes: '#classificationMeatImages', congelados: '#classificationFrozenImages' };
+  const groups = { frontis: '#classificationFront', interior: '#classificationInterior', frutasVerduras: '#classificationProduceImages', carnes: '#classificationMeatImages', pescadosMariscos: '#classificationFishImages', congelados: '#classificationFrozenImages' };
   return Object.fromEntries(Object.entries(groups).map(([key, selector]) => [key, [...$(selector).files].map((file) => file)]));
 }
 async function prepareClassificationImages_(data) {
@@ -382,84 +422,137 @@ function compressImage_(file) {
   });
 }
 function renderClassification(data = {}) {
-  const local = getLocal();
   const draft = getDraft();
-  $('#classificationLinkedLocal').textContent = local ? `${local.code} · ${local.name} · ${local.address}` : 'No hay un local de SampleLocals vinculado.';
-  $('#classificationLinkedUnit').textContent = draft?.unitVecinal || 'Sin unidad vecinal registrada en la visita.';
+  const local = SAMPLE_LOCALS.find((item) => item.code === draft?.localCode);
+  $('#classificationLinkedLocal').textContent = local
+    ? `${local.code} · ${local.name} · ${local.address}`
+    : draft?.isNewLocal ? `${draft.localCode} · ${draft.localName} · ${draft.localAddress} (local nuevo)` : 'Sin local identificado.';
+  $('#classificationLinkedUnit').textContent = draft?.unitVecinal || 'Sin unidad vecinal registrada.';
+  const proteins = data.categoriasProteicas || [];
   const fields = {
+    classificationSurface: ['muy_pequeno', 'pequeno', 'mediano', 'grande'].includes(data.superficie) ? data.superficie : '',
     classificationService: data.sistemaAtencion === 'acceso_libre' ? 'autoservicio' : data.sistemaAtencion,
     classificationPeople: data.personasAtendiendo,
     classificationProduceVarieties: data.variedadesFrutasVerduras,
-    classificationDairyRegular: data.lacteosHabituales,
-    classificationEggsRegular: data.huevosHabituales,
     classificationOverride: data.clasificacionOverride,
     classificationJustification: data.justificacionOverride,
     classificationNotes: data.observaciones,
   };
   Object.entries(fields).forEach(([id, value]) => { if ($('#' + id)) $('#' + id).value = value || ''; });
-  document.querySelectorAll('input[name="proteinCategory"]').forEach((input) => {
-    input.checked = (data.categoriasProteicas || []).includes(input.value);
-  });
+  $('#rubroProduce').checked = data.rubroFrutasHortalizas ? data.rubroFrutasHortalizas === 'si' : Number(data.variedadesFrutasVerduras) > 0;
+  $('#rubroMeat').checked = data.rubroCarneFresca ? data.rubroCarneFresca === 'si' : proteins.some((value) => value !== 'pescados_mariscos');
+  $('#rubroDairy').checked = data.lacteosHabituales === 'si';
+  $('#rubroEggs').checked = data.huevosHabituales === 'si';
+  document.querySelectorAll('input[name="proteinCategory"]').forEach((input) => { input.checked = proteins.includes(input.value); });
   $('#classificationImageStatus').textContent = data.imageUrls ? 'Imágenes guardadas en Drive.' : '';
   $('#classificationInteriorPermission').checked = Boolean(data.interiorAuthorized);
   updateClassificationVisibility();
 }
 const PROTEIN_CATEGORIES = ['vacuno', 'cerdo', 'pollo', 'cordero', 'pescados_mariscos'];
+const SELF_SERVICE_MODES = ['autoservicio', 'mixto'];
 function classifyLocal_(sistemaAtencion, produceVarieties, proteinCategories, dairyRegular, eggsRegular) {
   const varieties = Number(produceVarieties);
   const proteins = Array.isArray(proteinCategories) ? [...new Set(proteinCategories)] : [];
   const fulfilledCriteria = [
-    Number.isInteger(varieties) && varieties > 10,
+    Number.isInteger(varieties) && varieties >= 10,
     proteins.filter((category) => PROTEIN_CATEGORIES.includes(category)).length >= 2,
     dairyRegular === 'si' && eggsRegular === 'si',
   ].filter(Boolean).length;
   return {
-    classification: sistemaAtencion === 'autoservicio' && fulfilledCriteria >= 2
-      ? 'minimarket' : 'almacen_barrio',
+    classification: SELF_SERVICE_MODES.includes(sistemaAtencion) && fulfilledCriteria >= 2 ? 'minimarket' : 'almacen_barrio',
     fulfilledCriteria,
   };
 }
 function updateClassificationVisibility() {
-  $('#classificationOpenFields').hidden = false;
-  $('#classificationService').required = true;
+  const produce = $('#rubroProduce').checked;
+  $('#produceVarietiesField').hidden = !produce;
+  $('#classificationProduceVarieties').required = produce;
+  $('#meatTypesField').hidden = !$('#rubroMeat').checked;
   const manual = Boolean($('#classificationOverride').value);
   $('#classificationJustificationField').hidden = !manual; $('#classificationJustification').required = manual;
   const servicio = $('#classificationService').value;
-  const variedades = $('#classificationProduceVarieties').value;
-  const lacteos = $('#classificationDairyRegular').value;
-  const huevos = $('#classificationEggsRegular').value;
-  const categoriasProteicas = [...document.querySelectorAll('input[name="proteinCategory"]:checked')].map((input) => input.value);
-  if (!servicio || variedades === '' || lacteos === '' || huevos === '') {
-    $('#classificationResult').textContent = 'Complete el sistema de atención y los datos de los tres criterios para calcular.';
+  const variedades = produce ? $('#classificationProduceVarieties').value : '0';
+  if (!servicio || variedades === '') {
+    $('#classificationResult').textContent = produce
+      ? 'Indique el sistema de atención y el número de variedades de frutas y hortalizas para calcular.'
+      : 'Indique el sistema de atención para calcular.';
     return;
   }
-  const result = classifyLocal_(servicio, variedades, categoriasProteicas, lacteos, huevos);
-  $('#classificationResult').textContent = servicio !== 'autoservicio'
-    ? 'Clasificación automática: ALMACÉN DE BARRIO — se requiere autoservicio. Criterios de surtido cumplidos: ' + result.fulfilledCriteria + ' de 3.'
+  const result = classifyLocal_(servicio, variedades, selectedProteins_(), $('#rubroDairy').checked ? 'si' : 'no', $('#rubroEggs').checked ? 'si' : 'no');
+  $('#classificationResult').textContent = !SELF_SERVICE_MODES.includes(servicio)
+    ? 'Clasificación automática: ALMACÉN DE BARRIO — se requiere autoservicio o atención mixta. Criterios de surtido cumplidos: ' + result.fulfilledCriteria + ' de 3.'
     : 'Clasificación automática: ' + (result.classification === 'minimarket' ? 'MINIMARKET' : 'ALMACÉN DE BARRIO')
       + ' — criterios cumplidos: ' + result.fulfilledCriteria + ' de 3; se requieren al menos 2.';
 }
 
 function addOriginItem(data = {}) {
-  const row = $('#originItemTemplate').content.firstElementChild.cloneNode(true); setOptions($('.origin-product', row), ORIGIN_PRODUCTS, 'Seleccione'); $('.origin-product', row).value = data.product || ''; $('.origin-value', row).value = data.origin || 'Local'; $('.origin-detail', row).value = data.detail || ''; $('.origin-notes', row).value = data.notes || ''; $('.remove-origin', row).addEventListener('click', () => row.remove()); $('#originItems').append(row);
+  const row = $('#originItemTemplate').content.firstElementChild.cloneNode(true);
+  const category = $('.origin-category', row);
+  category.replaceChildren(new Option('Seleccione', ''), ...ORIGIN_CATEGORIES.map(([group, values]) => {
+    const optgroup = document.createElement('optgroup'); optgroup.label = group;
+    optgroup.append(...values.map((value) => new Option(value, value)));
+    return optgroup;
+  }));
+  setOptions($('.origin-commune', row), AYSEN_COMMUNES, 'Seleccione');
+  setOptions($('.origin-source', row), ORIGIN_SOURCES, 'Seleccione');
+  category.value = data.category || ''; $('.origin-variety', row).value = data.variety || ''; $('.origin-commune', row).value = data.commune || '';
+  $('.origin-sector', row).value = data.sector || ''; $('.origin-brand', row).value = data.brand || ''; $('.origin-source', row).value = data.source || ''; $('.origin-notes', row).value = data.notes || '';
+  const syncNotes = () => { $('.origin-notes', row).required = $('.origin-source', row).value === 'Otra'; };
+  $('.origin-source', row).addEventListener('change', syncNotes); syncNotes();
+  $('.remove-origin', row).addEventListener('click', () => { row.remove(); updateOriginsNone(); });
+  $('#originItems').append(row);
+  updateOriginsNone();
 }
-function originData() { return [...document.querySelectorAll('.origin-item')].map((row) => ({ product: $('.origin-product', row).value, origin: $('.origin-value', row).value, detail: $('.origin-detail', row).value, notes: $('.origin-notes', row).value })); }
-function renderOrigins(data) { $('#originItems').replaceChildren(); (data?.length ? data : [{}]).forEach(addOriginItem); }
+function updateOriginsNone() {
+  const none = $('#originsNone').checked;
+  $('#originItems').hidden = none; $('#addOriginItem').hidden = none;
+  document.querySelectorAll('#originItems input, #originItems select, #originItems textarea').forEach((field) => { field.disabled = none; });
+}
+function originData() {
+  const none = $('#originsNone').checked;
+  return {
+    noneObserved: none,
+    items: none ? [] : [...document.querySelectorAll('.origin-item')].map((row) => ({
+      category: $('.origin-category', row).value, variety: $('.origin-variety', row).value.trim(), commune: $('.origin-commune', row).value,
+      sector: $('.origin-sector', row).value.trim(), brand: $('.origin-brand', row).value.trim(), source: $('.origin-source', row).value, notes: $('.origin-notes', row).value.trim(),
+    })),
+  };
+}
+function renderOrigins(data) {
+  $('#originItems').replaceChildren();
+  const items = data && !Array.isArray(data) ? (data.items || []).filter((item) => item.category) : [];
+  $('#originsNone').checked = Boolean(data && data.noneObserved);
+  (items.length ? items : [{}]).forEach(addOriginItem);
+  updateOriginsNone();
+}
+function fillResponsible(instrument) {
+  const draft = getDraft();
+  const field = $(RESPONSIBLE_FIELDS[instrument]);
+  field.value = draft?.instruments[instrument]?.responsible || getCollectorProfile()?.name || draft?.collector || '';
+}
+function responsibleFor(instrument) {
+  const value = $(RESPONSIBLE_FIELDS[instrument]).value.trim();
+  if (!value) throw new Error('Indique la persona responsable de esta pauta.');
+  return value;
+}
 
 async function saveInstrument(instrument, data, submitButton) {
-  const draft = getDraft(); const payload = { visit: draft, instrument, data };
+  const responsible = responsibleFor(instrument);
+  const draft = getDraft(); const payload = { visit: draft, instrument, data, responsible };
   if (submitButton) { submitButton.disabled = true; submitButton.dataset.originalText = submitButton.textContent; submitButton.textContent = 'Guardando…'; }
   try {
-    if (!navigator.onLine) { const queue = getQueue(); queue.push(payload); setQueue(queue); draft.instruments[instrument] = { data, saved: false }; setDraft(draft); showMessage('Sin conexión: el instrumento quedó en borrador y pendiente de sincronización.', 'success'); if (instrument !== 'prices') showView('menuView'); return; }
-    const result = await api(payload); draft.instruments[instrument] = { data, saved: true, savedAt: new Date().toISOString() }; setDraft(draft); showMessage(`${result.savedRows} registro(s) guardado(s) para ${instrument}.`, 'success'); if (instrument !== 'prices') showView('menuView');
+    if (!navigator.onLine) { const queue = getQueue(); queue.push(payload); setQueue(queue); draft.instruments[instrument] = { data, responsible, saved: false }; setDraft(draft); showMessage('Sin conexión: la pauta quedó en borrador y pendiente de sincronización.', 'success'); if (instrument !== 'prices') showView('menuView'); return; }
+    const result = await api(payload); draft.instruments[instrument] = { data, responsible, saved: true, savedAt: new Date().toISOString() }; setDraft(draft); showMessage(`${result.savedRows} registro(s) guardado(s) para ${INSTRUMENT_LABELS[instrument]}.`, 'success'); if (instrument !== 'prices') showView('menuView');
   } finally {
     if (submitButton) { submitButton.disabled = false; submitButton.textContent = submitButton.dataset.originalText; }
   }
 }
+const INSTRUMENT_LABELS = { classification: 'clasificación', availability: 'disponibilidad y variedad', origins: 'origen', prices: 'precios' };
 async function syncQueue() { if (!navigator.onLine) return; const queue = getQueue(); while (queue.length) { await api(queue[0]); queue.shift(); setQueue(queue); } }
 
 function openInstrument(instrument) {
   const data = getDraft().instruments[instrument]?.data;
+  fillResponsible(instrument);
   if (instrument === 'availability') { renderAvailability(data); showView('availabilityView'); }
   if (instrument === 'prices') { showView('pricesView'); }
   if (instrument === 'origins') { renderOrigins(data); showView('originsView'); }
@@ -542,8 +635,9 @@ function initialize() {
   $('#saveReviewedPrices').addEventListener('click', () => { const draft = getDraft(); const data = draft.instruments.prices?.data; if (!priceEntries_(data).length) return showMessage('Agregue al menos un alimento antes de guardar.', 'error'); saveInstrument('prices', { products: priceEntries_(data), notes: $('#pricesNotes').value }, $('#saveReviewedPrices')).catch((error) => showMessage(errorText_(error), 'error')); });
   $('#addOriginItem').addEventListener('click', () => addOriginItem());
   $('#classificationOverride').addEventListener('change', updateClassificationVisibility);
-  ['classificationService', 'classificationDairyRegular', 'classificationEggsRegular']
+  ['classificationService', 'rubroProduce', 'rubroMeat', 'rubroDairy', 'rubroEggs']
     .forEach((id) => $('#' + id).addEventListener('change', updateClassificationVisibility));
+  $('#originsNone').addEventListener('change', updateOriginsNone);
   $('#classificationProduceVarieties').addEventListener('input', updateClassificationVisibility);
   document.querySelectorAll('input[name="proteinCategory"]').forEach((input) => {
     input.addEventListener('change', updateClassificationVisibility);

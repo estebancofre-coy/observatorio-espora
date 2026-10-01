@@ -8,52 +8,38 @@ const SHEETS = {
   },
   availability: {
     name: 'Disponibilidad',
-    headers: ['ID de visita', 'Fecha de registro', 'Sección', 'Categoría', 'Ítem', 'Disponible (Sí/No)'],
+    headers: ['ID de visita', 'Fecha de registro', 'Sección', 'Categoría', 'Ítem', 'Disponible (Sí/No)', 'Persona responsable'],
   },
   prices: {
     name: 'Precios',
-    headers: ['ID de visita', 'Fecha de registro', 'Categoría', 'Producto', 'Número de observación', 'Marca o proveedor', 'Precio observado (CLP)', 'Unidad de medida', 'Tipo de conservación', 'Origen (Local/Externo)', 'Precio en oferta o promoción', 'Observaciones'],
+    headers: ['ID de visita', 'Fecha de registro', 'Categoría', 'Producto', 'Número de observación', 'Marca o proveedor', 'Precio observado (CLP)', 'Unidad de medida', 'Tipo de conservación', 'Origen (Local/Externo)', 'Precio en oferta o promoción', 'Observaciones', 'Tipo de precio (mínimo/máximo)', 'Persona responsable'],
   },
   origins: {
     name: 'Origen',
-    headers: ['ID de visita', 'Fecha de registro', 'Producto', 'Origen declarado', 'Proveedor, procedencia o detalle', 'Observaciones'],
+    headers: ['ID de visita', 'Fecha de registro', 'Producto', 'Origen declarado', 'Proveedor, procedencia o detalle', 'Observaciones', 'Categoría alimentaria', 'Variedad del producto', 'Comuna de origen declarada', 'Sector o localidad', 'Marca o productor regional', 'Fuente o evidencia de origen', 'Persona responsable'],
   },
   classification: {
     name: 'Clasificación',
-    headers: ['ID de visita', 'Fecha de registro', 'Unidad vecinal', 'Estado del local', 'Superficie estimada', 'Sistema de atención', 'Personas atendiendo', 'Abarrotes básicos', 'Fruta y verdura', 'Carnes', 'Otros rubros', 'Es mixto', 'Rubro principal', 'Detalle mixto', 'Clasificación automática', 'Clasificación final', 'Modo de clasificación', 'Justificación de corrección', 'Observaciones', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local', 'Fotos frontis', 'Fotos interior autorizado', 'Fotos frutas y verduras', 'Fotos carnes', 'Fotos congelados', 'Variedades de frutas y verduras', 'Categorías proteicas', 'Oferta habitual de lácteos', 'Oferta habitual de huevos'],
+    headers: ['ID de visita', 'Fecha de registro', 'Unidad vecinal', 'Estado del local', 'Superficie estimada', 'Sistema de atención', 'Personas atendiendo', 'Abarrotes básicos', 'Fruta y verdura', 'Carnes', 'Otros rubros', 'Es mixto', 'Rubro principal', 'Detalle mixto', 'Clasificación automática', 'Clasificación final', 'Modo de clasificación', 'Justificación de corrección', 'Observaciones', 'Código de local', 'ID de muestra', 'Local', 'Dirección', 'Tipo de local', 'Subtipo de local', 'Fotos frontis', 'Fotos interior autorizado', 'Fotos frutas y verduras', 'Fotos carnes', 'Fotos congelados', 'Variedades de frutas y verduras', 'Categorías proteicas', 'Oferta habitual de lácteos', 'Oferta habitual de huevos', 'Fotos pescados y mariscos', 'Persona responsable'],
   },
 };
 
+const PRICE_UNITS = ['kg', '0,5 kg', 'Unidad', 'Otros'];
 const PRODUCTS = [
-  ['Arroz (grado 2)', 'Cereales y derivados', ['kg', '400 gr/500gr', 'Unidad']],
-  ['Pastas (Fideos, Tallarines 5/77)', 'Cereales y derivados', ['400 gr/500gr', 'kg', 'Unidad']],
-  ['Carne molida (Vacuno)', 'Carnes', ['kg']],
-  ['Pollo', 'Carnes', ['kg']],
-  ['Salchicha', 'Carnes', ['kg']],
-  ['Choritos', 'Pescados y mariscos', ['kg']],
-  ['Merluza Austral', 'Pescados y mariscos', ['kg']],
-  ['Limón', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Manzana', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Palta', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Plátano', 'Frutas', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Cebolla', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Lechuga', 'Verduras y Tubérculos', ['Unidad', 'kg', 'malla (10 kg)', 'atado']],
-  ['Papa', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Tomate', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Zanahoria', 'Verduras y Tubérculos', ['kg', 'Unidad', 'malla (10 kg)', 'atado']],
-  ['Lenteja', 'Legumbres', ['kg', '400 gr/500gr', 'Unidad']],
-  ['Poroto', 'Legumbres', ['kg', '400 gr/500gr', 'Unidad']],
-  ['Maní Tostado sin Sal', 'Frutos secos', ['250g', '500g', 'kg']],
-  ['Huevo', 'Lácteos y Huevos', ['Bandeja (12)', 'Bandeja (20)', 'Bandeja (30)', 'Unidad']],
-  ['Leche', 'Lácteos y Huevos', ['Litro', '500 ml']],
-  ['Queso Laminado (Gauda, Roda, Mantecoso)', 'Lácteos y Huevos', ['kg']],
-  ['Yogur con sello', 'Lácteos y Huevos', ['Unidad']],
-  ['Azúcar', 'Azúcares y dulces', ['kg', '400 gr/500gr', 'Unidad']],
-  ['Aceite', 'Aceites y grasas', ['900 ml', 'Litro', '500 ml']],
-  ['Mantequilla', 'Aceites y grasas', ['250gr']],
-  ['Margarina', 'Aceites y grasas', ['250gr']],
-  ['Salsa de tomate', 'Otros', ['Doypack (200gr)']],
-].map(([name, category, units]) => ({ name: name, category: category, units: units }));
+  ['Lechuga costina', 'Comparables con ODEPA'], ['Papa de guarda', 'Comparables con ODEPA'], ['Tomate larga vida', 'Comparables con ODEPA'],
+  ['Zanahoria', 'Comparables con ODEPA'], ['Cebolla blanca', 'Comparables con ODEPA'], ['Manzana Fuji', 'Comparables con ODEPA'],
+  ['Arroz blanco grado 1', 'Básicos de referencia'], ['Lenteja 6 mm', 'Básicos de referencia'], ['Leche entera pasteurizada de vaca', 'Básicos de referencia'], ['Pan marraqueta', 'Básicos de referencia'],
+  ['Huevo blanco', 'Proteicos relevantes para Aysén'], ['Queso Gouda', 'Proteicos relevantes para Aysén'], ['Merluza austral congelada', 'Proteicos relevantes para Aysén'],
+  ['Merluza austral fresca', 'Proteicos relevantes para Aysén'], ['Cordero (costillar o pulpa)', 'Proteicos relevantes para Aysén'],
+  ['Calafate (temporada)', 'Emblemáticos regionales'], ['Lechuga local (hidropónica o de productor local)', 'Emblemáticos regionales'], ['Miel regional', 'Emblemáticos regionales'],
+].map(([name, category]) => ({ name: name, category: category, units: PRICE_UNITS }));
+
+const ORIGIN_CATEGORIES = ['Verduras y hortalizas frescas', 'Frutas frescas', 'Frutos rojos', 'Carne bovina', 'Carne ovina', 'Huevos',
+  'Pescados frescos', 'Mariscos frescos', 'Productos congelados del mar', 'Quesos', 'Conservas', 'Mermeladas', 'Miel',
+  'Otros productos procesados de origen regional'];
+const AYSEN_COMMUNES = ['Coyhaique', 'Lago Verde', 'Aysén', 'Cisnes', 'Guaitecas', 'Río Ibáñez', 'Chile Chico', 'Cochrane', "O'Higgins", 'Tortel'];
+const ORIGIN_SOURCES = ['Etiqueta o envase', 'Cartel', 'Información del responsable del establecimiento', 'Información del productor o feriante', 'Otra'];
+const SURFACE_OPTIONS = ['muy_pequeno', 'pequeno', 'mediano', 'grande'];
 
 function doGet() {
   return jsonResponse_({
@@ -195,6 +181,8 @@ function saveInstrument_(payload) {
     } else {
       rows = originRows_(payload.visit, payload.data);
     }
+    const responsible = String(payload.responsible || payload.visit.collector || '').trim();
+    rows = rows.map((row) => row.concat([responsible]));
     upsertVisit_(database, payload.visit);
     const sheet = database.getSheetByName(SHEETS[instrument].name);
     replaceRowsForVisit_(sheet, payload.visit.id, SHEETS[instrument].headers.length);
@@ -271,29 +259,34 @@ function priceRows_(visit, data) {
   const entries = Array.isArray(data) ? data : data && data.products;
   const generalNotes = Array.isArray(data) ? '' : String(data && data.notes || '').trim();
   if (!Array.isArray(entries) || !entries.length) {
-    throw new Error('Agregue al menos un producto con dos precios.');
+    throw new Error('Agregue al menos un alimento centinela con su precio mínimo.');
   }
   const productMap = new Map(PRODUCTS.map((product) => [product.name, product]));
   const rows = [];
   entries.forEach((entry) => {
     const product = productMap.get(entry.product);
-    if (!product || !Array.isArray(entry.prices) || entry.prices.length < 2) {
-      throw new Error('Cada producto debe tener al menos dos observaciones de precio.');
+    if (!product) {
+      throw new Error('El producto "' + entry.product + '" no pertenece a la canasta centinela vigente. Recargue la página.');
+    }
+    if (!Array.isArray(entry.prices) || entry.prices.length < 1 || entry.prices.length > 2) {
+      throw new Error('Registre el precio mínimo (y, si corresponde, el máximo) de ' + product.name + '.');
     }
     entry.prices.forEach((price, index) => {
-      if (!Number.isFinite(Number(price.value)) || Number(price.value) < 0 ||
+      if (!String(price.brand || '').trim() || String(price.value).trim() === '' ||
+          !Number.isFinite(Number(price.value)) || Number(price.value) < 0 ||
           !product.units.includes(price.unit)) {
-        throw new Error('Hay una observación de precio inválida.');
+        throw new Error('Complete marca, precio y unidad de ' + product.name + '.');
       }
-      if (product.category === 'Carnes' && !['Fresco', 'Congelado', 'Al vacío', 'Embutido', 'Pillow bag', 'Granel (papel)'].includes(price.conservation)) {
-        throw new Error('Seleccione el tipo de conservación para carnes.');
+      if (price.unit === 'Otros' && !String(price.notes || '').trim()) {
+        throw new Error('Indique en observaciones el formato de ' + product.name + ' (unidad «Otros»).');
       }
+      const type = price.type || (index === 0 ? 'Mínimo' : 'Máximo');
       rows.push([
         visit.id, new Date(), product.category, product.name, index + 1,
-        String(price.brand || '').trim(), Number(price.value), price.unit,
-        product.category === 'Carnes' ? price.conservation : '',
-        price.origin, price.promotion,
+        String(price.brand).trim(), Number(price.value), price.unit,
+        '', '', price.promotion === 'Sí' ? 'Sí' : 'No',
         [String(price.notes || '').trim(), generalNotes].filter(Boolean).join(' — '),
+        type,
       ]);
     });
   });
@@ -301,15 +294,31 @@ function priceRows_(visit, data) {
 }
 
 function originRows_(visit, data) {
-  if (!Array.isArray(data) || !data.length) {
-    throw new Error('Agregue al menos un registro de origen.');
+  if (Array.isArray(data)) {
+    throw new Error('La pauta de origen cambió de formato. Recargue la página y vuelva a completarla.');
   }
-
-  return data.map((item) => {
-    if (!String(item.product || '').trim() || !['Local', 'Externo', 'Mixto', 'No disponible', 'No sabe'].includes(item.origin)) {
-      throw new Error('Complete producto y origen en todos los registros.');
+  if (data && data.noneObserved) {
+    return [[visit.id, new Date(), 'Sin productos regionales observados', '', '', '', '', '', '', '', '', '']];
+  }
+  const items = data && Array.isArray(data.items) ? data.items : [];
+  if (!items.length) {
+    throw new Error('Agregue al menos un producto regional o marque que no se observaron.');
+  }
+  return items.map((item) => {
+    const variety = String(item.variety || '').trim();
+    const sector = String(item.sector || '').trim();
+    const brand = String(item.brand || '').trim();
+    const notes = String(item.notes || '').trim();
+    if (!ORIGIN_CATEGORIES.includes(item.category) || !variety ||
+        !AYSEN_COMMUNES.includes(item.commune) || !ORIGIN_SOURCES.includes(item.source)) {
+      throw new Error('Complete categoría, variedad, comuna y fuente en todos los productos regionales.');
     }
-    return [visit.id, new Date(), item.product.trim(), item.origin, String(item.detail || '').trim(), String(item.notes || '').trim()];
+    if (item.source === 'Otra' && !notes) {
+      throw new Error('Describa en observaciones la fuente de origen «Otra» para ' + variety + '.');
+    }
+    return [visit.id, new Date(), item.category + ': ' + variety, item.commune,
+      [sector, brand].filter(Boolean).join(' · '), notes,
+      item.category, variety, item.commune, sector, brand, item.source];
   });
 }
 
@@ -341,7 +350,7 @@ function classificationCriteria_(data) {
   }
   const proteins = [...new Set(source.categoriasProteicas)];
   const fulfilledCriteria = [
-    varieties > 10,
+    varieties >= 10,
     proteins.length >= 2,
     source.lacteosHabituales === 'si' && source.huevosHabituales === 'si',
   ].filter(Boolean).length;
@@ -355,7 +364,8 @@ function classificationCriteria_(data) {
 }
 function classifyLocal_(sistemaAtencion, criteria) {
   const service = sistemaAtencion === 'acceso_libre' ? 'autoservicio' : sistemaAtencion;
-  return service === 'autoservicio' && criteria.fulfilledCriteria >= 2
+  // Mixto se registra como categoría propia, pero pesa como autoservicio en el cálculo.
+  return ['autoservicio', 'mixto'].includes(service) && criteria.fulfilledCriteria >= 2
     ? 'minimarket' : 'almacen_barrio';
 }
 
@@ -367,8 +377,11 @@ function classificationRows_(visit, data) {
     throw new Error('Solo se registran locales abiertos.');
   }
   const local = getVisitLocal_(visit);
-  if (!['autoservicio', 'transmeson', 'acceso_libre'].includes(data.sistemaAtencion)) {
+  if (!['autoservicio', 'transmeson', 'mixto', 'acceso_libre'].includes(data.sistemaAtencion)) {
     throw new Error('Indique el sistema de atención del local.');
+  }
+  if (!SURFACE_OPTIONS.includes(data.superficie)) {
+    throw new Error('Indique la superficie aproximada del local.');
   }
   if (Array.isArray(data.images && data.images.interior) && data.images.interior.length && !data.interiorAuthorized) {
     throw new Error('El interior solo puede registrarse con autorización.');
@@ -381,14 +394,25 @@ function classificationRows_(visit, data) {
   const finalClassification = data.clasificacionOverride || automatic;
   return [[
     visit.id, new Date(), String(visit.unitVecinal).trim(), 'abierto', data.superficie || '', data.sistemaAtencion || '',
-    data.personasAtendiendo || '', data.abarrotes || '', data.frutaVerdura || '', data.carnes || '',
-    (Array.isArray(data.rubros) ? data.rubros : data.otrosRubros || []).join(', '), '', '', '', automatic, finalClassification,
+    data.personasAtendiendo || '', '', data.rubroFrutasHortalizas || '', data.rubroCarneFresca || '',
+    observedRubros_(data, criteria), '', '', '', automatic, finalClassification,
     data.clasificacionOverride ? 'manual' : 'automatica', String(data.justificacionOverride || '').trim(),
     String(data.observaciones || '').trim(), local.code, local.id, local.name, local.address,
     local.criterion, local.criterion2 || '', data.imageUrls.frontis || '', data.imageUrls.interior || '',
     data.imageUrls.frutasVerduras || '', data.imageUrls.carnes || '', data.imageUrls.congelados || '',
     criteria.varieties, criteria.proteins.join(', '), criteria.dairy, criteria.eggs,
+    data.imageUrls.pescadosMariscos || '',
   ]];
+}
+
+function observedRubros_(data, criteria) {
+  return [
+    data.rubroFrutasHortalizas === 'si' ? 'Frutas y hortalizas frescas' : '',
+    data.rubroCarneFresca === 'si' ? 'Carne fresca' : '',
+    criteria.proteins.includes('pescados_mariscos') ? 'Pescados y mariscos congelados' : '',
+    criteria.dairy === 'si' ? 'Lácteos' : '',
+    criteria.eggs === 'si' ? 'Huevos' : '',
+  ].filter(Boolean).join(', ');
 }
 
 function saveClassificationImages_(visit, data) {

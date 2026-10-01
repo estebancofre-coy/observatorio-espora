@@ -105,6 +105,13 @@ button.danger:hover { background: #8c1d18; }
 .price-range-label { color: #0f5d74; font-size: 13px; margin: 0 0 8px; }
 .product-card .remove-product { float: right; margin-left: 12px; }
 .product-card .price-product, .product-card .price-category { min-width: 0; }
+.responsible-field { background: #e5f2ee; border-left: 4px solid #0f7180; border-radius: 6px; margin: 0 0 16px; padding: 12px 14px; }
+.rubro-list { display: grid; gap: 8px; }
+.rubro { border: 1px solid #dadce0; border-radius: 6px; padding: 10px 12px; }
+.rubro-detail { margin: 10px 0 2px 26px; }
+.protein-categories { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.protein-categories .checkbox-field { font-weight: 400; }
+.origin-item .remove-origin { float: right; margin-left: 12px; }
 @media (max-width: 760px) {
   .product-card { padding: 14px; }
   .product-card .grid { gap: 9px; grid-template-columns: repeat(2, minmax(0, 1fr)); }

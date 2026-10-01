@@ -44,15 +44,15 @@
         <div class="section-heading">
           <div>
             <p class="eyebrow">INICIO DEL LEVANTAMIENTO</p>
-            <h2>Datos generales de la visita</h2>
+            <h2>Identificación del establecimiento</h2>
           </div>
-          <span class="step">Paso 1 de 4</span>
+          <span class="step">Paso inicial</span>
         </div>
-        <p>Estos datos se comparten entre disponibilidad, precios y origen. Se guardan en este dispositivo para que pueda retomar los instrumentos.</p>
+        <p>Identifique el local y la fecha de observación. Estos datos se comparten con todas las pautas y se guardan en este dispositivo para retomar el trabajo. La persona responsable se registra dentro de cada pauta.</p>
         <form id="visitForm">
           <div class="grid">
             <label class="required">Fecha de observación<input id="observationDate" type="date" required></label>
-            <label class="required">Persona recolectora<input id="collector" autocomplete="name" placeholder="Nombre y apellidos" required>
+            <label class="required">Persona que identifica el local<input id="collector" autocomplete="name" placeholder="Nombre y apellidos" required>
               <span class="field-help" id="collectorCodeHint">Escriba nombre y apellidos. Sus iniciales se agregan solas al código de los locales nuevos.</span>
             </label>
             <div class="wide uv-map-help">
@@ -96,7 +96,7 @@
               </div>
             </div>
           </div>
-          <div class="actions"><button type="submit">Continuar a instrumentos</button></div>
+          <div class="actions"><button type="submit">Continuar a las pautas</button></div>
         </form>
       </div>
     </section>
@@ -105,16 +105,17 @@
       <div class="card">
         <h2>Visita activa</h2>
         <p id="visitSummary"></p>
-        <h3 class="instrument-section-title">Inicio de la recogida</h3>
+        <h3 class="instrument-section-title">Pauta opcional</h3>
         <div class="actions">
-          <button class="instrument special-instrument" data-instrument="classification" type="button">0. Clasificación del local<span id="classificationStatus"></span></button>
+          <button class="instrument special-instrument" data-instrument="classification" type="button">1. Clasificación del establecimiento (opcional)<span id="classificationStatus"></span></button>
         </div>
-        <h3 class="instrument-section-title">Instrumentos de observación</h3>
+        <h3 class="instrument-section-title">Pautas de observación, en este orden</h3>
         <div class="actions">
-          <button class="instrument" data-instrument="availability" type="button">1. Disponibilidad y variedad<span id="availabilityStatus"></span></button>
-          <button class="instrument" data-instrument="prices" type="button">2. Precios<span id="pricesStatus"></span></button>
-          <button class="instrument" data-instrument="origins" type="button">3. Origen (borrador)<span id="originsStatus"></span></button>
+          <button class="instrument" data-instrument="availability" type="button">2. Disponibilidad y variedad<span id="availabilityStatus"></span></button>
+          <button class="instrument" data-instrument="origins" type="button">3. Registro de origen<span id="originsStatus"></span></button>
+          <button class="instrument" data-instrument="prices" type="button">4. Registro de precios<span id="pricesStatus"></span></button>
         </div>
+        <p class="field-help">La clasificación se aplica solo a los locales que la requieren. En pescaderías y carnicerías pueden aplicarse únicamente origen y precios. Cada pauta registra a su propia persona responsable.</p>
         <p id="visitSaveStatus" class="visit-save-status" role="status" aria-live="polite"></p>
         <div class="visit-actions">
           <button class="secondary" id="editVisitButton" type="button">Editar datos de visita</button>
@@ -139,16 +140,16 @@
 
     <section id="availabilityView" class="view" hidden>
       <div class="card">
-        <h2>Instrumento de disponibilidad y variedad</h2>
+        <h2>Pauta de disponibilidad y variedad</h2>
         <p>Transcripción de la pauta original: se excluye únicamente la sección de publicidad.</p>
-        <form id="availabilityForm"><div id="availabilityItems"></div><div class="actions"><button type="submit">Guardar disponibilidad</button><button class="secondary return-menu" type="button">Volver al menú</button></div></form>
+        <form id="availabilityForm"><label class="required responsible-field">Persona responsable de esta pauta<input id="availabilityResponsible" class="responsible-input" autocomplete="name" placeholder="Nombre o código" required></label><div id="availabilityItems"></div><div class="actions"><button type="submit">Guardar disponibilidad</button><button class="secondary return-menu" type="button">Volver al menú</button></div></form>
       </div>
     </section>
 
     <section id="pricesView" class="view" hidden>
       <div class="card">
-        <h2>Instrumento de precios</h2>
-        <p>Revise y confirme los precios que ya incorporó. El botón de guardado abre la pantalla de revisión.</p>
+        <h2>Pauta de registro de precios</h2>
+        <p>Registre los alimentos centinela disponibles. Si hay varias opciones de un mismo alimento, anote solo la de precio más bajo y la de precio más alto. El botón de guardado abre la pantalla de revisión.</p>
         <div class="actions"><button id="startPriceProductButton" type="button">Agregar producto</button><button id="openPricesReviewButton" type="button">Guardar precios</button><button class="secondary return-menu" type="button">Volver al menú</button></div>
       </div>
     </section>
@@ -156,7 +157,8 @@
     <section id="pricesReviewView" class="view" hidden>
       <div class="card">
         <h2>Revisión de alimentos y precios</h2>
-        <p>Revise los alimentos tomados. Cada uno debe tener al menos un precio más bajo y otro más alto antes de guardar en Sheets.</p>
+        <p>Revise los alimentos registrados. Cada uno debe tener al menos el precio más bajo; si existe más de una opción, agregue también el más alto.</p>
+        <label class="required responsible-field">Persona responsable de esta pauta<input id="pricesResponsible" class="responsible-input" autocomplete="name" placeholder="Nombre o código" required></label>
         <div id="priceReviewItems"></div>
         <label class="wide">Observaciones generales<textarea id="pricesNotes" placeholder="Anote situaciones de terreno, falta de productos u otra información relevante."></textarea></label>
         <div class="actions"><button id="addPriceProduct" type="button">Agregar producto</button><button id="saveReviewedPrices" type="button">Guardar precios</button><button class="secondary return-menu" type="button">Volver al menú</button></div>
@@ -166,69 +168,68 @@
     <section id="priceEditorView" class="view" hidden>
       <div class="card">
         <h2>Agregar alimento y precios</h2>
-        <p>Registre dos precios del mismo alimento: primero el <strong>más bajo</strong> y luego el <strong>más alto</strong>. La conservación aparece sólo para carnes.</p>
+        <p>Registre el precio <strong>más bajo</strong> y, si hay más de una opción (marca, formato o calidad), también el <strong>más alto</strong>. Los productos emblemáticos regionales se registran solo si fueron identificados en la pauta de origen.</p>
         <form id="priceEditorForm"><div id="priceProducts"></div><div class="actions"><button type="submit">Guardar alimento</button><button class="secondary" id="cancelPriceEditor" type="button">Volver a revisión</button></div></form>
       </div>
     </section>
 
     <section id="classificationView" class="view" hidden>
       <div class="card">
-        <h2>ESPORA · Clasificación del local</h2>
-        <p>Ficha inicial de catastro. Para asignar automáticamente “minimarket” se requiere autoservicio y cumplir al menos dos de los tres criterios de surtido. Una corrección manual exige justificación. <a href="guia-clasificacion.html" target="_blank" rel="noopener">Abrir la guía de clasificación</a></p>
-        <div class="linked-local"><strong>Local vinculado a SampleLocals:</strong> <span id="classificationLinkedLocal"></span></div>
-        <div class="linked-local"><strong>Unidad vecinal registrada en la visita:</strong> <span id="classificationLinkedUnit"></span></div>
+        <h2>Pauta de clasificación de establecimientos alimentarios</h2>
+        <p>Pauta opcional. Para clasificar automáticamente como «minimarket» se requiere autoservicio o atención mixta y cumplir al menos dos de los tres criterios de surtido. Una corrección manual exige justificación. <a href="guia-clasificacion.html" target="_blank" rel="noopener">Abrir la guía de clasificación</a></p>
+        <div class="linked-local"><strong>Local identificado:</strong> <span id="classificationLinkedLocal"></span></div>
+        <div class="linked-local"><strong>Unidad vecinal:</strong> <span id="classificationLinkedUnit"></span></div>
         <form id="classificationForm">
+          <label class="required responsible-field">Persona responsable de esta pauta<input id="classificationResponsible" class="responsible-input" autocomplete="name" placeholder="Nombre o código" required></label>
           <div id="classificationOpenFields">
-            <fieldset><legend>Atención</legend><div class="grid">
-              <label class="required">Sistema de atención
-                <select id="classificationService" required><option value="">Seleccione</option><option value="transmeson">Atención por mesón</option><option value="autoservicio">Autoservicio</option></select>
-                <span class="field-help">Marque autoservicio si la clientela selecciona por sí misma la mayor parte de los productos y paga en caja.</span>
+            <fieldset><legend>Características generales</legend><div class="grid">
+              <label class="required">Superficie aproximada
+                <select id="classificationSurface" required><option value="">Seleccione</option><option value="muy_pequeno">Muy pequeño (hasta 2 góndolas)</option><option value="pequeno">Pequeño (2 a 4 góndolas)</option><option value="mediano">Mediano (5 a 7 góndolas)</option><option value="grande">Grande (más de 7 góndolas)</option></select>
               </label>
-              <label>Nº de personas atendiendo<input id="classificationPeople" type="number" min="0" max="15"></label>
+              <label class="required">Sistema de atención
+                <select id="classificationService" required><option value="">Seleccione</option><option value="autoservicio">Autoservicio</option><option value="transmeson">Tras mesón</option><option value="mixto">Mixto</option></select>
+                <span class="field-help">Autoservicio: la clientela toma la mayor parte de los productos y paga en caja. Mixto: combina autoservicio y mesón.</span>
+              </label>
+              <label>Nº de personas atendiendo al público<input id="classificationPeople" type="number" min="0" max="15"></label>
             </div></fieldset>
-            <fieldset><legend>Criterios de surtido para minimarket</legend>
-              <p class="field-help">El autoservicio es obligatorio. Además, deben cumplirse al menos dos de estos tres criterios:</p>
-              <div class="grid">
-                <label class="required">Variedades distintas de frutas y verduras
-                  <input id="classificationProduceVarieties" type="number" min="0" step="1" required>
-                  <span class="field-help">Cuenta cada tipo distinto disponible. Este criterio se cumple con más de 10 variedades (11 o más).</span>
-                </label>
-                <fieldset class="wide"><legend>Categorías de proteínas disponibles</legend>
-                  <p class="field-help">Seleccione las categorías presentes. Este criterio se cumple con al menos dos.</p>
-                  <div class="grid protein-categories">
+            <fieldset><legend>Rubros observados</legend>
+              <p class="field-help">Marque solo los rubros presentes. Se cumplen como criterios de minimarket: 10 o más variedades de frutas y hortalizas; lácteos y huevos (ambos); al menos dos categorías proteicas.</p>
+              <div class="rubro-list">
+                <div class="rubro">
+                  <label class="checkbox-field"><input id="rubroProduce" type="checkbox"> Frutas y hortalizas frescas</label>
+                  <label id="produceVarietiesField" class="required rubro-detail" hidden>Número de variedades observadas<input id="classificationProduceVarieties" type="number" min="0" step="1"></label>
+                </div>
+                <div class="rubro">
+                  <label class="checkbox-field"><input id="rubroMeat" type="checkbox"> Carne fresca</label>
+                  <div id="meatTypesField" class="rubro-detail protein-categories" hidden>
                     <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="vacuno"> Vacuno</label>
                     <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="cerdo"> Cerdo</label>
                     <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="pollo"> Pollo</label>
                     <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="cordero"> Cordero</label>
-                    <label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="pescados_mariscos"> Pescados o mariscos</label>
                   </div>
-                </fieldset>
-                <label class="required">Oferta habitual de lácteos
-                  <select id="classificationDairyRegular" required><option value="">Seleccione</option><option value="si">Sí</option><option value="no">No</option></select>
-                </label>
-                <label class="required">Oferta habitual de huevos
-                  <select id="classificationEggsRegular" required><option value="">Seleccione</option><option value="si">Sí</option><option value="no">No</option></select>
-                </label>
-                <p class="field-help wide">El criterio de lácteos y huevos se cumple solo si ambos se ofrecen habitualmente.</p>
+                </div>
+                <div class="rubro"><label class="checkbox-field"><input type="checkbox" name="proteinCategory" value="pescados_mariscos"> Pescados y mariscos congelados</label></div>
+                <div class="rubro"><label class="checkbox-field"><input id="rubroDairy" type="checkbox"> Lácteos</label></div>
+                <div class="rubro"><label class="checkbox-field"><input id="rubroEggs" type="checkbox"> Huevos</label></div>
               </div>
             </fieldset>
-            <fieldset><legend>Fotografías</legend>
-              <label class="required">Foto del frontis<input id="classificationFront" type="file" accept="image/*" multiple required></label>
-              <p class="field-help">La foto del frontis es obligatoria para registrar la clasificación.</p>
+            <fieldset><legend>Imágenes del punto de venta</legend>
+              <label class="required">Fotografía del frontis<input id="classificationFront" type="file" accept="image/*" multiple required></label>
               <details class="optional-photos">
-                <summary>Otras fotografías (opcionales)</summary>
-                <p class="field-help">Agregue solo las imágenes disponibles. Para fotografiar el interior necesita autorización del responsable.</p>
+                <summary>Fotografías interiores (solo con autorización)</summary>
+                <p class="field-help">Agregue solo las imágenes disponibles y autorizadas por la persona responsable del establecimiento.</p>
                 <div class="grid">
-                  <label>Interior autorizado<input id="classificationInterior" type="file" accept="image/*" multiple></label>
-                  <label class="checkbox-field"><input id="classificationInteriorPermission" type="checkbox"> Autorización para fotografiar el interior</label>
-                  <label>Módulo de frutas y verduras<input id="classificationProduceImages" type="file" accept="image/*" multiple></label>
-                  <label>Módulo de carnes<input id="classificationMeatImages" type="file" accept="image/*" multiple></label>
-                  <label>Congelados<input id="classificationFrozenImages" type="file" accept="image/*" multiple></label>
+                  <label class="checkbox-field wide"><input id="classificationInteriorPermission" type="checkbox"> Cuento con autorización para fotografiar el interior</label>
+                  <label>Interior general<input id="classificationInterior" type="file" accept="image/*" multiple></label>
+                  <label>Frutas y hortalizas<input id="classificationProduceImages" type="file" accept="image/*" multiple></label>
+                  <label>Carnes<input id="classificationMeatImages" type="file" accept="image/*" multiple></label>
+                  <label>Pescados y mariscos<input id="classificationFishImages" type="file" accept="image/*" multiple></label>
+                  <label>Alimentos congelados<input id="classificationFrozenImages" type="file" accept="image/*" multiple></label>
                 </div>
               </details>
               <p id="classificationImageStatus" class="field-help"></p>
             </fieldset>
-            <fieldset><legend>Resultado</legend><p id="classificationResult" class="classification-result" aria-live="polite">Complete los campos para calcular.</p><label>Corrección manual<select id="classificationOverride"><option value="">Mantener clasificación automática</option><option value="minimarket">Corregir a MINIMARKET</option><option value="almacen_barrio">Corregir a ALMACÉN DE BARRIO</option></select></label><label id="classificationJustificationField" hidden>Justificación<textarea id="classificationJustification"></textarea></label></fieldset>
+            <fieldset><legend>Resultado</legend><p id="classificationResult" class="classification-result" aria-live="polite">Complete los campos para calcular.</p><label>Corrección manual<select id="classificationOverride"><option value="">Mantener clasificación automática</option><option value="minimarket">Corregir a MINIMARKET</option><option value="almacen_barrio">Corregir a ALMACÉN DE BARRIO</option></select></label><label id="classificationJustificationField" hidden>Motivo de la corrección<textarea id="classificationJustification"></textarea></label></fieldset>
           </div>
           <label>Observaciones<textarea id="classificationNotes"></textarea></label>
           <div class="actions"><button type="submit">Guardar clasificación</button><button class="secondary return-menu" type="button">Volver al menú</button></div>
@@ -238,16 +239,16 @@
 
     <section id="originsView" class="view" hidden>
       <div class="card">
-        <h2>Instrumento de origen — borrador</h2>
-        <p>Registre productos potencialmente locales y cualquier otro producto relevante. Este instrumento se ajustará con la propuesta metodológica pendiente.</p>
-        <form id="originsForm"><div id="originItems"></div><div class="actions"><button class="secondary" id="addOriginItem" type="button">Agregar producto u otro</button><button type="submit">Guardar origen</button><button class="secondary return-menu" type="button">Volver al menú</button></div></form>
+        <h2>Pauta de registro de origen</h2>
+        <p>Registre solo productos con evidencia o información suficiente para atribuirles origen en la Región de Aysén (comuna, localidad o productor regional). No es necesario registrar todos los productos del local.</p>
+        <form id="originsForm"><label class="required responsible-field">Persona responsable de esta pauta<input id="originsResponsible" class="responsible-input" autocomplete="name" placeholder="Nombre o código" required></label><div id="originItems"></div><label class="checkbox-field"><input id="originsNone" type="checkbox"> No se observaron productos de origen regional en este local</label><div class="actions"><button class="secondary" id="addOriginItem" type="button">Agregar producto regional</button><button type="submit">Guardar origen</button><button class="secondary return-menu" type="button">Volver al menú</button></div></form>
       </div>
     </section>
 
     <template id="availabilityTemplate"><fieldset class="instrument-group"><legend></legend><div class="availability-rows"></div></fieldset></template>
-    <template id="priceProductTemplate"><article class="card product-card"><button class="remove-product" type="button">Eliminar producto</button><div class="grid"><label class="required wide">Alimento a comparar<select class="price-product" required></select></label><label>Categoría<input class="price-category" readonly></label></div><div class="price-observations"></div><button class="secondary add-price" type="button">Agregar precio adicional</button></article></template>
-    <template id="priceObservationTemplate"><div class="price-observation"><p class="price-range-label">Registre el precio <strong></strong></p><div class="grid"><label class="required">Marca o proveedor<input class="brand" required></label><label class="required">Precio observado (CLP)<input class="price-value" type="number" min="0" step="1" required></label><label class="required">Unidad de medida<select class="unit" required></select></label><label class="conservation-field" hidden>Tipo de conservación<select class="conservation"><option value="">Seleccione</option><option>Fresco</option><option>Congelado</option><option>Al vacío</option><option>Embutido</option><option>Pillow bag</option><option>Granel (papel)</option></select></label><label class="required">Origen<select class="origin" required><option value="Local">Local</option><option value="Externo">Externo</option></select></label><label class="required">¿Está en oferta? <select class="promotion" required><option value="No">No</option><option value="Sí">Sí</option></select></label><label class="wide">Observaciones<textarea class="notes"></textarea></label></div></div></template>
-    <template id="originItemTemplate"><article class="card origin-item"><button class="remove-origin" type="button">Eliminar</button><div class="grid"><label class="required">Producto<select class="origin-product" required></select></label><label class="required">Origen declarado<select class="origin-value" required><option value="Local">Local</option><option value="Externo">Externo</option><option value="Mixto">Mixto</option><option value="No disponible">No disponible</option><option value="No sabe">No sabe</option></select></label><label class="wide">Proveedor, procedencia o detalle<input class="origin-detail"></label><label class="wide">Observaciones<textarea class="origin-notes"></textarea></label></div></article></template>
+    <template id="priceProductTemplate"><article class="card product-card"><button class="remove-product" type="button">Eliminar producto</button><div class="grid"><label class="required wide">Alimento centinela<select class="price-product" required></select></label><label>Grupo<input class="price-category" readonly></label></div><div class="price-observations"></div></article></template>
+    <template id="priceObservationTemplate"><div class="price-observation"><p class="price-range-label">Precio <strong></strong></p><div class="grid"><label class="brand-field">Marca<input class="brand"></label><label class="price-field">Precio observado (CLP)<input class="price-value" type="number" min="0" step="1"></label><label class="unit-field">Unidad de medida<select class="unit"></select></label><label>¿Está en oferta?<select class="promotion"><option value="No">No</option><option value="Sí">Sí</option></select></label><label class="wide">Observaciones<textarea class="notes" placeholder="Obligatorio si la unidad es «Otros»: indique el formato."></textarea></label></div></div></template>
+    <template id="originItemTemplate"><article class="card origin-item"><button class="remove-origin" type="button">Eliminar</button><div class="grid"><label class="required">Categoría alimentaria<select class="origin-category" required></select></label><label class="required">Variedad del producto<input class="origin-variety" required placeholder="Ejemplo: lechuga hidropónica"></label><label class="required">Comuna de origen declarada<select class="origin-commune" required></select></label><label>Sector o localidad específica<input class="origin-sector"></label><label>Marca o productor regional<input class="origin-brand"></label><label class="required">Fuente o evidencia de origen<select class="origin-source" required></select></label><label class="wide">Observaciones<textarea class="origin-notes" placeholder="Obligatorio si la fuente es «Otra»: describa la evidencia."></textarea></label></div></article></template>
 
     <footer>
       <strong>ESPORA Coyhaique</strong> · Economía Social, Precios, Orgánicos, Residuos y Alimentación · Universidad de Aysén<br>
